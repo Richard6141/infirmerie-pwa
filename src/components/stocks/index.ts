@@ -1,0 +1,1 @@
+export { StockAlertsWidget } from './StockAlertsWidget';

@@ -1,0 +1,1 @@
+export { RappelsVaccinsWidget } from './RappelsVaccinsWidget';

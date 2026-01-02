@@ -1,0 +1,331 @@
+import { useState } from 'react';
+import { Syringe, Plus, Calendar, User, Search, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useVaccinations, useCreateVaccination, useDeleteVaccination } from '@/lib/hooks/useVaccinations';
+import { usePatients } from '@/lib/hooks/usePatients';
+import { TYPES_VACCINS, formaterDateVaccination } from '@/types/vaccination';
+import { toast } from 'sonner';
+
+export function VaccinationsPage() {
+  const { isInfirmier, user } = useAuth();
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { data, isLoading } = useVaccinations({
+    search: search || undefined,
+    typeVaccin: typeFilter || undefined,
+    patientId: isInfirmier ? undefined : user?.id,
+    page,
+    limit: 20,
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+            <Syringe className="h-8 w-8 text-green-600" />
+            {isInfirmier ? 'Vaccinations' : 'Mes Vaccinations'}
+          </h1>
+          <p className="text-slate-600 mt-1">
+            {isInfirmier
+              ? 'Suivi des vaccinations du personnel'
+              : 'Votre carnet de vaccination'}
+          </p>
+        </div>
+
+        {isInfirmier && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-green-600 hover:bg-green-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvelle Vaccination
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl bg-white">
+              <DialogHeader>
+                <DialogTitle>Enregistrer une vaccination</DialogTitle>
+              </DialogHeader>
+              <VaccinationForm onClose={() => setIsDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      {/* Filtres */}
+      {isInfirmier && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="search"
+                  placeholder="Rechercher un patient..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Select value={typeFilter || undefined} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Filtrer par type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {TYPES_VACCINS.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {typeFilter && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTypeFilter('')}
+                    className="px-3"
+                  >
+                    ✕
+                  </Button>
+                )}
+              </div>
+
+              <Button variant="outline" onClick={() => { setSearch(''); setTypeFilter(''); }}>
+                Réinitialiser
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Table vaccinations */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Liste des vaccinations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            </div>
+          ) : !data || data.data.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              Aucune vaccination enregistrée
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    {isInfirmier && <TableHead>Patient</TableHead>}
+                    <TableHead>Type de vaccin</TableHead>
+                    <TableHead>N° Lot</TableHead>
+                    <TableHead>Prochain rappel</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.data.map((vaccination) => (
+                    <TableRow key={vaccination.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-slate-400" />
+                          <span className="text-sm">
+                            {formaterDateVaccination(vaccination.date || vaccination.dateAdministration || '')}
+                          </span>
+                        </div>
+                      </TableCell>
+                      {isInfirmier && (
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-slate-400" />
+                            <div>
+                              <p className="font-semibold text-slate-800 text-sm">
+                                {vaccination.patient?.nom} {vaccination.patient?.prenom}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {vaccination.patient?.matricule}
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
+                          {vaccination.typeVaccin}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-slate-600">
+                          {vaccination.numeroLot || '-'}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {vaccination.prochainRappel ? (
+                          <span className="text-sm text-slate-600">
+                            {formaterDateVaccination(vaccination.prochainRappel)}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-slate-400">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              {data?.pagination && data.pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-slate-600">
+                    Page {page} sur {data.pagination.totalPages} ({data.pagination.total} résultats)
+                  </p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                      Précédent
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={page >= data.pagination.totalPages}>
+                      Suivant
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function VaccinationForm({ onClose }: { onClose: () => void }) {
+  const [patientId, setPatientId] = useState('');
+  const [typeVaccin, setTypeVaccin] = useState('');
+  const [numeroLot, setNumeroLot] = useState('');
+  const [prochainRappel, setProchainRappel] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const { data: patients } = usePatients({ limit: 100 });
+  const createMutation = useCreateVaccination();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!patientId || !typeVaccin) {
+      toast.error('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    try {
+      await createMutation.mutateAsync({
+        patientId,
+        typeVaccin,
+        // La date n'est pas envoyée - générée automatiquement par le serveur
+        numeroLot: numeroLot || undefined,
+        prochainRappel: prochainRappel || undefined,
+        notes: notes || undefined,
+      });
+
+      toast.success('Vaccination enregistrée avec succès');
+      onClose();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label>Patient *</Label>
+        <Select value={patientId} onValueChange={setPatientId}>
+          <SelectTrigger className="bg-white">
+            <SelectValue placeholder="Sélectionner un patient" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {patients?.data.map((patient) => (
+              <SelectItem key={patient.id} value={patient.id}>
+                {patient.nom} {patient.prenom} ({patient.matricule})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label>Type de vaccin *</Label>
+        <Select value={typeVaccin} onValueChange={setTypeVaccin}>
+          <SelectTrigger className="bg-white">
+            <SelectValue placeholder="Sélectionner un type" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {TYPES_VACCINS.map((type) => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label>Numéro de lot</Label>
+        <Input
+          value={numeroLot}
+          onChange={(e) => setNumeroLot(e.target.value)}
+          placeholder="Ex: VAC2025-001"
+          className="bg-white"
+        />
+        <p className="text-xs text-slate-500 mt-1">
+          La date d'administration sera enregistrée automatiquement à la création
+        </p>
+      </div>
+
+      <div>
+        <Label>Date du prochain rappel</Label>
+        <Input
+          type="date"
+          value={prochainRappel}
+          onChange={(e) => setProchainRappel(e.target.value)}
+          className="bg-white"
+        />
+      </div>
+
+      <div>
+        <Label>Notes</Label>
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Notes additionnelles..."
+          className="bg-white"
+        />
+      </div>
+
+      <div className="flex gap-2 justify-end pt-4">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Annuler
+        </Button>
+        <Button type="submit" disabled={createMutation.isPending}>
+          {createMutation.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Enregistrement...
+            </>
+          ) : (
+            'Enregistrer'
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}

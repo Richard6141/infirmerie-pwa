@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: infirmerie-pwa
+    env: static
+    buildCommand: pnpm install && pnpm build:prod
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://infirmerie-api.onrender.com
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, must-revalidate
+      - path: /manifest.json
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

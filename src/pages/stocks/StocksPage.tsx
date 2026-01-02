@@ -1,0 +1,456 @@
+import { useState } from 'react';
+import { Package, Plus, AlertTriangle, TrendingUp, TrendingDown, Search, Filter } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useStocks, useMouvementsStock, useCreateMouvementStock } from '@/lib/hooks/useStocks';
+import { useMedicaments } from '@/lib/hooks/useMedicaments';
+import { getStatutStock, getStockPercentage, getStockGaugeColor, STATUT_STOCK_LABELS, STATUT_STOCK_COLORS, TYPE_MOUVEMENT_LABELS } from '@/types/stock';
+import type { StatutStock, TypeMouvement } from '@/types/stock';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+
+export function StocksPage() {
+  const [search, setSearch] = useState('');
+  const [statutFilter, setStatutFilter] = useState<StatutStock | 'ALERTE' | ''>('');
+  const [page, setPage] = useState(1);
+  const [isMovementDialogOpen, setIsMovementDialogOpen] = useState(false);
+
+  const { data, isLoading } = useStocks({
+    search: search || undefined,
+    statut: statutFilter || undefined,
+    page,
+    limit: 20,
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+            <Package className="h-8 w-8 text-blue-600" />
+            Gestion des Stocks
+          </h1>
+          <p className="text-slate-600 mt-1">
+            Suivi des stocks et mouvements de médicaments
+          </p>
+        </div>
+
+        <Dialog open={isMovementDialogOpen} onOpenChange={setIsMovementDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Nouveau Mouvement
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl bg-white">
+            <DialogHeader>
+              <DialogTitle>Enregistrer un mouvement de stock</DialogTitle>
+            </DialogHeader>
+            <MouvementForm onClose={() => setIsMovementDialogOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Filtres */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                type="search"
+                placeholder="Rechercher un médicament..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Select value={statutFilter || undefined} onValueChange={(value) => setStatutFilter(value as any)}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Filtrer par statut" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="ALERTE">⚠️ Alertes (Rupture + Bas)</SelectItem>
+                  <SelectItem value="RUPTURE">Rupture de stock</SelectItem>
+                  <SelectItem value="CRITIQUE">Stock critique</SelectItem>
+                  <SelectItem value="BAS">Stock bas</SelectItem>
+                  <SelectItem value="NORMAL">Stock normal</SelectItem>
+                  <SelectItem value="HAUT">Stock élevé</SelectItem>
+                </SelectContent>
+              </Select>
+              {statutFilter && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setStatutFilter('')}
+                  className="px-3"
+                >
+                  ✕
+                </Button>
+              )}
+            </div>
+
+            <Button variant="outline" onClick={() => { setSearch(''); setStatutFilter(''); }}>
+              <Filter className="h-4 w-4 mr-2" />
+              Réinitialiser
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tableau stocks */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Stocks de médicaments</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+          ) : !data || data.data.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              Aucun stock trouvé
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Médicament</TableHead>
+                    <TableHead>Forme</TableHead>
+                    <TableHead>Quantité</TableHead>
+                    <TableHead>Jauge</TableHead>
+                    <TableHead>Seuils</TableHead>
+                    <TableHead>Statut</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.data.map((stock) => {
+                    const statut = getStatutStock(
+                      stock.quantiteActuelle,
+                      stock.seuilMin,
+                      stock.seuilMax,
+                      stock.stockSecurite
+                    );
+                    const percentage = getStockPercentage(stock.quantiteActuelle, stock.seuilMax);
+
+                    return (
+                      <TableRow key={stock.medicamentId}>
+                        <TableCell>
+                          <div>
+                            <p className="font-semibold text-slate-800">
+                              {stock.medicament.nomCommercial}
+                            </p>
+                            <p className="text-sm text-slate-500">
+                              {stock.medicament.dci} • {stock.medicament.code}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-slate-600">
+                            {stock.medicament.formeGalenique}
+                            {stock.medicament.dosage && ` • ${stock.medicament.dosage}`}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-lg font-bold text-slate-800">
+                            {stock.quantiteActuelle}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-32">
+                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full ${getStockGaugeColor(statut)} transition-all`}
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">{Math.round(percentage)}%</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-xs text-slate-600">
+                            <p>Min: {stock.seuilMin}</p>
+                            <p>Max: {stock.seuilMax}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={STATUT_STOCK_COLORS[statut]}>
+                            {statut === 'RUPTURE' || statut === 'CRITIQUE' ? (
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                            ) : null}
+                            {STATUT_STOCK_LABELS[statut]}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              {data?.pagination && data.pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-slate-600">
+                    Page {data.pagination.page} sur {data.pagination.totalPages} ({data.pagination.total} résultats)
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      Précédent
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={page >= data.pagination.totalPages}
+                    >
+                      Suivant
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Historique mouvements - Temporairement désactivé car l'endpoint n'existe pas encore */}
+      {/* <HistoriqueMouvements /> */}
+
+      {/* Message informatif en attendant l'implémentation de l'historique */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Historique des mouvements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-6">
+            <Package className="h-12 w-12 mx-auto mb-2 text-slate-300" />
+            <p className="text-sm font-medium text-slate-600">Fonctionnalité en cours de configuration</p>
+            <p className="text-xs text-slate-500 mt-1">L'historique des mouvements sera disponible prochainement</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function MouvementForm({ onClose }: { onClose: () => void }) {
+  const [type, setType] = useState<TypeMouvement>('ENTREE');
+  const [medicamentId, setMedicamentId] = useState('');
+  const [quantite, setQuantite] = useState('');
+  const [motif, setMotif] = useState('');
+  const [numeroLot, setNumeroLot] = useState('');
+
+  const { data: medicaments } = useMedicaments({ limit: 100 });
+  const createMutation = useCreateMouvementStock();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!medicamentId || !quantite) {
+      toast.error('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    try {
+      await createMutation.mutateAsync({
+        medicamentId,
+        type,
+        quantite: parseInt(quantite),
+        motif: motif || undefined,
+        numeroLot: numeroLot || undefined,
+      });
+
+      toast.success('Mouvement enregistré avec succès');
+      onClose();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label>Type de mouvement</Label>
+        <Select value={type} onValueChange={(value) => setType(value as TypeMouvement)}>
+          <SelectTrigger className="bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="ENTREE">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                Entrée de stock
+              </div>
+            </SelectItem>
+            <SelectItem value="SORTIE">
+              <div className="flex items-center gap-2">
+                <TrendingDown className="h-4 w-4 text-red-600" />
+                Sortie de stock
+              </div>
+            </SelectItem>
+            <SelectItem value="AJUSTEMENT">Ajustement d'inventaire</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label>Médicament *</Label>
+        <Select value={medicamentId} onValueChange={setMedicamentId}>
+          <SelectTrigger className="bg-white">
+            <SelectValue placeholder="Sélectionner un médicament" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {medicaments?.data.map((med) => (
+              <SelectItem key={med.id} value={med.id}>
+                {med.nomCommercial} ({med.dci})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label>Quantité *</Label>
+        <Input
+          type="number"
+          min="1"
+          value={quantite}
+          onChange={(e) => setQuantite(e.target.value)}
+          placeholder="Ex: 50"
+          className="bg-white"
+        />
+      </div>
+
+      {type === 'ENTREE' && (
+        <div>
+          <Label>Numéro de lot</Label>
+          <Input
+            value={numeroLot}
+            onChange={(e) => setNumeroLot(e.target.value)}
+            placeholder="Ex: LOT2025-001"
+            className="bg-white"
+          />
+        </div>
+      )}
+
+      <div>
+        <Label>Motif</Label>
+        <Textarea
+          value={motif}
+          onChange={(e) => setMotif(e.target.value)}
+          placeholder={type === 'ENTREE' ? 'Ex: Livraison fournisseur' : 'Ex: Distribution aux patients'}
+          className="bg-white"
+        />
+      </div>
+
+      <div className="flex gap-2 justify-end pt-4">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Annuler
+        </Button>
+        <Button type="submit" disabled={createMutation.isPending}>
+          {createMutation.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Enregistrement...
+            </>
+          ) : (
+            'Enregistrer'
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function HistoriqueMouvements() {
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError } = useMouvementsStock({ page, limit: 10 });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Historique des mouvements</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          </div>
+        ) : isError ? (
+          <div className="text-center py-6">
+            <Package className="h-12 w-12 mx-auto mb-2 text-slate-300" />
+            <p className="text-sm font-medium text-slate-600">Fonctionnalité en cours de configuration</p>
+            <p className="text-xs text-slate-500 mt-1">L'historique des mouvements sera disponible prochainement</p>
+          </div>
+        ) : !data || data.data.length === 0 ? (
+          <p className="text-center text-slate-500 py-4">Aucun mouvement enregistré</p>
+        ) : (
+          <>
+            <div className="space-y-3">
+              {data.data.map((mouvement) => (
+                <div key={mouvement.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {mouvement.type === 'ENTREE' ? (
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <TrendingDown className="h-5 w-5 text-red-600" />
+                    )}
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {mouvement.medicament?.nomCommercial}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {new Date(mouvement.createdAt).toLocaleString('fr-FR')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-slate-800">
+                      {mouvement.type === 'ENTREE' ? '+' : '-'}{mouvement.quantite}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {mouvement.quantiteAvant} → {mouvement.quantiteApres}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {data?.pagination && data.pagination.totalPages > 1 && (
+              <div className="flex justify-between mt-4 pt-4 border-t">
+                <p className="text-sm text-slate-600">
+                  Page {page} sur {data.pagination.totalPages}
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                    Précédent
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={page >= data.pagination.totalPages}>
+                    Suivant
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

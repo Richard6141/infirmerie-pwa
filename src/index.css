@@ -1,0 +1,340 @@
+@import 'tailwindcss';
+
+/* Import Google Fonts - Professional medical fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Colors mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+:root {
+  --radius: 0.5rem; /* 8px - Medicare style rounded corners */
+
+  /* Medicare Color Palette - Exact from template */
+  /* Soft gray background for professional medical look */
+  --background: 246 248 252;
+  --foreground: 39 52 68;
+
+  /* Pure white cards with subtle shadows */
+  --card: 255 255 255;
+  --card-foreground: 39 52 68;
+
+  /* Popover */
+  --popover: 255 255 255;
+  --popover-foreground: 39 52 68;
+
+  /* Primary - Medicare Blue #3B7DDD (Medical trust blue) */
+  --primary: 59 125 221;
+  --primary-foreground: 255 255 255;
+
+  /* Primary Dark for headers and accents #2E6BC6 */
+  --primary-dark: 46 107 198;
+  --primary-dark-foreground: 255 255 255;
+
+  /* Secondary - Light professional gray */
+  --secondary: 243 246 249;
+  --secondary-foreground: 39 52 68;
+
+  /* Muted */
+  --muted: 246 248 252;
+  --muted-foreground: 107 123 140;
+
+  /* Accent - Soft blue for highlights */
+  --accent: 235 244 255;
+  --accent-foreground: 59 125 221;
+
+  /* Success - Medical green #10B981 */
+  --success: 16 185 129;
+  --success-foreground: 255 255 255;
+
+  /* Warning - Attention orange #F59E0B */
+  --warning: 245 158 11;
+  --warning-foreground: 255 255 255;
+
+  /* Destructive - Medical alert red #EF4444 */
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+
+  /* Info - Medicare blue */
+  --info: 59 125 221;
+  --info-foreground: 255 255 255;
+
+  /* Borders - Subtle professional gray */
+  --border: 226 232 240;
+  --input: 226 232 240;
+  --ring: 59 125 221;
+
+  /* Charts - Medicare professional palette */
+  --chart-1: 59 125 221; /* Primary blue */
+  --chart-2: 16 185 129; /* Success green */
+  --chart-3: 239 68 68; /* Alert red */
+  --chart-4: 245 158 11; /* Warning orange */
+  --chart-5: 139 92 246; /* Purple accent */
+
+  /* Font family */
+  font-family:
+    'Poppins',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark {
+  /* Dark mode - Professional medical dark theme */
+  --background: 15 23 42;
+  --foreground: 248 250 252;
+  --card: 30 41 59;
+  --card-foreground: 248 250 252;
+  --popover: 30 41 59;
+  --popover-foreground: 248 250 252;
+  --primary: 96 165 250;
+  --primary-foreground: 15 23 42;
+  --secondary: 51 65 85;
+  --secondary-foreground: 248 250 252;
+  --muted: 51 65 85;
+  --muted-foreground: 148 163 184;
+  --accent: 51 65 85;
+  --accent-foreground: 248 250 252;
+  --destructive: 239 68 68;
+  --border: 51 65 85;
+  --input: 51 65 85;
+  --ring: 96 165 250;
+  --chart-1: 96 165 250;
+  --chart-2: 34 197 94;
+  --chart-3: 239 68 68;
+  --chart-4: 251 146 60;
+  --chart-5: 168 85 247;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  @apply antialiased;
+}
+
+/* Medicare utility colors */
+.bg-success {
+  background-color: rgb(var(--success));
+}
+
+.text-success {
+  color: rgb(var(--success));
+}
+
+.bg-warning {
+  background-color: rgb(var(--warning));
+}
+
+.text-warning {
+  color: rgb(var(--warning));
+}
+
+.bg-info {
+  background-color: rgb(var(--info));
+}
+
+.text-info {
+  color: rgb(var(--info));
+}
+
+/* Medicare professional shadows */
+.shadow-card {
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.08),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-card-hover {
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-header {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* Medicare gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, rgb(59 125 221) 0%, rgb(46 107 198) 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.gradient-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.gradient-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Border accent - Medicare style */
+.border-accent-left {
+  border-left: 3px solid rgb(var(--primary));
+}
+
+.border-accent-top {
+  border-top: 3px solid rgb(var(--primary));
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism effect for modern cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Medicare stat card styles */
+.stat-icon-wrapper {
+  @apply h-14 w-14 rounded-xl flex items-center justify-center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  @apply -translate-y-1;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.08);
+}
+
+/* Badge styles - Medicare theme */
+.badge-primary {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  background-color: rgb(var(--primary) / 0.1);
+  color: rgb(var(--primary));
+}
+
+.badge-success {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  background-color: rgb(var(--success) / 0.1);
+  color: rgb(var(--success));
+}
+
+.badge-warning {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  background-color: rgb(var(--warning) / 0.1);
+  color: rgb(var(--warning));
+}
+
+.badge-danger {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  background-color: rgb(var(--destructive) / 0.1);
+  color: rgb(var(--destructive));
+}
+
+/* Custom scrollbar - Medicare style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted-foreground) / 0.5);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
