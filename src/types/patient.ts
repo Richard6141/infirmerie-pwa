@@ -90,11 +90,8 @@ export const strongPasswordSchema = z
 // Schema pour création (SANS password - auto-généré par le backend)
 export const patientCreateSchema = basePatientSchema;
 
-// Schema pour édition (tous les champs optionnels sauf email qui ne sera pas envoyé)
-export const patientEditSchema = basePatientSchema.partial().extend({
-  email: z.string().optional(), // Email en lecture seule, pas envoyé au backend
-  password: z.string().optional(), // Pas de password en mode édition
-});
+// Schema pour édition (tous les champs optionnels, sans age)
+export const patientEditSchema = basePatientSchema.omit({ age: true }).partial();
 
 // Schema par défaut (pour compatibilité)
 export const patientFormSchema = patientCreateSchema;
