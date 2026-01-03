@@ -60,8 +60,10 @@ api.interceptors.response.use(
       if (import.meta.env.DEV) {
         console.warn('[AUTH] Changement de mot de passe requis');
       }
-      // Rediriger vers la page de changement de mot de passe
-      window.location.href = '/change-password?required=true';
+      // Rediriger vers la page de changement de mot de passe (éviter la boucle)
+      if (!window.location.pathname.includes('/change-password')) {
+        window.location.href = '/change-password?required=true';
+      }
     }
 
     if (error.response?.status === 401) {

@@ -35,9 +35,15 @@ export function LoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
     try {
-      await login(data.email, data.password);
+      const result = await login(data.email, data.password);
       toast.success('Connexion réussie');
-      navigate('/dashboard');
+
+      // Vérifier si l'utilisateur doit changer son mot de passe
+      if (result?.mustChangePassword) {
+        navigate('/change-password?required=true');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion';
       toast.error('Échec de connexion', {

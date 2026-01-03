@@ -47,6 +47,7 @@ export interface User {
   role: Role;
   isInfirmier: boolean;
   isPatient: boolean;
+  mustChangePassword: boolean;
   createdAt: string;
   updatedAt: string;
 }
