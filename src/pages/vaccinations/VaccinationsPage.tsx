@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Syringe, Plus, Calendar, User, Search, Loader2 } from 'lucide-react';
+import { Syringe, Plus, Calendar, User, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ export function VaccinationsPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data, isLoading } = useVaccinations({
@@ -27,8 +28,13 @@ export function VaccinationsPage() {
     typeVaccin: typeFilter || undefined,
     patientId: isInfirmier ? undefined : user?.id,
     page,
-    limit: 20,
+    limit: pageSize,
   });
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -113,20 +119,128 @@ export function VaccinationsPage() {
 
       {/* Table vaccinations */}
       <Card>
-        <CardHeader>
-          <CardTitle>Liste des vaccinations</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-green-600" />
             </div>
           ) : !data || data.data.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
+            <div className="text-center py-12 text-slate-500">
               Aucune vaccination enregistrée
             </div>
           ) : (
             <>
+              {/* Pagination Controls - Top */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-slate-700 font-semibold">
+                      {data.pagination?.total || data.data.length} vaccination{(data.pagination?.total || data.data.length) > 1 ? 's' : ''} au total
+                    </p>
+                    {data.pagination && data.pagination.totalPages > 1 && (
+                      <>
+                        <span className="text-sm text-slate-400">•</span>
+                        <p className="text-sm text-slate-600">
+                          Page {page} sur {data.pagination.totalPages}
+                        </p>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-700 font-medium">Afficher</span>
+                    <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+                      <SelectTrigger className="w-[70px] h-8 border-slate-300 bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-slate-700 font-medium">par page</span>
+                  </div>
+                </div>
+
+                {data.pagination && data.pagination.totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(1)}
+                      disabled={page === 1}
+                      className="hidden sm:inline-flex bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                    >
+                      Premier
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Précédent
+                    </Button>
+
+                    {/* Numéros de page */}
+                    <div className="hidden md:flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, data.pagination.totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (data.pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (page <= 3) {
+                          pageNum = i + 1;
+                        } else if (page >= data.pagination.totalPages - 2) {
+                          pageNum = data.pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = page - 2 + i;
+                        }
+
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={page === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setPage(pageNum)}
+                            className={page === pageNum
+                              ? "w-9 bg-primary hover:bg-primary/90"
+                              : "w-9 bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
+                            }
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.min(data.pagination.totalPages, p + 1))}
+                      disabled={page >= data.pagination.totalPages}
+                      className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                    >
+                      Suivant
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(data.pagination.totalPages)}
+                      disabled={page >= data.pagination.totalPages}
+                      className="hidden sm:inline-flex bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                    >
+                      Dernier
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -186,23 +300,6 @@ export function VaccinationsPage() {
                   ))}
                 </TableBody>
               </Table>
-
-              {/* Pagination */}
-              {data?.pagination && data.pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-slate-600">
-                    Page {page} sur {data.pagination.totalPages} ({data.pagination.total} résultats)
-                  </p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
-                      Précédent
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={page >= data.pagination.totalPages}>
-                      Suivant
-                    </Button>
-                  </div>
-                </div>
-              )}
             </>
           )}
         </CardContent>
