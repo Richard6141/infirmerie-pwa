@@ -14,6 +14,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -28,6 +35,7 @@ import { toast } from 'sonner';
 export function PatientsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
@@ -38,7 +46,7 @@ export function PatientsPage() {
   const { data, isLoading, isError, error } = usePatients({
     search: debouncedSearch,
     page,
-    limit: 20, // Réduit pour meilleure pagination
+    limit: pageSize,
   });
 
   const deleteMutation = useDeletePatient();
@@ -71,6 +79,11 @@ export function PatientsPage() {
       toast.error('Erreur lors de la suppression du patient');
       console.error(err);
     }
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setPage(1); // Reset to first page when changing page size
   };
 
   return (
@@ -184,19 +197,38 @@ export function PatientsPage() {
               </Table>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between px-6 py-4 border-t bg-slate-50">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm text-slate-600 font-medium">
-                    {data.total} patient{data.total > 1 ? 's' : ''} au total
-                  </p>
-                  {data.totalPages > 1 && (
-                    <span className="text-sm text-slate-400">•</span>
-                  )}
-                  {data.totalPages > 1 && (
-                    <p className="text-sm text-slate-500">
-                      Page {data.page} sur {data.totalPages}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-t bg-slate-50">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-slate-600 font-medium">
+                      {data.total} patient{data.total > 1 ? 's' : ''} au total
                     </p>
-                  )}
+                    {data.totalPages > 1 && (
+                      <>
+                        <span className="text-sm text-slate-400">•</span>
+                        <p className="text-sm text-slate-500">
+                          Page {data.page} sur {data.totalPages}
+                        </p>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-600">Afficher</span>
+                    <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+                      <SelectTrigger className="w-[70px] h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-slate-600">par page</span>
+                  </div>
                 </div>
 
                 {data.totalPages > 1 && (
