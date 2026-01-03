@@ -321,7 +321,9 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
             {/* Date de naissance ou Âge */}
             {!isEditMode && (
               <div className="space-y-2">
-                <FormLabel>Date de Naissance / Âge *</FormLabel>
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Date de Naissance / Âge *
+                </label>
                 <RadioGroup
                   value={useAge ? 'age' : 'date'}
                   onValueChange={(value) => {
@@ -380,9 +382,9 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
                             value={field.value ?? ''}
                           />
                         </FormControl>
-                        <FormDescription className="text-xs">
+                        <p className="text-xs text-muted-foreground">
                           La date de naissance sera calculée au 1er janvier
-                        </FormDescription>
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
