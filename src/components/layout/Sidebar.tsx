@@ -199,7 +199,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
               <div className="text-[10px] text-slate-500 space-y-0.5">
                 <p>Version <span className="font-semibold text-slate-700">1.0.0</span></p>
-                <p className="text-success font-medium">✓ Sprint 1 Complété</p>
               </div>
             </div>
           </div>
