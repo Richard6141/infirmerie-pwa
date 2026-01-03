@@ -70,6 +70,9 @@ export function useRapportStocks(filters: RapportStocksFilters = {}) {
 
       if (cleanFilters.startDate) params.append('startDate', cleanFilters.startDate);
       if (cleanFilters.endDate) params.append('endDate', cleanFilters.endDate);
+      if (cleanFilters.statut) params.append('statut', cleanFilters.statut);
+      if (cleanFilters.formeGalenique) params.append('formeGalenique', cleanFilters.formeGalenique);
+      if (cleanFilters.exportType) params.append('exportType', cleanFilters.exportType);
 
       const { data } = await api.get<RapportStocks>(`/rapports/stocks?${params.toString()}`);
       return data;

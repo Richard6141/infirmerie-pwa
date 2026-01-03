@@ -70,6 +70,10 @@ export interface RapportStocks {
   };
   medicamentsPlusConsommes: MedicamentConsommation[];
   valeurStockTotal?: number;
+  // Liste complète des médicaments avec leurs informations
+  medicaments?: MedicamentDetail[];
+  // Statistiques par forme galénique
+  statistiquesFormes?: FormeGaleniqueStats[];
 }
 
 export interface MedicamentRupture {
@@ -80,6 +84,8 @@ export interface MedicamentRupture {
   quantiteActuelle: number;
   seuilMin: number;
   seuilMax: number;
+  formeGalenique?: string;
+  dosage?: string;
 }
 
 export interface MedicamentConsommation {
@@ -89,9 +95,33 @@ export interface MedicamentConsommation {
   dernierMouvement?: string;
 }
 
+export interface MedicamentDetail {
+  id: string;
+  code: string;
+  nomCommercial: string;
+  dci: string;
+  formeGalenique: string;
+  dosage?: string;
+  quantiteActuelle: number;
+  seuilMin: number;
+  seuilMax: number;
+  statut: 'RUPTURE' | 'CRITIQUE' | 'BAS' | 'NORMAL' | 'HAUT';
+}
+
+export interface FormeGaleniqueStats {
+  forme: string;
+  nombreMedicaments: number;
+  quantiteTotale: number;
+}
+
+export type ExportStockType = 'TOUS' | 'RUPTURES' | 'ALERTES' | 'FORMES';
+
 export interface RapportStocksFilters {
   startDate?: string;
   endDate?: string;
+  statut?: 'RUPTURE' | 'CRITIQUE' | 'BAS' | 'NORMAL' | 'HAUT' | 'ALERTE';
+  formeGalenique?: string;
+  exportType?: ExportStockType;
 }
 
 // ==================== RAPPORT VACCINATIONS ====================

@@ -3,6 +3,7 @@ import { BarChart as BarChartIcon, FileText, Syringe, TrendingUp, Users, Calenda
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDashboardStats, useRapportConsultations, useRapportStocks, useRapportVaccinations } from '@/lib/hooks/useRapports';
 import { Loader2 } from 'lucide-react';
@@ -29,6 +30,10 @@ import {
   exportStocksPDF,
   exportVaccinationsPDF,
   exportDashboardExcel,
+  exportStocksListeCompletExcel,
+  exportStocksAlertesExcel,
+  exportStocksFormesExcel,
+  exportStocksCompletExcel,
 } from '@/lib/utils/export';
 import { toast } from 'sonner';
 
@@ -39,9 +44,20 @@ export function RapportsPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  // Filtres spécifiques pour les stocks
+  const [stockStatut, setStockStatut] = useState<'RUPTURE' | 'CRITIQUE' | 'BAS' | 'NORMAL' | 'HAUT' | 'ALERTE' | ''>('');
+  const [stockForme, setStockForme] = useState<string>('');
+  const [stockExportType, setStockExportType] = useState<'TOUS' | 'RUPTURES' | 'ALERTES' | 'FORMES'>('TOUS');
+
   const { data: dashboardStats, isLoading: loadingDashboard } = useDashboardStats();
   const { data: consultationsStats, isLoading: loadingConsultations } = useRapportConsultations({ startDate, endDate });
-  const { data: stocksStats, isLoading: loadingStocks } = useRapportStocks({ startDate, endDate });
+  const { data: stocksStats, isLoading: loadingStocks } = useRapportStocks({
+    startDate,
+    endDate,
+    statut: stockStatut || undefined,
+    formeGalenique: stockForme || undefined,
+    exportType: stockExportType || undefined,
+  });
   const { data: vaccinationsStats, isLoading: loadingVaccinations } = useRapportVaccinations({ startDate, endDate });
 
   const handleExportDashboardPDF = () => {
@@ -69,6 +85,44 @@ export function RapportsPage() {
     if (stocksStats) {
       exportStocksPDF(stocksStats);
       toast.success('Rapport Stocks exporté en PDF');
+    } else {
+      toast.error('Aucune donnée à exporter');
+    }
+  };
+
+  const handleExportStocksListeExcel = () => {
+    if (stocksStats?.medicaments && stocksStats.medicaments.length > 0) {
+      exportStocksListeCompletExcel(stocksStats);
+      toast.success('Liste complète des médicaments exportée en Excel');
+    } else {
+      toast.error('Aucune donnée de médicaments disponible (L\'API doit être mise à jour)');
+    }
+  };
+
+  const handleExportStocksAlertesExcel = () => {
+    if (stocksStats?.alertesRuptures && stocksStats.alertesRuptures.length > 0) {
+      exportStocksAlertesExcel(stocksStats);
+      toast.success('Alertes de stock exportées en Excel');
+    } else {
+      toast.warning('Aucune alerte de stock à exporter');
+    }
+  };
+
+  const handleExportStocksFormesExcel = () => {
+    if (stocksStats?.statistiquesFormes && stocksStats.statistiquesFormes.length > 0) {
+      exportStocksFormesExcel(stocksStats);
+      toast.success('Statistiques par forme exportées en Excel');
+    } else {
+      toast.error('Aucune statistique par forme disponible (L\'API doit être mise à jour)');
+    }
+  };
+
+  const handleExportStocksCompletExcel = () => {
+    if (stocksStats) {
+      exportStocksCompletExcel(stocksStats);
+      toast.success('Rapport complet de stocks exporté en Excel');
+    } else {
+      toast.error('Aucune donnée à exporter');
     }
   };
 
@@ -238,8 +292,8 @@ export function RapportsPage() {
                       <AreaChart data={(dashboardStats.consultationsParJour || []).slice(-7)}>
                         <defs>
                           <linearGradient id="colorConsultations" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -433,19 +487,83 @@ export function RapportsPage() {
             <LoadingState />
           ) : stocksStats ? (
             <>
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-800">Rapport Stocks</h2>
-                  {stocksStats.periode && (
-                    <p className="text-sm text-slate-600 mt-1">
-                      Période: {new Date(stocksStats.periode.debut).toLocaleDateString('fr-FR')} - {new Date(stocksStats.periode.fin).toLocaleDateString('fr-FR')}
-                    </p>
-                  )}
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-800">Rapport Stocks</h2>
+                    {stocksStats.periode && (
+                      <p className="text-sm text-slate-600 mt-1">
+                        Période: {new Date(stocksStats.periode.debut).toLocaleDateString('fr-FR')} - {new Date(stocksStats.periode.fin).toLocaleDateString('fr-FR')}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <Button onClick={handleExportStocksPDF} className="bg-blue-600 hover:bg-blue-700">
-                  <Download className="h-4 w-4 mr-2" />
-                  Exporter PDF
-                </Button>
+
+                {/* Filtres d'export */}
+                <Card className="bg-blue-50/50 border-blue-100">
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-slate-700">Statut du stock</label>
+                        <Select value={stockStatut} onValueChange={(val: any) => setStockStatut(val)}>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Tous les statuts" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="TOUS">Tous les statuts</SelectItem>
+                            <SelectItem value="RUPTURE">Rupture</SelectItem>
+                            <SelectItem value="CRITIQUE">Critique</SelectItem>
+                            <SelectItem value="ALERTE">En alerte (Rupture + Critique)</SelectItem>
+                            <SelectItem value="BAS">Bas</SelectItem>
+                            <SelectItem value="NORMAL">Normal</SelectItem>
+                            <SelectItem value="HAUT">Haut</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-slate-700">Forme Galénique</label>
+                        <Input
+                          placeholder="Ex: Comprimé, Sirop..."
+                          value={stockForme}
+                          onChange={(e) => setStockForme(e.target.value)}
+                          className="bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-slate-700">Format d'export</label>
+                        <Select value={stockExportType} onValueChange={(val: any) => setStockExportType(val)}>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="TOUS">Tout exporter</SelectItem>
+                            <SelectItem value="RUPTURES">Ruptures uniquement</SelectItem>
+                            <SelectItem value="ALERTES">Toutes les alertes</SelectItem>
+                            <SelectItem value="FORMES">Statistiques par forme</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button onClick={handleExportStocksPDF} className="flex-1 bg-red-600 hover:bg-red-700">
+                          <Download className="h-4 w-4 mr-2" />
+                          PDF
+                        </Button>
+                        <Button onClick={() => {
+                          if (stockExportType === 'TOUS') handleExportStocksCompletExcel();
+                          else if (stockExportType === 'RUPTURES' || stockExportType === 'ALERTES') handleExportStocksAlertesExcel();
+                          else if (stockExportType === 'FORMES') handleExportStocksFormesExcel();
+                          else handleExportStocksListeExcel();
+                        }} variant="outline" className="flex-1 border-green-600 text-green-700 hover:bg-green-50">
+                          <FileSpreadsheet className="h-4 w-4 mr-2" />
+                          Excel
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Alertes urgentes */}
@@ -658,11 +776,10 @@ export function RapportsPage() {
                       {(vaccinationsStats.rappelsAVenir || []).map((rappel, index) => (
                         <div
                           key={index}
-                          className={`p-3 rounded-lg border ${
-                            rappel.statut === 'URGENT' ? 'bg-red-50 border-red-200' :
+                          className={`p-3 rounded-lg border ${rappel.statut === 'URGENT' ? 'bg-red-50 border-red-200' :
                             rappel.statut === 'PROCHE' ? 'bg-orange-50 border-orange-200' :
-                            'bg-blue-50 border-blue-200'
-                          }`}
+                              'bg-blue-50 border-blue-200'
+                            }`}
                         >
                           <div className="flex items-center justify-between">
                             <div>
@@ -673,11 +790,10 @@ export function RapportsPage() {
                               <p className="text-sm font-medium text-slate-800">
                                 {new Date(rappel.dateRappel).toLocaleDateString('fr-FR')}
                               </p>
-                              <span className={`text-xs font-semibold ${
-                                rappel.statut === 'URGENT' ? 'text-red-600' :
+                              <span className={`text-xs font-semibold ${rappel.statut === 'URGENT' ? 'text-red-600' :
                                 rappel.statut === 'PROCHE' ? 'text-orange-600' :
-                                'text-blue-600'
-                              }`}>
+                                  'text-blue-600'
+                                }`}>
                                 {rappel.statut}
                               </span>
                             </div>

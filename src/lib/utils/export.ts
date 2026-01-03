@@ -367,3 +367,153 @@ export function exportDashboardExcel(stats: any) {
 
   exportToExcel(statsArray, `dashboard-${new Date().toISOString().split('T')[0]}`, 'Statistiques');
 }
+
+// ==================== EXPORT STOCKS EXCEL ====================
+
+// Export Excel - Liste complète des médicaments
+export function exportStocksListeCompletExcel(stats: any) {
+  if (!stats.medicaments || stats.medicaments.length === 0) {
+    console.warn('Aucun médicament à exporter');
+    return;
+  }
+
+  const medicamentsData = stats.medicaments.map((med: any) => ({
+    'Code': med.code,
+    'Nom Commercial': med.nomCommercial,
+    'DCI': med.dci,
+    'Forme': med.formeGalenique,
+    'Dosage': med.dosage || '',
+    'Quantité Actuelle': med.quantiteActuelle,
+    'Seuil Min': med.seuilMin,
+    'Seuil Max': med.seuilMax,
+    'Statut': med.statut,
+  }));
+
+  exportToExcel(
+    medicamentsData,
+    `stocks-liste-complete-${new Date().toISOString().split('T')[0]}`,
+    'Liste Médicaments'
+  );
+}
+
+// Export Excel - Ruptures et alertes uniquement
+export function exportStocksAlertesExcel(stats: any) {
+  if (!stats.alertesRuptures || stats.alertesRuptures.length === 0) {
+    console.warn('Aucune alerte à exporter');
+    return;
+  }
+
+  const alertesData = stats.alertesRuptures.map((alerte: any) => ({
+    'Code': alerte.code,
+    'Nom Commercial': alerte.nomCommercial,
+    'DCI': alerte.dci,
+    'Forme': alerte.formeGalenique || '',
+    'Dosage': alerte.dosage || '',
+    'Quantité Actuelle': alerte.quantiteActuelle,
+    'Seuil Min': alerte.seuilMin,
+    'Seuil Max': alerte.seuilMax,
+    'Statut': alerte.quantiteActuelle === 0 ? 'RUPTURE' : 'ALERTE',
+  }));
+
+  exportToExcel(
+    alertesData,
+    `stocks-alertes-${new Date().toISOString().split('T')[0]}`,
+    'Alertes Stocks'
+  );
+}
+
+// Export Excel - Statistiques par forme galénique
+export function exportStocksFormesExcel(stats: any) {
+  if (!stats.statistiquesFormes || stats.statistiquesFormes.length === 0) {
+    console.warn('Aucune statistique de forme à exporter');
+    return;
+  }
+
+  const formesData = stats.statistiquesFormes.map((forme: any) => ({
+    'Forme Galénique': forme.forme,
+    'Nombre de Médicaments': forme.nombreMedicaments,
+    'Quantité Totale': forme.quantiteTotale,
+  }));
+
+  exportToExcel(
+    formesData,
+    `stocks-formes-${new Date().toISOString().split('T')[0]}`,
+    'Par Forme Galénique'
+  );
+}
+
+// Export Excel - Rapport complet avec plusieurs feuilles
+export function exportStocksCompletExcel(stats: any) {
+  const wb = XLSX.utils.book_new();
+
+  // Feuille 1: Résumé
+  const resumeData = [
+    { 'Indicateur': 'Période Début', 'Valeur': stats.periode ? new Date(stats.periode.debut).toLocaleDateString('fr-FR') : '' },
+    { 'Indicateur': 'Période Fin', 'Valeur': stats.periode ? new Date(stats.periode.fin).toLocaleDateString('fr-FR') : '' },
+    { 'Indicateur': 'Nombre d\'alertes', 'Valeur': stats.alertesRuptures?.length || 0 },
+    { 'Indicateur': 'Entrées (période)', 'Valeur': stats.mouvementsPeriode?.entrees || 0 },
+    { 'Indicateur': 'Sorties (période)', 'Valeur': stats.mouvementsPeriode?.sorties || 0 },
+    { 'Indicateur': 'Total mouvements', 'Valeur': stats.mouvementsPeriode?.total || 0 },
+    { 'Indicateur': 'Valeur stock total', 'Valeur': stats.valeurStockTotal || 'N/A' },
+  ];
+  const wsResume = XLSX.utils.json_to_sheet(resumeData);
+  XLSX.utils.book_append_sheet(wb, wsResume, 'Résumé');
+
+  // Feuille 2: Alertes
+  if (stats.alertesRuptures && stats.alertesRuptures.length > 0) {
+    const alertesData = stats.alertesRuptures.map((alerte: any) => ({
+      'Code': alerte.code,
+      'Nom Commercial': alerte.nomCommercial,
+      'DCI': alerte.dci,
+      'Forme': alerte.formeGalenique || '',
+      'Dosage': alerte.dosage || '',
+      'Quantité Actuelle': alerte.quantiteActuelle,
+      'Seuil Min': alerte.seuilMin,
+      'Seuil Max': alerte.seuilMax,
+    }));
+    const wsAlertes = XLSX.utils.json_to_sheet(alertesData);
+    XLSX.utils.book_append_sheet(wb, wsAlertes, 'Alertes');
+  }
+
+  // Feuille 3: Médicaments les plus consommés
+  if (stats.medicamentsPlusConsommes && stats.medicamentsPlusConsommes.length > 0) {
+    const consommesData = stats.medicamentsPlusConsommes.map((med: any) => ({
+      'Nom Commercial': med.nomCommercial,
+      'Quantité Consommée': med.quantiteConsommee,
+      'Dernier Mouvement': med.dernierMouvement ? new Date(med.dernierMouvement).toLocaleDateString('fr-FR') : '',
+    }));
+    const wsConsommes = XLSX.utils.json_to_sheet(consommesData);
+    XLSX.utils.book_append_sheet(wb, wsConsommes, 'Plus Consommés');
+  }
+
+  // Feuille 4: Liste complète des médicaments
+  if (stats.medicaments && stats.medicaments.length > 0) {
+    const medicamentsData = stats.medicaments.map((med: any) => ({
+      'Code': med.code,
+      'Nom Commercial': med.nomCommercial,
+      'DCI': med.dci,
+      'Forme': med.formeGalenique,
+      'Dosage': med.dosage || '',
+      'Quantité Actuelle': med.quantiteActuelle,
+      'Seuil Min': med.seuilMin,
+      'Seuil Max': med.seuilMax,
+      'Statut': med.statut,
+    }));
+    const wsMedicaments = XLSX.utils.json_to_sheet(medicamentsData);
+    XLSX.utils.book_append_sheet(wb, wsMedicaments, 'Tous Médicaments');
+  }
+
+  // Feuille 5: Statistiques par forme
+  if (stats.statistiquesFormes && stats.statistiquesFormes.length > 0) {
+    const formesData = stats.statistiquesFormes.map((forme: any) => ({
+      'Forme Galénique': forme.forme,
+      'Nombre de Médicaments': forme.nombreMedicaments,
+      'Quantité Totale': forme.quantiteTotale,
+    }));
+    const wsFormes = XLSX.utils.json_to_sheet(formesData);
+    XLSX.utils.book_append_sheet(wb, wsFormes, 'Par Forme');
+  }
+
+  XLSX.writeFile(wb, `rapport-stocks-complet-${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
