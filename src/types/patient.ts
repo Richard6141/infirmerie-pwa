@@ -28,8 +28,17 @@ export interface Patient {
   updatedAt: string;
 }
 
-// Schema de base (champs communs)
-const basePatientSchema = z.object({
+// Schema de validation mot de passe fort (exporté pour réutilisation dans ChangePassword)
+export const strongPasswordSchema = z
+  .string()
+  .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+  .regex(/[A-Z]/, 'Le mot de passe doit contenir au moins une lettre majuscule')
+  .regex(/[a-z]/, 'Le mot de passe doit contenir au moins une lettre minuscule')
+  .regex(/\d/, 'Le mot de passe doit contenir au moins un chiffre')
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*(),.?":{}|<>)');
+
+// Schema pour création patient (SANS password - auto-généré par le backend)
+export const patientCreateSchema = z.object({
   email: z
     .string()
     .min(1, 'Email requis')
@@ -78,20 +87,34 @@ const basePatientSchema = z.object({
   }
 );
 
-// Schema de validation mot de passe fort (exporté pour réutilisation dans ChangePassword)
-export const strongPasswordSchema = z
-  .string()
-  .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
-  .regex(/[A-Z]/, 'Le mot de passe doit contenir au moins une lettre majuscule')
-  .regex(/[a-z]/, 'Le mot de passe doit contenir au moins une lettre minuscule')
-  .regex(/\d/, 'Le mot de passe doit contenir au moins un chiffre')
-  .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*(),.?":{}|<>)');
-
-// Schema pour création (SANS password - auto-généré par le backend)
-export const patientCreateSchema = basePatientSchema;
-
-// Schema pour édition (tous les champs optionnels, sans age)
-export const patientEditSchema = basePatientSchema.omit({ age: true }).partial();
+// Schema pour édition patient (tous les champs optionnels, sans age)
+export const patientEditSchema = z.object({
+  email: z.string().email('Email invalide').optional(),
+  nom: z
+    .string()
+    .min(2, 'Nom doit contenir au moins 2 caractères')
+    .max(100, 'Nom trop long')
+    .optional(),
+  prenom: z
+    .string()
+    .min(2, 'Prénom doit contenir au moins 2 caractères')
+    .max(100, 'Prénom trop long')
+    .optional(),
+  dateNaissance: z.string().optional(),
+  sexe: z.enum(SEXE_VALUES).optional(),
+  telephone: z
+    .string()
+    .min(8, 'Téléphone invalide')
+    .regex(/^[0-9+\s()-]+$/, 'Téléphone doit contenir uniquement des chiffres et symboles (+, -, (, ), espace)')
+    .optional(),
+  directionService: z
+    .string()
+    .min(2, 'La direction/service est requise')
+    .optional(),
+  groupeSanguin: z.enum(GROUPE_SANGUIN_VALUES).optional(),
+  allergies: z.string().optional(),
+  antecedentsMedicaux: z.string().optional(),
+});
 
 // Schema par défaut (pour compatibilité)
 export const patientFormSchema = patientCreateSchema;
