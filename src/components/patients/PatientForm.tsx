@@ -583,17 +583,6 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => {
-              console.log('🧪 [TEST BUTTON] This button works!');
-              console.log('🧪 [TEST] isLoading:', isLoading);
-              console.log('🧪 [TEST] createMutation.isPending:', createMutation.isPending);
-            }}
-          >
-            🧪 Test Console
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
             onClick={() => navigate('/patients')}
             disabled={isLoading}
           >
