@@ -15,6 +15,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -36,6 +43,7 @@ export function ConsultationsPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [consultationToDelete, setConsultationToDelete] = useState<Consultation | null>(null);
 
@@ -50,7 +58,7 @@ export function ConsultationsPage() {
           startDate,
           endDate,
           page,
-          limit: 20,
+          limit: pageSize,
         }
       : {}
   );
@@ -90,6 +98,11 @@ export function ConsultationsPage() {
       toast.error('Erreur lors de la suppression de la consultation');
       console.error(err);
     }
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setPage(1); // Reset to first page when changing page size
   };
 
   // For patient view, transform array response to paginated format
@@ -217,6 +230,119 @@ export function ConsultationsPage() {
             </div>
           ) : (
             <>
+              {/* Pagination Controls - Top */}
+              {isInfirmier && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-slate-700 font-semibold">
+                        {paginatedData.total} consultation{paginatedData.total > 1 ? 's' : ''} au total
+                      </p>
+                      {paginatedData.totalPages > 1 && (
+                        <>
+                          <span className="text-sm text-slate-400">•</span>
+                          <p className="text-sm text-slate-600">
+                            Page {paginatedData.page} sur {paginatedData.totalPages}
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-700 font-medium">Afficher</span>
+                      <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+                        <SelectTrigger className="w-[70px] h-8 border-slate-300 bg-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5">5</SelectItem>
+                          <SelectItem value="10">10</SelectItem>
+                          <SelectItem value="20">20</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                          <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm text-slate-700 font-medium">par page</span>
+                    </div>
+                  </div>
+
+                  {paginatedData.totalPages > 1 && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(1)}
+                        disabled={page === 1}
+                        className="hidden sm:inline-flex bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                      >
+                        Premier
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Précédent
+                      </Button>
+
+                      {/* Numéros de page */}
+                      <div className="hidden md:flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, paginatedData.totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (paginatedData.totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (page <= 3) {
+                            pageNum = i + 1;
+                          } else if (page >= paginatedData.totalPages - 2) {
+                            pageNum = paginatedData.totalPages - 4 + i;
+                          } else {
+                            pageNum = page - 2 + i;
+                          }
+
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={page === pageNum ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setPage(pageNum)}
+                              className={page === pageNum
+                                ? "w-9 bg-primary hover:bg-primary/90"
+                                : "w-9 bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
+                              }
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        })}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.min(paginatedData.totalPages, p + 1))}
+                        disabled={page === paginatedData.totalPages}
+                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                      >
+                        Suivant
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(paginatedData.totalPages)}
+                        disabled={page === paginatedData.totalPages}
+                        className="hidden sm:inline-flex bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-800 disabled:opacity-50"
+                      >
+                        Dernier
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -285,89 +411,6 @@ export function ConsultationsPage() {
                   ))}
                 </TableBody>
               </Table>
-
-              {/* Pagination - Only for infirmier (patient view has all data) */}
-              {isInfirmier && paginatedData.totalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t bg-slate-50">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm text-slate-600 font-medium">
-                      {paginatedData.total} consultation{paginatedData.total > 1 ? 's' : ''} au total
-                    </p>
-                    <span className="text-sm text-slate-400">•</span>
-                    <p className="text-sm text-slate-500">
-                      Page {paginatedData.page} sur {paginatedData.totalPages}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(1)}
-                      disabled={page === 1}
-                      className="hidden sm:inline-flex"
-                    >
-                      Premier
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Précédent
-                    </Button>
-
-                    {/* Page numbers */}
-                    <div className="hidden md:flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, paginatedData.totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (paginatedData.totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (page <= 3) {
-                          pageNum = i + 1;
-                        } else if (page >= paginatedData.totalPages - 2) {
-                          pageNum = paginatedData.totalPages - 4 + i;
-                        } else {
-                          pageNum = page - 2 + i;
-                        }
-
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={page === pageNum ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setPage(pageNum)}
-                            className="w-9"
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.min(paginatedData.totalPages, p + 1))}
-                      disabled={page === paginatedData.totalPages}
-                    >
-                      Suivant
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(paginatedData.totalPages)}
-                      disabled={page === paginatedData.totalPages}
-                      className="hidden sm:inline-flex"
-                    >
-                      Dernier
-                    </Button>
-                  </div>
-                </div>
-              )}
             </>
           )}
         </CardContent>
