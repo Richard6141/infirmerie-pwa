@@ -152,20 +152,32 @@ export function RapportsPage() {
 
       {/* Tabs pour les différents rapports */}
       <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 h-auto">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
+        <TabsList className="grid w-full grid-cols-4 h-auto bg-slate-100 p-2">
+          <TabsTrigger
+            value="dashboard"
+            className="flex items-center gap-2 py-3 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg"
+          >
             <Activity className="h-4 w-4" />
             Dashboard
           </TabsTrigger>
-          <TabsTrigger value="consultations" className="flex items-center gap-2 py-3">
+          <TabsTrigger
+            value="consultations"
+            className="flex items-center gap-2 py-3 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg"
+          >
             <FileText className="h-4 w-4" />
             Consultations
           </TabsTrigger>
-          <TabsTrigger value="stocks" className="flex items-center gap-2 py-3">
+          <TabsTrigger
+            value="stocks"
+            className="flex items-center gap-2 py-3 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg"
+          >
             <Package className="h-4 w-4" />
             Stocks
           </TabsTrigger>
-          <TabsTrigger value="vaccinations" className="flex items-center gap-2 py-3">
+          <TabsTrigger
+            value="vaccinations"
+            className="flex items-center gap-2 py-3 data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg"
+          >
             <Syringe className="h-4 w-4" />
             Vaccinations
           </TabsTrigger>
