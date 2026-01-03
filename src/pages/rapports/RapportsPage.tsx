@@ -223,7 +223,7 @@ export function RapportsPage() {
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                      <AreaChart data={dashboardStats.consultationsParJour.slice(-7)}>
+                      <AreaChart data={(dashboardStats.consultationsParJour || []).slice(-7)}>
                         <defs>
                           <linearGradient id="colorConsultations" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
@@ -265,7 +265,7 @@ export function RapportsPage() {
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
-                          data={dashboardStats.topMotifsConsultations.slice(0, 5)}
+                          data={(dashboardStats.topMotifsConsultations || []).slice(0, 5)}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
@@ -275,7 +275,7 @@ export function RapportsPage() {
                           dataKey="count"
                           nameKey="motif"
                         >
-                          {dashboardStats.topMotifsConsultations.slice(0, 5).map((entry, index) => (
+                          {(dashboardStats.topMotifsConsultations || []).slice(0, 5).map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -296,7 +296,7 @@ export function RapportsPage() {
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={dashboardStats.repartitionPatientsParDirection}>
+                      <BarChart data={dashboardStats.repartitionPatientsParDirection || []}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="direction" angle={-45} textAnchor="end" height={100} />
                         <YAxis />
@@ -353,7 +353,7 @@ export function RapportsPage() {
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={consultationsStats.consultationsParJour}>
+                        <LineChart data={consultationsStats.consultationsParJour || []}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis
                             dataKey="date"
@@ -377,7 +377,7 @@ export function RapportsPage() {
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={consultationsStats.topMotifs.slice(0, 8)} layout="vertical">
+                        <BarChart data={(consultationsStats.topMotifs || []).slice(0, 8)} layout="vertical">
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis type="number" />
                           <YAxis dataKey="motif" type="category" width={150} />
@@ -442,12 +442,12 @@ export function RapportsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-red-700">
                       <AlertTriangle className="h-5 w-5" />
-                      Alertes de Rupture ({stocksStats.alertesRuptures.length})
+                      Alertes de Rupture ({stocksStats.alertesRuptures?.length || 0})
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {stocksStats.alertesRuptures.slice(0, 6).map((alerte, index) => (
+                      {(stocksStats.alertesRuptures || []).slice(0, 6).map((alerte, index) => (
                         <div key={index} className="p-4 bg-white rounded-lg border border-red-200">
                           <p className="font-semibold text-slate-800">{alerte.nomCommercial}</p>
                           <p className="text-xs text-slate-600 mt-1">{alerte.code} - {alerte.dci}</p>
@@ -497,7 +497,7 @@ export function RapportsPage() {
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={400}>
-                      <BarChart data={stocksStats.medicamentsPlusConsommes.slice(0, 10)}>
+                      <BarChart data={(stocksStats.medicamentsPlusConsommes || []).slice(0, 10)}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="nomCommercial" angle={-45} textAnchor="end" height={120} />
                         <YAxis />
@@ -562,7 +562,7 @@ export function RapportsPage() {
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                           <Pie
-                            data={vaccinationsStats.statistiquesParType}
+                            data={vaccinationsStats.statistiquesParType || []}
                             cx="50%"
                             cy="50%"
                             labelLine={false}
@@ -572,7 +572,7 @@ export function RapportsPage() {
                             dataKey="count"
                             nameKey="typeVaccin"
                           >
-                            {vaccinationsStats.statistiquesParType.map((entry, index) => (
+                            {(vaccinationsStats.statistiquesParType || []).map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
@@ -592,7 +592,7 @@ export function RapportsPage() {
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={vaccinationsStats.statistiquesParType}>
+                        <BarChart data={vaccinationsStats.statistiquesParType || []}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="typeVaccin" angle={-45} textAnchor="end" height={100} />
                           <YAxis />
@@ -639,11 +639,11 @@ export function RapportsPage() {
               {vaccinationsStats.rappelsAVenir && vaccinationsStats.rappelsAVenir.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Rappels à Venir ({vaccinationsStats.rappelsAVenir.length})</CardTitle>
+                    <CardTitle>Rappels à Venir ({vaccinationsStats.rappelsAVenir?.length || 0})</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {vaccinationsStats.rappelsAVenir.map((rappel, index) => (
+                      {(vaccinationsStats.rappelsAVenir || []).map((rappel, index) => (
                         <div
                           key={index}
                           className={`p-3 rounded-lg border ${
