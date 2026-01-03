@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { OfflineBanner } from './components/sync/OfflineBanner';
 import { LoginPage } from './pages/Login';
+import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { DashboardPage } from './pages/Dashboard';
 import { PatientsPage } from './pages/patients/PatientsPage';
 import { NewPatientPage } from './pages/patients/NewPatientPage';
@@ -57,6 +58,9 @@ function App() {
       <Routes>
         {/* Route publique */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* Route de changement de mot de passe - Authentification requise */}
+        <Route path="/change-password" element={<ChangePasswordPage />} />
 
         {/* Route de test - PUBLIQUE */}
         <Route path="/test" element={<TestPage />} />

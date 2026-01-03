@@ -55,6 +55,15 @@ api.interceptors.response.use(
       console.error('[API ERROR]', error.response?.status, error.config?.url);
     }
 
+    // Gérer le cas où l'utilisateur doit changer son mot de passe
+    if (error.response?.status === 403 && error.response?.data?.mustChangePassword) {
+      if (import.meta.env.DEV) {
+        console.warn('[AUTH] Changement de mot de passe requis');
+      }
+      // Rediriger vers la page de changement de mot de passe
+      window.location.href = '/change-password?required=true';
+    }
+
     if (error.response?.status === 401) {
       if (import.meta.env.DEV) {
         console.warn('[AUTH] Token invalide ou expiré - déconnexion');

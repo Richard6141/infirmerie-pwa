@@ -42,4 +42,17 @@ export const authApi = {
       console.error('Erreur lors de la déconnexion:', handleApiError(error));
     }
   },
+
+  // Changer le mot de passe
+  changePassword: async (currentPassword: string, newPassword: string): Promise<{ message: string }> => {
+    try {
+      const response = await api.post<{ message: string }>('/auth/change-password', {
+        currentPassword,
+        newPassword,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };

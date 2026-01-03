@@ -44,7 +44,13 @@ const basePatientSchema = z.object({
     .max(100, 'Prénom trop long'),
   dateNaissance: z
     .string()
-    .min(1, 'Date de naissance requise'),
+    .optional(),
+  age: z
+    .number()
+    .int('L\'âge doit être un nombre entier')
+    .min(0, 'L\'âge doit être positif')
+    .max(150, 'L\'âge doit être réaliste (maximum 150 ans)')
+    .optional(),
   sexe: z.enum(SEXE_VALUES, {
     message: 'Sexe requis',
   }),
@@ -64,10 +70,16 @@ const basePatientSchema = z.object({
   antecedentsMedicaux: z
     .string()
     .optional(),
-});
+}).refine(
+  (data) => data.dateNaissance || data.age !== undefined,
+  {
+    message: 'Vous devez fournir soit la date de naissance soit l\'âge',
+    path: ['dateNaissance'],
+  }
+);
 
-// Schema de validation mot de passe fort (aligné avec backend)
-const strongPasswordSchema = z
+// Schema de validation mot de passe fort (exporté pour réutilisation dans ChangePassword)
+export const strongPasswordSchema = z
   .string()
   .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
   .regex(/[A-Z]/, 'Le mot de passe doit contenir au moins une lettre majuscule')
@@ -75,10 +87,8 @@ const strongPasswordSchema = z
   .regex(/\d/, 'Le mot de passe doit contenir au moins un chiffre')
   .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*(),.?":{}|<>)');
 
-// Schema pour création (avec password obligatoire)
-export const patientCreateSchema = basePatientSchema.extend({
-  password: strongPasswordSchema,
-});
+// Schema pour création (SANS password - auto-généré par le backend)
+export const patientCreateSchema = basePatientSchema;
 
 // Schema pour édition (tous les champs optionnels sauf email qui ne sera pas envoyé)
 export const patientEditSchema = basePatientSchema.partial().extend({

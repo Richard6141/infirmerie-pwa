@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
@@ -43,6 +43,9 @@ interface PatientFormProps {
 export function PatientForm({ patient, onSuccess }: PatientFormProps) {
   const navigate = useNavigate();
   const isEditMode = !!patient;
+
+  // State pour choisir entre Date de Naissance ou Âge (uniquement en mode création)
+  const [useAge, setUseAge] = useState(false);
 
   const createMutation = useCreatePatient();
   const updateMutation = useUpdatePatient();
@@ -131,6 +134,7 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
         nom: '',
         prenom: '',
         dateNaissance: '',
+        age: undefined,
         sexe: 'HOMME',
         telephone: '',
         directionService: '',
@@ -199,10 +203,14 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
         antecedents: convertAntecedentsToBackend(data.antecedentsMedicaux),
       };
 
-      // En mode création, ajouter email et password
+      // En mode création, ajouter email (le password est auto-généré par le backend)
       if (!isEditMode) {
         backendData.email = data.email;
-        backendData.password = data.password;
+        // Ajouter age si fourni (au lieu de dateNaissance)
+        if (data.age !== undefined) {
+          backendData.age = data.age;
+          delete backendData.dateNaissance; // Ne pas envoyer dateNaissance si age est fourni
+        }
       }
 
       console.log('[PatientForm] 📦 Backend data prepared:', backendData);
@@ -280,30 +288,6 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
               )}
             />
 
-            {/* Mot de passe - Uniquement en mode création */}
-            {!isEditMode && (
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mot de passe *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Minimum 6 caractères"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Mot de passe pour l'accès au compte patient
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
             {/* Nom */}
             <FormField
               control={form.control}
@@ -334,20 +318,95 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
               )}
             />
 
-            {/* Date de naissance */}
-            <FormField
-              control={form.control}
-              name="dateNaissance"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date de Naissance *</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Date de naissance ou Âge */}
+            {!isEditMode && (
+              <div className="space-y-2">
+                <FormLabel>Date de Naissance / Âge *</FormLabel>
+                <RadioGroup
+                  value={useAge ? 'age' : 'date'}
+                  onValueChange={(value) => {
+                    setUseAge(value === 'age');
+                    // Réinitialiser le champ non utilisé
+                    if (value === 'age') {
+                      form.setValue('dateNaissance', '');
+                    } else {
+                      form.setValue('age', undefined);
+                    }
+                  }}
+                  className="flex gap-4 mb-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="date" id="use-date" />
+                    <label htmlFor="use-date" className="font-normal cursor-pointer text-sm">
+                      Date de naissance
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="age" id="use-age" />
+                    <label htmlFor="use-age" className="font-normal cursor-pointer text-sm">
+                      Âge
+                    </label>
+                  </div>
+                </RadioGroup>
+
+                {!useAge ? (
+                  <FormField
+                    control={form.control}
+                    name="dateNaissance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name="age"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Ex: 25"
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value === '' ? undefined : parseInt(value, 10));
+                            }}
+                            value={field.value ?? ''}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          La date de naissance sera calculée au 1er janvier
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* En mode édition, afficher seulement la date de naissance */}
+            {isEditMode && (
+              <FormField
+                control={form.control}
+                name="dateNaissance"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date de Naissance *</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* Sexe */}
             <FormField
