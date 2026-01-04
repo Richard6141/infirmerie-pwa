@@ -142,77 +142,78 @@ export function useCreatePatient() {
   return useMutation({
     networkMode: 'always', // IMPORTANT: Permet l'exécution même en mode offline
     mutationFn: async (patientData: CreatePatientDTO): Promise<Patient> => {
-      // Vérifier le statut online EN TEMPS RÉEL (pas via le hook qui peut être stale)
-      const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+      // Fonction pour créer en mode offline
+      const createOffline = async (): Promise<Patient> => {
+        const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const now = new Date().toISOString();
 
-      if (isOnline) {
-        // MODE ONLINE: API normale
+        // Générer un matricule temporaire
+        const matricule = `TEMP-${Date.now()}`;
+
+        // Calculer dateNaissance si age est fourni
+        let dateNaissance = patientData.dateNaissance;
+        if (!dateNaissance && patientData.age !== undefined) {
+          const currentYear = new Date().getFullYear();
+          const birthYear = currentYear - patientData.age;
+          dateNaissance = `${birthYear}-01-01`;
+        }
+
+        // S'assurer que dateNaissance existe (requis pour Patient)
+        if (!dateNaissance) {
+          throw new Error('Date de naissance ou âge requis');
+        }
+
+        const patient: PatientLocal = {
+          id: tempId,
+          tempId,
+          email: patientData.email,
+          nom: patientData.nom,
+          prenom: patientData.prenom,
+          matricule,
+          dateNaissance,
+          sexe: patientData.sexe,
+          telephone: patientData.telephone,
+          direction: patientData.direction || patientData.directionService || '',
+          directionService: patientData.directionService,
+          service: patientData.service,
+          groupeSanguin: patientData.groupeSanguin,
+          allergies: patientData.allergies,
+          antecedents: patientData.antecedentsMedicaux || '',
+          antecedentsMedicaux: patientData.antecedentsMedicaux,
+          createdAt: now,
+          updatedAt: now,
+          syncStatus: 'pending',
+          lastModified: now,
+        };
+
+        // Sauvegarder dans IndexedDB
+        await db.patients.add(patient);
+
+        // Ajouter à la queue de sync
+        await db.syncQueue.add({
+          entity: 'patient',
+          operation: 'create',
+          entityId: tempId,
+          data: patient,
+          createdAt: now,
+          attempts: 0
+        });
+
+        return patient as unknown as Patient;
+      };
+
+      // Essayer l'API d'abord, basculer en offline si erreur réseau
+      try {
         const { data } = await api.post<Patient>('/patients', patientData);
         return data;
-      } else {
-        // MODE OFFLINE: IndexedDB + Queue
-        try {
-          const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-          const now = new Date().toISOString();
-
-          // Générer un matricule temporaire
-          const matricule = `TEMP-${Date.now()}`;
-
-          // Calculer dateNaissance si age est fourni
-          let dateNaissance = patientData.dateNaissance;
-          if (!dateNaissance && patientData.age !== undefined) {
-            const currentYear = new Date().getFullYear();
-            const birthYear = currentYear - patientData.age;
-            dateNaissance = `${birthYear}-01-01`;
-          }
-
-          // S'assurer que dateNaissance existe (requis pour Patient)
-          if (!dateNaissance) {
-            throw new Error('Date de naissance ou âge requis');
-          }
-
-          const patient: PatientLocal = {
-            id: tempId,
-            tempId,
-            email: patientData.email,
-            nom: patientData.nom,
-            prenom: patientData.prenom,
-            matricule,
-            dateNaissance,
-            sexe: patientData.sexe,
-            telephone: patientData.telephone,
-            direction: patientData.direction || patientData.directionService || '',
-            directionService: patientData.directionService,
-            service: patientData.service,
-            groupeSanguin: patientData.groupeSanguin,
-            allergies: patientData.allergies,
-            antecedents: patientData.antecedentsMedicaux || '',
-            antecedentsMedicaux: patientData.antecedentsMedicaux,
-            createdAt: now,
-            updatedAt: now,
-            syncStatus: 'pending',
-            lastModified: now,
-          };
-
-          // Sauvegarder dans IndexedDB
-          await db.patients.add(patient);
-
-          // Ajouter à la queue de sync
-          await db.syncQueue.add({
-            entity: 'patient',
-            operation: 'create',
-            entityId: tempId,
-            data: patient,
-            createdAt: now,
-            attempts: 0
-          });
-
-          // Retourner comme Patient pour compatibilité
-          return patient as unknown as Patient;
-        } catch (error) {
-          console.error('[useCreatePatient] Error creating offline patient:', error);
-          throw error;
+      } catch (error: any) {
+        // Si c'est une erreur réseau (ERR_NETWORK, ERR_NAME_NOT_RESOLVED, timeout), basculer en offline
+        if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED' || !error.response) {
+          console.log('[useCreatePatient] Network error, switching to offline mode');
+          return await createOffline();
         }
+        // Sinon, propager l'erreur (erreur de validation, etc.)
+        throw error;
       }
     },
     onSuccess: () => {
