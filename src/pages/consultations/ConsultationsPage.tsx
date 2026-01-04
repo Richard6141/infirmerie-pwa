@@ -106,14 +106,22 @@ export function ConsultationsPage() {
   };
 
   // For patient view, transform array response to paginated format
-  const paginatedData: { data: Consultation[], page: number, total: number, totalPages: number } | undefined = !isInfirmier && data
+  const paginatedData = !isInfirmier && data
     ? {
         data: Array.isArray(data) ? data : [],
         page: 1,
         total: Array.isArray(data) ? data.length : 0,
         totalPages: 1,
       }
-    : (data as { data: Consultation[], page: number, total: number, totalPages: number } | undefined);
+    : (data as { data: Consultation[], page: number, total: number, totalPages: number } | undefined) ?? {
+        data: [],
+        page: 1,
+        total: 0,
+        totalPages: 0,
+      };
+
+  // Safety check to ensure consultations is always an array
+  const consultations = paginatedData.data ?? [];
 
   return (
     <div className="space-y-6">
@@ -218,7 +226,7 @@ export function ConsultationsPage() {
                 </>
               )}
             </div>
-          ) : !paginatedData || paginatedData.data.length === 0 ? (
+          ) : consultations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
               <FileText className="h-12 w-12 mb-3 text-slate-300" />
               <p className="font-semibold">Aucune consultation trouvée</p>
@@ -355,7 +363,7 @@ export function ConsultationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedData.data.map((consultation) => (
+                  {consultations.map((consultation) => (
                     <TableRow key={consultation.id}>
                       <TableCell className="font-medium">
                         {formaterDateConsultation(consultation.date)}

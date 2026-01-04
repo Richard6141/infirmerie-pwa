@@ -75,7 +75,7 @@ export function useMyConsultations() {
 
   return useQuery({
     queryKey: consultationKeys.me(),
-    enabled: isOnline && isPatient(), // Ne fait la requête que si online ET patient
+    enabled: isOnline && isPatient, // Ne fait la requête que si online ET patient
     queryFn: async (): Promise<Consultation[]> => {
       const { data } = await api.get<Consultation[]>('/consultations/me');
       return data;
