@@ -28,6 +28,10 @@ export interface MouvementStock {
   createdAt: string;
   updatedAt: string;
 
+  // Champs plats retournés par certains endpoints
+  codeMedicament?: string;
+  nomMedicament?: string;
+
   // Relations
   medicament?: {
     id: string;

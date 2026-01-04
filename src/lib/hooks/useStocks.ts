@@ -112,14 +112,20 @@ export function useMouvementsStock(filters: MouvementStockFilters = {}) {
     queryFn: async (): Promise<MouvementsStockResponse> => {
       const params = new URLSearchParams();
 
-      if (cleanFilters.medicamentId) params.append('medicamentId', cleanFilters.medicamentId);
+      let url: string;
+      if (cleanFilters.medicamentId) {
+        url = `/stocks/medicament/${cleanFilters.medicamentId}/mouvements`;
+      } else {
+        url = '/stocks/mouvements/all';
+      }
+
       if (cleanFilters.type) params.append('type', cleanFilters.type);
       if (cleanFilters.startDate) params.append('startDate', cleanFilters.startDate);
       if (cleanFilters.endDate) params.append('endDate', cleanFilters.endDate);
       if (cleanFilters.page) params.append('page', cleanFilters.page.toString());
       if (cleanFilters.limit) params.append('limit', cleanFilters.limit.toString());
 
-      const url = '/stocks/mouvements' + (params.toString() ? '?' + params.toString() : '');
+      url += (params.toString() ? '?' + params.toString() : '');
       const { data } = await api.get<MouvementsStockResponse>(url);
       return data;
     },

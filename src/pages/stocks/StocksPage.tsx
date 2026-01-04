@@ -317,22 +317,7 @@ export function StocksPage() {
         </CardContent>
       </Card>
 
-      {/* Historique mouvements - Temporairement désactivé car l'endpoint n'existe pas encore */}
-      {/* <HistoriqueMouvements /> */}
-
-      {/* Message informatif en attendant l'implémentation de l'historique */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Historique des mouvements</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-6">
-            <Package className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-            <p className="text-sm font-medium text-slate-600">Fonctionnalité en cours de configuration</p>
-            <p className="text-xs text-slate-500 mt-1">L'historique des mouvements sera disponible prochainement</p>
-          </div>
-        </CardContent>
-      </Card>
+      <HistoriqueMouvements />
     </div>
   );
 }
@@ -343,6 +328,7 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
   const [quantite, setQuantite] = useState('');
   const [motif, setMotif] = useState('');
   const [numeroLot, setNumeroLot] = useState('');
+  const [dateExpiration, setDateExpiration] = useState('');
 
   const { data: medicaments } = useMedicaments({ limit: 100 });
   const createMutation = useCreateMouvementStock();
@@ -362,6 +348,7 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
         quantite: parseInt(quantite),
         motif: motif || undefined,
         numeroLot: numeroLot || undefined,
+        dateExpiration: dateExpiration ? new Date(dateExpiration).toISOString() : undefined,
       });
 
       toast.success('Mouvement enregistré avec succès');
@@ -426,14 +413,25 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
       </div>
 
       {type === 'ENTREE' && (
-        <div>
-          <Label>Numéro de lot</Label>
-          <Input
-            value={numeroLot}
-            onChange={(e) => setNumeroLot(e.target.value)}
-            placeholder="Ex: LOT2025-001"
-            className="bg-white"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Numéro de lot</Label>
+            <Input
+              value={numeroLot}
+              onChange={(e) => setNumeroLot(e.target.value)}
+              placeholder="Ex: LOT2025-001"
+              className="bg-white"
+            />
+          </div>
+          <div>
+            <Label>Date d'expiration</Label>
+            <Input
+              type="date"
+              value={dateExpiration}
+              onChange={(e) => setDateExpiration(e.target.value)}
+              className="bg-white"
+            />
+          </div>
         </div>
       )}
 
@@ -501,11 +499,13 @@ function HistoriqueMouvements() {
                     )}
                     <div>
                       <p className="font-semibold text-slate-800">
-                        {mouvement.medicament?.nomCommercial}
+                        {mouvement.nomMedicament || mouvement.medicament?.nomCommercial || 'Médicament inconnu'}
                       </p>
-                      <p className="text-sm text-slate-500">
-                        {new Date(mouvement.createdAt).toLocaleString('fr-FR')}
-                      </p>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <span className="font-medium text-slate-700">{TYPE_MOUVEMENT_LABELS[mouvement.type]}</span>
+                        <span>•</span>
+                        <span>{new Date(mouvement.createdAt).toLocaleString('fr-FR')}</span>
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
