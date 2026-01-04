@@ -250,16 +250,16 @@ export function RendezVousPage() {
           ) : (
             <>
               {/* Pagination Controls - Top */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-row items-center justify-between gap-4 px-4 py-2 border-b bg-gradient-to-r from-slate-50 to-slate-100 overflow-x-auto whitespace-nowrap text-xs md:text-sm">
+                <div className="flex items-center gap-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-slate-700 font-semibold">
+                    <p className="text-slate-700 font-semibold">
                       {data.total} rendez-vous au total
                     </p>
                     {data.totalPages > 1 && (
                       <>
-                        <span className="text-sm text-slate-400">•</span>
-                        <p className="text-sm text-slate-600">
+                        <span className="text-slate-400">•</span>
+                        <p className="text-slate-600">
                           Page {data.page} sur {data.totalPages}
                         </p>
                       </>
@@ -267,7 +267,7 @@ export function RendezVousPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-700 font-medium">Afficher</span>
+                    <span className="text-slate-700 font-medium">Afficher</span>
                     <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
                       <SelectTrigger className="w-[70px] h-8 border-slate-300 bg-white">
                         <SelectValue />
@@ -280,7 +280,7 @@ export function RendezVousPage() {
                         <SelectItem value="100">100</SelectItem>
                       </SelectContent>
                     </Select>
-                    <span className="text-sm text-slate-700 font-medium">par page</span>
+                    <span className="text-slate-700 font-medium">par page</span>
                   </div>
                 </div>
 
@@ -361,101 +361,101 @@ export function RendezVousPage() {
               </div>
 
               <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date & Heure</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Motif</TableHead>
-                  <TableHead>Statut</TableHead>
-                  {isInfirmier && <TableHead className="text-right">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.data.map((rdv) => {
-                  const isToday = isRendezVousToday(rdv.dateHeure);
-                  const isPast = isRendezVousPasse(rdv.dateHeure);
+                <TableHeader>
+                  <TableRow className="whitespace-nowrap text-xs md:text-sm">
+                    <TableHead>Date & Heure</TableHead>
+                    <TableHead>Patient</TableHead>
+                    <TableHead>Motif</TableHead>
+                    <TableHead>Statut</TableHead>
+                    {isInfirmier && <TableHead className="text-right">Actions</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.data.map((rdv) => {
+                    const isToday = isRendezVousToday(rdv.dateHeure);
+                    const isPast = isRendezVousPasse(rdv.dateHeure);
 
-                  return (
-                    <TableRow key={rdv.id} className={isToday ? 'bg-blue-50' : ''}>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{formaterDateCourte(rdv.dateHeure)}</span>
-                          <span className="text-sm text-slate-500 flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {formaterHeure(rdv.dateHeure)}
-                          </span>
-                          {isToday && (
-                            <span className="text-xs font-semibold text-blue-600 mt-1">
-                              Aujourd'hui
+                    return (
+                      <TableRow key={rdv.id} className={isToday ? 'bg-blue-50' : ''}>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{formaterDateCourte(rdv.dateHeure)}</span>
+                            <span className="text-sm text-slate-500 flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {formaterHeure(rdv.dateHeure)}
                             </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{getNomCompletPatient(rdv)}</span>
-                          <span className="text-sm text-slate-500">{getMatriculePatient(rdv)}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="line-clamp-2 text-sm">{rdv.motif}</p>
-                      </TableCell>
-                      <TableCell>
-                        {isInfirmier && !isPast ? (
-                          <Select
-                            value={rdv.statut}
-                            onValueChange={(value) => handleChangeStatut(rdv.id, value as StatutRendezVous)}
-                          >
-                            <SelectTrigger
-                              className={`w-32 text-xs font-semibold border ${STATUT_RDV_COLORS[rdv.statut]}`}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white">
-                              {STATUT_RDV_VALUES.map((s) => (
-                                <SelectItem key={s} value={s}>
-                                  {STATUT_RDV_LABELS[s]}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${STATUT_RDV_COLORS[rdv.statut]}`}
-                          >
-                            {STATUT_RDV_LABELS[rdv.statut]}
-                          </span>
-                        )}
-                      </TableCell>
-                      {isInfirmier && (
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Link to={`/rendez-vous/${rdv.id}`}>
-                              <Button variant="ghost" size="icon" title="Voir détails">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Link to={`/rendez-vous/${rdv.id}/modifier`}>
-                              <Button variant="ghost" size="icon" title="Modifier">
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Supprimer"
-                              onClick={() => handleDeleteClick(rdv)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            {isToday && (
+                              <span className="text-xs font-semibold text-blue-600 mt-1">
+                                Aujourd'hui
+                              </span>
+                            )}
                           </div>
                         </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{getNomCompletPatient(rdv)}</span>
+                            <span className="text-sm text-slate-500">{getMatriculePatient(rdv)}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-xs">
+                          <p className="line-clamp-2 text-sm">{rdv.motif}</p>
+                        </TableCell>
+                        <TableCell>
+                          {isInfirmier && !isPast ? (
+                            <Select
+                              value={rdv.statut}
+                              onValueChange={(value) => handleChangeStatut(rdv.id, value as StatutRendezVous)}
+                            >
+                              <SelectTrigger
+                                className={`w-32 text-xs font-semibold border ${STATUT_RDV_COLORS[rdv.statut]}`}
+                              >
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                {STATUT_RDV_VALUES.map((s) => (
+                                  <SelectItem key={s} value={s}>
+                                    {STATUT_RDV_LABELS[s]}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${STATUT_RDV_COLORS[rdv.statut]}`}
+                            >
+                              {STATUT_RDV_LABELS[rdv.statut]}
+                            </span>
+                          )}
+                        </TableCell>
+                        {isInfirmier && (
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link to={`/rendez-vous/${rdv.id}`}>
+                                <Button variant="ghost" size="icon" title="Voir détails">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Link to={`/rendez-vous/${rdv.id}/modifier`}>
+                                <Button variant="ghost" size="icon" title="Modifier">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Supprimer"
+                                onClick={() => handleDeleteClick(rdv)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </>
           )}
         </CardContent>

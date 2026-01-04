@@ -54,7 +54,7 @@ export function AppLayout() {
                   <div className="h-6 w-6 rounded gradient-primary flex items-center justify-center">
                     <span className="text-white font-bold text-xs">+</span>
                   </div>
-                  <span className="font-semibold">Medicare Infirmerie</span>
+                  <span className="font-semibold">Infirmerie MDC</span>
                   <span className="text-slate-400">•</span>
                   <span className="text-slate-500">Version 1.0.0</span>
                 </div>

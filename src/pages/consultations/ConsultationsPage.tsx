@@ -54,12 +54,12 @@ export function ConsultationsPage() {
   const consultationsQuery = useConsultations(
     isInfirmier
       ? {
-          search: debouncedSearch, // Recherche par nom de patient
-          startDate,
-          endDate,
-          page,
-          limit: pageSize,
-        }
+        search: debouncedSearch, // Recherche par nom de patient
+        startDate,
+        endDate,
+        page,
+        limit: pageSize,
+      }
       : {}
   );
 
@@ -108,17 +108,17 @@ export function ConsultationsPage() {
   // For patient view, transform array response to paginated format
   const paginatedData = !isInfirmier && data
     ? {
-        data: Array.isArray(data) ? data : [],
-        page: 1,
-        total: Array.isArray(data) ? data.length : 0,
-        totalPages: 1,
-      }
+      data: Array.isArray(data) ? data : [],
+      page: 1,
+      total: Array.isArray(data) ? data.length : 0,
+      totalPages: 1,
+    }
     : (data as { data: Consultation[], page: number, total: number, totalPages: number } | undefined) ?? {
-        data: [],
-        page: 1,
-        total: 0,
-        totalPages: 0,
-      };
+      data: [],
+      page: 1,
+      total: 0,
+      totalPages: 0,
+    };
 
   // Safety check to ensure consultations is always an array
   const consultations = paginatedData.data ?? [];
@@ -240,16 +240,16 @@ export function ConsultationsPage() {
             <>
               {/* Pagination Controls - Top */}
               {isInfirmier && (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-row items-center justify-between gap-4 px-4 py-2 border-b bg-gradient-to-r from-slate-50 to-slate-100 overflow-x-auto whitespace-nowrap text-xs md:text-sm">
+                  <div className="flex items-center gap-4 flex-shrink-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-slate-700 font-semibold">
+                      <p className="text-slate-700 font-semibold">
                         {paginatedData.total} consultation{paginatedData.total > 1 ? 's' : ''} au total
                       </p>
                       {paginatedData.totalPages > 1 && (
                         <>
-                          <span className="text-sm text-slate-400">•</span>
-                          <p className="text-sm text-slate-600">
+                          <span className="text-slate-400">•</span>
+                          <p className="text-slate-600">
                             Page {paginatedData.page} sur {paginatedData.totalPages}
                           </p>
                         </>
@@ -257,7 +257,7 @@ export function ConsultationsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-700 font-medium">Afficher</span>
+                      <span className="text-slate-700 font-medium">Afficher</span>
                       <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
                         <SelectTrigger className="w-[70px] h-8 border-slate-300 bg-white">
                           <SelectValue />
@@ -270,7 +270,7 @@ export function ConsultationsPage() {
                           <SelectItem value="100">100</SelectItem>
                         </SelectContent>
                       </Select>
-                      <span className="text-sm text-slate-700 font-medium">par page</span>
+                      <span className="text-slate-700 font-medium">par page</span>
                     </div>
                   </div>
 
@@ -353,7 +353,7 @@ export function ConsultationsPage() {
 
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="whitespace-nowrap text-xs md:text-sm">
                     <TableHead>Date</TableHead>
                     {isInfirmier && <TableHead>Patient</TableHead>}
                     {!isInfirmier && <TableHead>Infirmier</TableHead>}

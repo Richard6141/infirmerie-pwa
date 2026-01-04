@@ -1,6 +1,6 @@
 {
-  "name": "Infirmerie Ministère",
-  "short_name": "Infirmerie",
+  "name": "Infirmerie MDC",
+  "short_name": "Infirmerie MDC",
   "description": "Gestion de l'infirmerie du Ministère avec mode offline",
   "start_url": "/",
   "display": "standalone",
@@ -40,7 +40,11 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["medical", "health", "productivity"],
+  "categories": [
+    "medical",
+    "health",
+    "productivity"
+  ],
   "lang": "fr-FR",
   "dir": "ltr"
 }

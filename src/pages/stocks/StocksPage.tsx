@@ -128,16 +128,16 @@ export function StocksPage() {
           ) : (
             <>
               {/* Pagination Controls - Top */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-row items-center justify-between gap-4 px-4 py-2 border-b bg-gradient-to-r from-slate-50 to-slate-100 overflow-x-auto whitespace-nowrap text-xs md:text-sm">
+                <div className="flex items-center gap-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-slate-700 font-semibold">
+                    <p className="text-slate-700 font-semibold">
                       {data.pagination?.total || data.data.length} stock{(data.pagination?.total || data.data.length) > 1 ? 's' : ''} au total
                     </p>
                     {data.pagination && data.pagination.totalPages > 1 && (
                       <>
-                        <span className="text-sm text-slate-400">•</span>
-                        <p className="text-sm text-slate-600">
+                        <span className="text-slate-400">•</span>
+                        <p className="text-slate-600">
                           Page {data.pagination.page} sur {data.pagination.totalPages}
                         </p>
                       </>
@@ -145,7 +145,7 @@ export function StocksPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-700 font-medium">Afficher</span>
+                    <span className="text-slate-700 font-medium">Afficher</span>
                     <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
                       <SelectTrigger className="w-[70px] h-8 border-slate-300 bg-white">
                         <SelectValue />
@@ -158,7 +158,7 @@ export function StocksPage() {
                         <SelectItem value="100">100</SelectItem>
                       </SelectContent>
                     </Select>
-                    <span className="text-sm text-slate-700 font-medium">par page</span>
+                    <span className="text-slate-700 font-medium">par page</span>
                   </div>
                 </div>
 
@@ -240,7 +240,7 @@ export function StocksPage() {
 
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="whitespace-nowrap text-xs md:text-sm">
                     <TableHead>Médicament</TableHead>
                     <TableHead>Forme</TableHead>
                     <TableHead>Quantité</TableHead>

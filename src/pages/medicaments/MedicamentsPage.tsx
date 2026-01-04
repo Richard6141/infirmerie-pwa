@@ -199,16 +199,16 @@ export function MedicamentsPage() {
           ) : (
             <>
               {/* Pagination Controls - Top */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-row items-center justify-between gap-4 px-4 py-2 border-b bg-gradient-to-r from-slate-50 to-slate-100 overflow-x-auto whitespace-nowrap text-xs md:text-sm">
+                <div className="flex items-center gap-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-slate-700 font-semibold">
+                    <p className="text-slate-700 font-semibold">
                       {data.total} médicament{data.total > 1 ? 's' : ''} au total
                     </p>
                     {data.totalPages > 1 && (
                       <>
-                        <span className="text-sm text-slate-400">•</span>
-                        <p className="text-sm text-slate-600">
+                        <span className="text-slate-400">•</span>
+                        <p className="text-slate-600">
                           Page {data.page} sur {data.totalPages}
                         </p>
                       </>
@@ -216,7 +216,7 @@ export function MedicamentsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-700 font-medium">Afficher</span>
+                    <span className="text-slate-700 font-medium">Afficher</span>
                     <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
                       <SelectTrigger className="w-[70px] h-8 border-slate-300 bg-white">
                         <SelectValue />
@@ -229,7 +229,7 @@ export function MedicamentsPage() {
                         <SelectItem value="100">100</SelectItem>
                       </SelectContent>
                     </Select>
-                    <span className="text-sm text-slate-700 font-medium">par page</span>
+                    <span className="text-slate-700 font-medium">par page</span>
                   </div>
                 </div>
 
@@ -310,78 +310,78 @@ export function MedicamentsPage() {
               </div>
 
               <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Nom Commercial</TableHead>
-                  <TableHead>DCI</TableHead>
-                  <TableHead>Forme</TableHead>
-                  <TableHead>Dosage</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Statut</TableHead>
-                  {isInfirmier && <TableHead className="text-right">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.data.map((medicament) => {
-                  const status = getStockStatus(medicament);
-                  return (
-                    <TableRow key={medicament.id}>
-                      <TableCell className="font-medium font-mono text-sm">
-                        {medicament.code}
-                      </TableCell>
-                      <TableCell className="font-medium">{medicament.nomCommercial}</TableCell>
-                      <TableCell>{medicament.dci}</TableCell>
-                      <TableCell>{FORME_GALENIQUE_LABELS[medicament.forme]}</TableCell>
-                      <TableCell>{medicament.dosage}</TableCell>
-                      <TableCell>
-                        {medicament.stock ? (
-                          <div className="text-sm">
-                            <span className="font-medium">{medicament.stock.quantiteActuelle}</span>
-                            <span className="text-slate-500"> / {medicament.stock.seuilMax}</span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-slate-400">Non géré</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStockBadgeColor(status)}`}>
-                          {getStockStatusLabel(status)}
-                        </span>
-                      </TableCell>
-                      {isInfirmier && (
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Link to={`/medicaments/${medicament.id}`}>
-                              <Button variant="ghost" size="icon" title="Voir détails">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Link to={`/medicaments/${medicament.id}/modifier`}>
-                              <Button variant="ghost" size="icon" title="Modifier">
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Supprimer"
-                              onClick={() => {
-                                if (window.confirm('Voulez-vous vraiment supprimer ce médicament ?')) {
-                                  handleDelete(medicament.id);
-                                }
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
+                <TableHeader>
+                  <TableRow className="whitespace-nowrap text-xs md:text-sm">
+                    <TableHead>Code</TableHead>
+                    <TableHead>Nom Commercial</TableHead>
+                    <TableHead>DCI</TableHead>
+                    <TableHead>Forme</TableHead>
+                    <TableHead>Dosage</TableHead>
+                    <TableHead>Stock</TableHead>
+                    <TableHead>Statut</TableHead>
+                    {isInfirmier && <TableHead className="text-right">Actions</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.data.map((medicament) => {
+                    const status = getStockStatus(medicament);
+                    return (
+                      <TableRow key={medicament.id}>
+                        <TableCell className="font-medium font-mono text-sm">
+                          {medicament.code}
                         </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        <TableCell className="font-medium">{medicament.nomCommercial}</TableCell>
+                        <TableCell>{medicament.dci}</TableCell>
+                        <TableCell>{FORME_GALENIQUE_LABELS[medicament.forme]}</TableCell>
+                        <TableCell>{medicament.dosage}</TableCell>
+                        <TableCell>
+                          {medicament.stock ? (
+                            <div className="text-sm">
+                              <span className="font-medium">{medicament.stock.quantiteActuelle}</span>
+                              <span className="text-slate-500"> / {medicament.stock.seuilMax}</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-400">Non géré</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStockBadgeColor(status)}`}>
+                            {getStockStatusLabel(status)}
+                          </span>
+                        </TableCell>
+                        {isInfirmier && (
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link to={`/medicaments/${medicament.id}`}>
+                                <Button variant="ghost" size="icon" title="Voir détails">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Link to={`/medicaments/${medicament.id}/modifier`}>
+                                <Button variant="ghost" size="icon" title="Modifier">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Supprimer"
+                                onClick={() => {
+                                  if (window.confirm('Voulez-vous vraiment supprimer ce médicament ?')) {
+                                    handleDelete(medicament.id);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </>
           )}
         </CardContent>

@@ -74,8 +74,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <span className="text-white font-bold text-lg">+</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-base text-slate-800 leading-tight">Medicare</span>
-                <span className="text-[10px] text-slate-500 leading-tight">Infirmerie</span>
+                <span className="font-bold text-base text-slate-800 leading-tight">Infirmerie MDC</span>
+                <span className="text-[10px] text-slate-500 leading-tight">Ministère de la Culture</span>
               </div>
             </div>
             <Button
