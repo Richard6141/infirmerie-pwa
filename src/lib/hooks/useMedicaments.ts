@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { useOnlineStatus } from './useOnlineStatus';
 import type {
   Medicament,
   MedicamentFilters,
@@ -19,6 +20,8 @@ export const medicamentKeys = {
 
 // ==================== GET MEDICAMENTS (Liste avec filtres) ====================
 export function useMedicaments(filters: MedicamentFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   // Nettoyer les filtres (enlever undefined)
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined)
@@ -26,6 +29,7 @@ export function useMedicaments(filters: MedicamentFilters = {}) {
 
   return useQuery({
     queryKey: medicamentKeys.list(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<MedicamentsResponse> => {
       const params = new URLSearchParams();
 
@@ -45,13 +49,15 @@ export function useMedicaments(filters: MedicamentFilters = {}) {
 
 // ==================== GET MEDICAMENT (Détail par ID) ====================
 export function useMedicament(id: string | undefined) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: medicamentKeys.detail(id!),
     queryFn: async (): Promise<Medicament> => {
       const { data } = await api.get<Medicament>(`/medicaments/${id}`);
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && isOnline, // Ne fait la requête que si ID existe ET online
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
   });

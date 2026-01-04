@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { useOnlineStatus } from './useOnlineStatus';
 import type {
   StocksResponse,
   StockFilters,
@@ -28,12 +29,15 @@ export const stockKeys = {
 // ==================== GET STOCKS ====================
 
 export function useStocks(filters: StockFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
   ) as StockFilters;
 
   return useQuery({
     queryKey: stockKeys.list(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<StocksResponse> => {
       const params = new URLSearchParams();
 
@@ -55,8 +59,11 @@ export function useStocks(filters: StockFilters = {}) {
 // ==================== GET ALERTES STOCK ====================
 
 export function useStockAlertes() {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: stockKeys.alertes(),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<StockAlertes> => {
       const { data } = await api.get<StockAlertes>('/stocks/alertes');
       return data;
@@ -93,12 +100,15 @@ export function useUpdateConfigurationStock() {
 // ==================== MOUVEMENTS STOCK ====================
 
 export function useMouvementsStock(filters: MouvementStockFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
   ) as MouvementStockFilters;
 
   return useQuery({
     queryKey: stockKeys.mouvements.list(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<MouvementsStockResponse> => {
       const params = new URLSearchParams();
 

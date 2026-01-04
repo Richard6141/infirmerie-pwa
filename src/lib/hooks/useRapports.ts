@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
+import { useOnlineStatus } from './useOnlineStatus';
 import type {
   DashboardStats,
   RapportConsultations,
@@ -21,8 +22,11 @@ export const rapportKeys = {
 
 // ==================== GET DASHBOARD STATS ====================
 export function useDashboardStats() {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: rapportKeys.dashboard(),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<DashboardStats> => {
       const { data } = await api.get<DashboardStats>('/rapports/dashboard');
       return data;
@@ -34,6 +38,8 @@ export function useDashboardStats() {
 
 // ==================== GET RAPPORT CONSULTATIONS ====================
 export function useRapportConsultations(filters: RapportConsultationsFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   // Nettoyer les filtres
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
@@ -41,6 +47,7 @@ export function useRapportConsultations(filters: RapportConsultationsFilters = {
 
   return useQuery({
     queryKey: rapportKeys.consultations(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RapportConsultations> => {
       const params = new URLSearchParams();
 
@@ -58,6 +65,8 @@ export function useRapportConsultations(filters: RapportConsultationsFilters = {
 
 // ==================== GET RAPPORT STOCKS ====================
 export function useRapportStocks(filters: RapportStocksFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   // Nettoyer les filtres
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
@@ -65,6 +74,7 @@ export function useRapportStocks(filters: RapportStocksFilters = {}) {
 
   return useQuery({
     queryKey: rapportKeys.stocks(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RapportStocks> => {
       const params = new URLSearchParams();
 
@@ -84,6 +94,8 @@ export function useRapportStocks(filters: RapportStocksFilters = {}) {
 
 // ==================== GET RAPPORT VACCINATIONS ====================
 export function useRapportVaccinations(filters: RapportVaccinationsFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   // Nettoyer les filtres
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
@@ -91,6 +103,7 @@ export function useRapportVaccinations(filters: RapportVaccinationsFilters = {})
 
   return useQuery({
     queryKey: rapportKeys.vaccinations(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RapportVaccinations> => {
       const params = new URLSearchParams();
 
