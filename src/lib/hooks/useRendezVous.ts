@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { useOnlineStatus } from './useOnlineStatus';
 import type {
   RendezVous,
   RendezVousFilters,
@@ -22,6 +23,8 @@ export const rendezVousKeys = {
 
 // ==================== GET RENDEZ-VOUS (Liste avec filtres) ====================
 export function useRendezVous(filters: RendezVousFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   // Nettoyer les filtres (enlever undefined)
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
@@ -29,6 +32,7 @@ export function useRendezVous(filters: RendezVousFilters = {}) {
 
   return useQuery({
     queryKey: rendezVousKeys.list(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RendezVousResponse> => {
       const params = new URLSearchParams();
 
@@ -50,13 +54,15 @@ export function useRendezVous(filters: RendezVousFilters = {}) {
 
 // ==================== GET RENDEZ-VOUS (Détail par ID) ====================
 export function useRendezVousDetail(id: string | undefined) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: rendezVousKeys.detail(id!),
     queryFn: async (): Promise<RendezVous> => {
       const { data } = await api.get<RendezVous>(`/rendez-vous/${id}`);
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && isOnline, // Ne fait la requête que si ID existe ET online
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
   });
@@ -64,13 +70,15 @@ export function useRendezVousDetail(id: string | undefined) {
 
 // ==================== GET RENDEZ-VOUS PAR PATIENT ====================
 export function useRendezVousByPatient(patientId: string | undefined) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: rendezVousKeys.byPatient(patientId!),
     queryFn: async (): Promise<RendezVous[]> => {
       const { data } = await api.get<RendezVous[]>(`/rendez-vous/patient/${patientId}`);
       return data;
     },
-    enabled: !!patientId,
+    enabled: !!patientId && isOnline, // Ne fait la requête que si patientId existe ET online
     staleTime: 1000 * 60, // 1 minute
     gcTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -78,8 +86,11 @@ export function useRendezVousByPatient(patientId: string | undefined) {
 
 // ==================== GET RENDEZ-VOUS DU JOUR ====================
 export function useRendezVousToday() {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: rendezVousKeys.today(),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RendezVous[]> => {
       const today = new Date().toISOString().split('T')[0];
       const { data } = await api.get<RendezVousResponse>(
@@ -95,8 +106,11 @@ export function useRendezVousToday() {
 
 // ==================== GET RENDEZ-VOUS À VENIR (7 JOURS) ====================
 export function useRendezVousUpcoming() {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: rendezVousKeys.upcoming(),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RendezVous[]> => {
       const today = new Date().toISOString().split('T')[0];
       const in7Days = new Date();

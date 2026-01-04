@@ -25,12 +25,15 @@ export const vaccinationKeys = {
 };
 
 export function useVaccinations(filters: VaccinationFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
   ) as VaccinationFilters;
 
   return useQuery({
     queryKey: vaccinationKeys.list(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<VaccinationsResponse> => {
       const params = new URLSearchParams();
       if (cleanFilters.search) params.append('search', cleanFilters.search);
@@ -50,20 +53,25 @@ export function useVaccinations(filters: VaccinationFilters = {}) {
 }
 
 export function useVaccination(id: string) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: vaccinationKeys.detail(id),
     queryFn: async (): Promise<Vaccination> => {
       const { data } = await api.get<Vaccination>('/vaccinations/' + id);
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && isOnline, // Ne fait la requête que si ID existe ET online
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRappels(filters: RappelFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: vaccinationKeys.rappels(filters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<RappelsResponse> => {
       const params = new URLSearchParams();
       if (filters.typeVaccin) params.append('typeVaccin', filters.typeVaccin);

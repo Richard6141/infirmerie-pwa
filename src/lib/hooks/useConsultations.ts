@@ -24,6 +24,8 @@ export const consultationKeys = {
 
 // ==================== GET CONSULTATIONS (Liste avec filtres) ====================
 export function useConsultations(filters: ConsultationFilters = {}) {
+  const isOnline = useOnlineStatus();
+
   // Nettoyer les filtres (enlever undefined)
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
@@ -31,6 +33,7 @@ export function useConsultations(filters: ConsultationFilters = {}) {
 
   return useQuery({
     queryKey: consultationKeys.list(cleanFilters),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<ConsultationsResponse> => {
       const params = new URLSearchParams();
 
@@ -51,13 +54,15 @@ export function useConsultations(filters: ConsultationFilters = {}) {
 
 // ==================== GET CONSULTATION (Détail par ID) ====================
 export function useConsultation(id: string | undefined) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: consultationKeys.detail(id!),
     queryFn: async (): Promise<Consultation> => {
       const { data } = await api.get<Consultation>(`/consultations/${id}`);
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && isOnline, // Ne fait la requête que si ID existe ET online
     staleTime: 1000 * 60, // 1 minute
     gcTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -65,8 +70,11 @@ export function useConsultation(id: string | undefined) {
 
 // ==================== GET MY CONSULTATIONS (Patient connecté) ====================
 export function useMyConsultations() {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: consultationKeys.me(),
+    enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<Consultation[]> => {
       const { data } = await api.get<Consultation[]>('/consultations/me');
       return data;
@@ -84,13 +92,15 @@ export function useMyConsultations() {
 
 // ==================== GET CONSULTATIONS BY PATIENT (Infirmier) ====================
 export function useConsultationsByPatient(patientId: string | undefined) {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: consultationKeys.byPatient(patientId!),
     queryFn: async (): Promise<Consultation[]> => {
       const { data } = await api.get<Consultation[]>(`/consultations/patient/${patientId}`);
       return data;
     },
-    enabled: !!patientId,
+    enabled: !!patientId && isOnline, // Ne fait la requête que si patientId existe ET online
     staleTime: 1000 * 60, // 1 minute
     gcTime: 1000 * 60 * 5, // 5 minutes
   });

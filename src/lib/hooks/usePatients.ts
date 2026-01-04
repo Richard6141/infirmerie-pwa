@@ -26,6 +26,7 @@ export function usePatients(filters: PatientFilters = {}) {
 
   return useQuery({
     queryKey: patientKeys.list(filters),
+    networkMode: 'offlineFirst', // Exécute queryFn même offline, mais ne fait pas de requête réseau
     queryFn: async (): Promise<PatientsResponse> => {
       // MODE OFFLINE: Lire depuis IndexedDB
       if (!isOnline) {
@@ -115,6 +116,7 @@ export function usePatient(id: string | undefined) {
 
   return useQuery({
     queryKey: patientKeys.detail(id!),
+    networkMode: 'offlineFirst', // Exécute queryFn même offline, mais ne fait pas de requête réseau
     queryFn: async (): Promise<Patient> => {
       if (!id) throw new Error('Patient ID manquant');
 
@@ -396,8 +398,11 @@ export function useDeletePatient() {
 
 // ==================== GET PATIENT DIRECTIONS (Pour filtres) ====================
 export function usePatientDirections() {
+  const isOnline = useOnlineStatus();
+
   return useQuery({
     queryKey: ['patients', 'directions'],
+    enabled: isOnline, // Ne fait la requête que si online (pas de fallback offline pour les directions)
     queryFn: async (): Promise<string[]> => {
       const { data } = await api.get<string[]>('/patients/directions');
       return data;
