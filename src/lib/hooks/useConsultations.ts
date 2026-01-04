@@ -71,10 +71,11 @@ export function useConsultation(id: string | undefined) {
 // ==================== GET MY CONSULTATIONS (Patient connecté) ====================
 export function useMyConsultations() {
   const isOnline = useOnlineStatus();
+  const { isPatient } = useAuth();
 
   return useQuery({
     queryKey: consultationKeys.me(),
-    enabled: isOnline, // Ne fait la requête que si online
+    enabled: isOnline && isPatient(), // Ne fait la requête que si online ET patient
     queryFn: async (): Promise<Consultation[]> => {
       const { data } = await api.get<Consultation[]>('/consultations/me');
       return data;
