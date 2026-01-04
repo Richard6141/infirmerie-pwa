@@ -122,11 +122,39 @@ export const patientFormSchema = patientCreateSchema;
 // Type pour les données du formulaire
 export type PatientFormData = z.infer<typeof patientCreateSchema>;
 
-// Type pour création patient (sans ID)
-export type CreatePatientDTO = Omit<Patient, 'id' | 'createdAt' | 'updatedAt'>;
+// Type pour création patient (ce qui est RÉELLEMENT envoyé au backend)
+export type CreatePatientDTO = {
+  email: string;
+  nom: string;
+  prenom: string;
+  dateNaissance?: string; // Optionnel si age est fourni
+  age?: number; // Optionnel si dateNaissance est fourni
+  sexe: Sexe;
+  telephone: string;
+  directionService: string;
+  groupeSanguin?: GroupeSanguin;
+  allergies?: string;
+  antecedents?: Record<string, any>; // Backend utilise antecedents, pas antecedentsMedicaux
+  antecedentsMedicaux?: string; // Alias frontend
+  direction?: string; // Backward compatibility
+  service?: string; // Backward compatibility
+};
 
-// Type pour mise à jour patient (champs optionnels)
-export type UpdatePatientDTO = Partial<CreatePatientDTO>;
+// Type pour mise à jour patient (champs optionnels, sans age)
+export type UpdatePatientDTO = {
+  nom?: string;
+  prenom?: string;
+  dateNaissance?: string;
+  sexe?: Sexe;
+  telephone?: string;
+  directionService?: string;
+  groupeSanguin?: GroupeSanguin;
+  allergies?: string;
+  antecedents?: Record<string, any>;
+  antecedentsMedicaux?: string;
+  direction?: string;
+  service?: string;
+};
 
 // Interface pour les filtres de recherche
 export interface PatientFilters {

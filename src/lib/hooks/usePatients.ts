@@ -155,15 +155,39 @@ export function useCreatePatient() {
           const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
           const now = new Date().toISOString();
 
-          // Générer un matricule temporaire si non fourni
-          const matricule = patientData.matricule || `TEMP-${Date.now()}`;
+          // Générer un matricule temporaire
+          const matricule = `TEMP-${Date.now()}`;
+
+          // Calculer dateNaissance si age est fourni
+          let dateNaissance = patientData.dateNaissance;
+          if (!dateNaissance && patientData.age !== undefined) {
+            const currentYear = new Date().getFullYear();
+            const birthYear = currentYear - patientData.age;
+            dateNaissance = `${birthYear}-01-01`;
+          }
+
+          // S'assurer que dateNaissance existe (requis pour Patient)
+          if (!dateNaissance) {
+            throw new Error('Date de naissance ou âge requis');
+          }
 
           const patient: PatientLocal = {
             id: tempId,
             tempId,
-            ...patientData,
-            matricule, // S'assurer que matricule existe
+            email: patientData.email,
+            nom: patientData.nom,
+            prenom: patientData.prenom,
+            matricule,
+            dateNaissance,
+            sexe: patientData.sexe,
+            telephone: patientData.telephone,
             direction: patientData.direction || patientData.directionService || '',
+            directionService: patientData.directionService,
+            service: patientData.service,
+            groupeSanguin: patientData.groupeSanguin,
+            allergies: patientData.allergies,
+            antecedents: patientData.antecedentsMedicaux || '',
+            antecedentsMedicaux: patientData.antecedentsMedicaux,
             createdAt: now,
             updatedAt: now,
             syncStatus: 'pending',
