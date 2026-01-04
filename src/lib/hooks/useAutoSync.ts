@@ -86,7 +86,24 @@ export function useAutoSync() {
 
       } catch (error: any) {
         console.error('[useAutoSync] Sync failed:', error);
-        toast.error('Échec de la synchronisation', { duration: 3000 });
+
+        // Diagnostic détaillé de l'erreur
+        if (error.code === 'ERR_NETWORK' || error.code === 'ERR_NAME_NOT_RESOLVED') {
+          toast.error('Pas de connexion Internet - Synchronisation impossible', {
+            description: 'Vérifiez votre connexion et réessayez',
+            duration: 5000
+          });
+        } else if (error.message?.includes('timeout')) {
+          toast.error('Délai dépassé - Connexion trop lente', {
+            description: 'La synchronisation sera réessayée automatiquement',
+            duration: 5000
+          });
+        } else {
+          toast.error('Échec de la synchronisation', {
+            description: error.message || 'Erreur inconnue',
+            duration: 3000
+          });
+        }
       } finally {
         syncInProgress.current = false;
       }

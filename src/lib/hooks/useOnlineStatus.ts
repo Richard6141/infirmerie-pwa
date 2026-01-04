@@ -1,9 +1,38 @@
 import { useState, useEffect } from 'react';
+import { api } from '../api';
+
+/**
+ * Vérifie la vraie connectivité Internet en essayant d'atteindre le backend
+ */
+async function checkRealConnectivity(): Promise<boolean> {
+  try {
+    // Essayer d'atteindre le health endpoint avec un timeout court
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://infirmerie-api.onrender.com'}/health`, {
+      method: 'GET',
+      signal: controller.signal,
+      cache: 'no-cache',
+      mode: 'cors'
+    });
+
+    clearTimeout(timeoutId);
+
+    // Si on reçoit une réponse (même erreur), le réseau fonctionne
+    return response.ok || response.status >= 400;
+  } catch (error: any) {
+    console.warn('[OnlineStatus] Real connectivity check failed:', error.message);
+    return false;
+  }
+}
 
 /**
  * Hook pour détecter le statut de connexion en ligne/hors ligne
  *
- * @returns {boolean} true si en ligne, false si hors ligne
+ * AMÉLIORATION: Vérifie la VRAIE connectivité Internet, pas juste navigator.onLine
+ *
+ * @returns {boolean} true si en ligne avec accès Internet réel, false sinon
  */
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState(() => {
@@ -14,9 +43,28 @@ export function useOnlineStatus() {
   });
 
   useEffect(() => {
-    const handleOnline = () => {
-      console.log('[OnlineStatus] Connection restored');
-      setIsOnline(true);
+    const handleOnline = async () => {
+      console.log('[OnlineStatus] Network interface connected, verifying real connectivity...');
+
+      // Vérifier la VRAIE connectivité avant de passer à online
+      const hasRealConnection = await checkRealConnectivity();
+
+      if (hasRealConnection) {
+        console.log('[OnlineStatus] ✅ Real Internet connection confirmed');
+        setIsOnline(true);
+      } else {
+        console.warn('[OnlineStatus] ⚠️ Network interface connected but no Internet access');
+        setIsOnline(false);
+
+        // Réessayer après 10 secondes
+        setTimeout(async () => {
+          const recheck = await checkRealConnectivity();
+          if (recheck) {
+            console.log('[OnlineStatus] ✅ Internet access restored on retry');
+            setIsOnline(true);
+          }
+        }, 10000);
+      }
     };
 
     const handleOffline = () => {

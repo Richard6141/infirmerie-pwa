@@ -585,6 +585,7 @@ export class SyncService {
       }
 
       console.log(`[SyncService] Found ${pendingQueue.length} patients to push`);
+      console.log('[SyncService] Pending patient IDs:', pendingQueue.map(q => q.entityId));
 
       // Préparer les patients pour l'API
       const patients: PushSyncPatient[] = [];
@@ -623,7 +624,17 @@ export class SyncService {
       }
 
       // Log des données envoyées pour debug
-      console.log('[SyncService] Sending patients to server:', JSON.stringify(patients, null, 2));
+      console.log('[SyncService] Sending patients to server:', JSON.stringify({
+        count: patients.length,
+        deviceId: this.deviceId,
+        patients: patients.map(p => ({
+          tempId: p.tempId,
+          nom: p.nom,
+          prenom: p.prenom,
+          email: p.email,
+          matricule: p.matricule
+        }))
+      }, null, 2));
 
       // Envoyer au serveur
       const { data } = await api.post<PushSyncResponse>('/sync/push-patients', {
@@ -632,6 +643,9 @@ export class SyncService {
       } as PushSyncPatientsRequest);
 
       console.log('[SyncService] Push patients response:', data.stats);
+      console.log('[SyncService] Success:', data.success);
+      console.log('[SyncService] Errors:', data.errors);
+      console.log('[SyncService] Conflicts:', data.conflicts);
 
       // Log des erreurs et conflits détaillés
       if (data.errors && data.errors.length > 0) {
@@ -1333,6 +1347,109 @@ export class SyncService {
   async clearConflicts(): Promise<void> {
     this.conflictsCache = [];
   }
+
+  // ==================== DIAGNOSTIC METHODS ====================
+
+  /**
+   * Obtenir des informations détaillées sur l'état de la synchronisation
+   * Utile pour le débogage
+   */
+  async getDiagnosticInfo(): Promise<{
+    deviceId: string;
+    lastSyncDate: string | null;
+    syncInProgress: boolean;
+    pendingOperationsCount: number;
+    lastError: string | null;
+    queueDetails: {
+      patients: { create: number; update: number; delete: number };
+      consultations: { create: number; update: number; delete: number };
+      vaccinations: { create: number; update: number; delete: number };
+    };
+    queueItems: SyncQueueItem[];
+  }> {
+    const queueItems = await db.syncQueue.toArray();
+
+    // Compter par entité et opération
+    const queueDetails = {
+      patients: { create: 0, update: 0, delete: 0 },
+      consultations: { create: 0, update: 0, delete: 0 },
+      vaccinations: { create: 0, update: 0, delete: 0 }
+    };
+
+    for (const item of queueItems) {
+      if (item.entity === 'patient') {
+        queueDetails.patients[item.operation]++;
+      } else if (item.entity === 'consultation') {
+        queueDetails.consultations[item.operation]++;
+      } else if (item.entity === 'vaccination') {
+        queueDetails.vaccinations[item.operation]++;
+      }
+    }
+
+    return {
+      deviceId: this.deviceId,
+      lastSyncDate: await getSyncMeta('lastSyncDate'),
+      syncInProgress: await getSyncMeta('syncInProgress'),
+      pendingOperationsCount: queueItems.length,
+      lastError: await getSyncMeta('lastError'),
+      queueDetails,
+      queueItems
+    };
+  }
+
+  /**
+   * Afficher les informations de diagnostic dans la console
+   * Peut être appelé depuis la console du navigateur: window.syncDiagnostic()
+   */
+  async logDiagnostic(): Promise<void> {
+    const info = await this.getDiagnosticInfo();
+
+    console.group('📊 SYNC DIAGNOSTIC INFO');
+    console.log('🔑 Device ID:', info.deviceId);
+    console.log('📅 Last Sync:', info.lastSyncDate || 'Never');
+    console.log('🔄 Sync In Progress:', info.syncInProgress);
+    console.log('📦 Pending Operations:', info.pendingOperationsCount);
+    console.log('❌ Last Error:', info.lastError || 'None');
+
+    console.group('📋 Queue Details');
+    console.log('👤 Patients:', info.queueDetails.patients);
+    console.log('📝 Consultations:', info.queueDetails.consultations);
+    console.log('💉 Vaccinations:', info.queueDetails.vaccinations);
+    console.groupEnd();
+
+    if (info.queueItems.length > 0) {
+      console.group('🗂️ Queue Items');
+      console.table(info.queueItems.map(item => ({
+        Entity: item.entity,
+        Operation: item.operation,
+        EntityID: item.entityId,
+        Attempts: item.attempts,
+        CreatedAt: new Date(item.createdAt).toLocaleString(),
+        LastAttempt: item.lastAttempt ? new Date(item.lastAttempt).toLocaleString() : 'N/A',
+        Error: item.error || 'None'
+      })));
+      console.groupEnd();
+    }
+
+    console.groupEnd();
+
+    return;
+  }
+
+  /**
+   * Exposer la fonction de diagnostic globalement pour accès depuis la console
+   */
+  exposeGlobalDiagnostic(): void {
+    if (typeof window !== 'undefined') {
+      (window as any).syncDiagnostic = () => this.logDiagnostic();
+      console.log('💡 Sync diagnostic available: Run syncDiagnostic() in console');
+    }
+  }
 }
 
 export const syncService = SyncService.getInstance();
+
+// Exposer le diagnostic globalement en développement
+if (import.meta.env.DEV) {
+  syncService.exposeGlobalDiagnostic();
+}
