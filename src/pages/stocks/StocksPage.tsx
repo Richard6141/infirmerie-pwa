@@ -466,7 +466,17 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
 
 function HistoriqueMouvements() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useMouvementsStock({ page, limit: 10 });
+  const [typeFilter, setTypeFilter] = useState<TypeMouvement | 'ALL'>('ALL');
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
+
+  const { data, isLoading, isError } = useMouvementsStock({
+    page,
+    limit: 10,
+    type: typeFilter !== 'ALL' ? typeFilter : undefined,
+    startDate: dateDebut || undefined,
+    endDate: dateFin || undefined,
+  });
 
   return (
     <Card>
@@ -474,46 +484,120 @@ function HistoriqueMouvements() {
         <CardTitle>Historique des mouvements</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="w-full md:w-48">
+            <Select
+              value={typeFilter}
+              onValueChange={(value) => {
+                setTypeFilter(value as TypeMouvement | 'ALL');
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Type de mouvement" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Tous les types</SelectItem>
+                <SelectItem value="ENTREE">Entrées</SelectItem>
+                <SelectItem value="SORTIE">Sorties</SelectItem>
+                <SelectItem value="AJUSTEMENT">Ajustements</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              value={dateDebut}
+              onChange={(e) => {
+                setDateDebut(e.target.value);
+                setPage(1);
+              }}
+              className="bg-white w-auto"
+            />
+            <Input
+              type="date"
+              value={dateFin}
+              onChange={(e) => {
+                setDateFin(e.target.value);
+                setPage(1);
+              }}
+              className="bg-white w-auto"
+            />
+          </div>
+
+          {(typeFilter !== 'ALL' || dateDebut || dateFin) && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setTypeFilter('ALL');
+                setDateDebut('');
+                setDateFin('');
+                setPage(1);
+              }}
+            >
+              Réinitialiser
+            </Button>
+          )}
+        </div>
+
         {isLoading ? (
           <div className="flex justify-center py-4">
             <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
           </div>
         ) : isError ? (
-          <div className="text-center py-6">
-            <Package className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-            <p className="text-sm font-medium text-slate-600">Fonctionnalité en cours de configuration</p>
-            <p className="text-xs text-slate-500 mt-1">L'historique des mouvements sera disponible prochainement</p>
+          <div className="text-center py-6 text-red-500">
+            Une erreur est survenue lors du chargement de l'historique.
           </div>
         ) : !data || data.data.length === 0 ? (
-          <p className="text-center text-slate-500 py-4">Aucun mouvement enregistré</p>
+          <div className="text-center py-8 text-slate-500">
+            <p className="font-medium">Aucun mouvement trouvé</p>
+            <p className="text-sm mt-1">Essayez de modifier vos filtres</p>
+          </div>
         ) : (
           <>
             <div className="space-y-3">
               {data.data.map((mouvement) => (
-                <div key={mouvement.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={mouvement.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    {mouvement.type === 'ENTREE' ? (
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <TrendingDown className="h-5 w-5 text-red-600" />
-                    )}
+                    <div className={`p-2 rounded-full ${mouvement.type === 'ENTREE' ? 'bg-green-100' :
+                        mouvement.type === 'SORTIE' ? 'bg-red-100' : 'bg-blue-100'
+                      }`}>
+                      {mouvement.type === 'ENTREE' ? (
+                        <TrendingUp className={`h-4 w-4 ${mouvement.type === 'ENTREE' ? 'text-green-600' :
+                            mouvement.type === 'SORTIE' ? 'text-red-600' : 'text-blue-600'
+                          }`} />
+                      ) : mouvement.type === 'SORTIE' ? (
+                        <TrendingDown className="h-4 w-4 text-red-600" />
+                      ) : (
+                        <Package className="h-4 w-4 text-blue-600" />
+                      )}
+                    </div>
                     <div>
                       <p className="font-semibold text-slate-800">
                         {mouvement.nomMedicament || mouvement.medicament?.nomCommercial || 'Médicament inconnu'}
                       </p>
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
                         <span className="font-medium text-slate-700">{TYPE_MOUVEMENT_LABELS[mouvement.type]}</span>
                         <span>•</span>
                         <span>{new Date(mouvement.createdAt).toLocaleString('fr-FR')}</span>
+                        {mouvement.motif && (
+                          <>
+                            <span>•</span>
+                            <span className="italic truncate max-w-[200px]" title={mouvement.motif}>{mouvement.motif}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-slate-800">
+                    <p className={`font-bold ${mouvement.type === 'ENTREE' ? 'text-green-600' :
+                        mouvement.type === 'SORTIE' ? 'text-red-600' : 'text-blue-600'
+                      }`}>
                       {mouvement.type === 'ENTREE' ? '+' : '-'}{mouvement.quantite}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {mouvement.quantiteAvant} → {mouvement.quantiteApres}
+                      Stock: {mouvement.quantiteAvant} → {mouvement.quantiteApres}
                     </p>
                   </div>
                 </div>
@@ -521,16 +605,28 @@ function HistoriqueMouvements() {
             </div>
 
             {data?.pagination && data.pagination.totalPages > 1 && (
-              <div className="flex justify-between mt-4 pt-4 border-t">
+              <div className="flex items-center justify-between mt-6 pt-4 border-t">
                 <p className="text-sm text-slate-600">
                   Page {page} sur {data.pagination.totalPages}
                 </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
                     Précédent
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={page >= data.pagination.totalPages}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.min(data.pagination.totalPages, p + 1))}
+                    disabled={page >= data.pagination.totalPages}
+                  >
                     Suivant
+                    <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
               </div>
