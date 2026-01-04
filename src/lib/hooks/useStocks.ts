@@ -112,10 +112,6 @@ export function useMouvementsStock(filters: MouvementStockFilters = {}) {
     queryFn: async (): Promise<MouvementsStockResponse> => {
       const params = new URLSearchParams();
 
-      const hasFilters = Boolean(cleanFilters.type || cleanFilters.startDate || cleanFilters.endDate);
-      const requestedPage = cleanFilters.page || 1;
-      const requestedLimit = cleanFilters.limit || 10;
-
       let url: string;
       if (cleanFilters.medicamentId) {
         url = `/stocks/medicament/${cleanFilters.medicamentId}/mouvements`;
@@ -123,64 +119,15 @@ export function useMouvementsStock(filters: MouvementStockFilters = {}) {
         url = '/stocks/mouvements/all';
       }
 
-      // Si des filtres sont actifs, on récupère "tout" (limit=1000) pour filtrer côté client
-      // car l'API semble ne pas gérer les filtres type/date nativement sur cet endpoint
-      if (hasFilters) {
-        params.append('limit', '1000');
-        params.append('page', '1');
-      } else {
-        if (cleanFilters.page) params.append('page', cleanFilters.page.toString());
-        if (cleanFilters.limit) params.append('limit', cleanFilters.limit.toString());
-      }
-
-      // On envoie quand même les filtres au cas où l'API les supporterait un jour
       if (cleanFilters.type) params.append('type', cleanFilters.type);
       if (cleanFilters.startDate) params.append('startDate', cleanFilters.startDate);
       if (cleanFilters.endDate) params.append('endDate', cleanFilters.endDate);
+      if (cleanFilters.page) params.append('page', cleanFilters.page.toString());
+      if (cleanFilters.limit) params.append('limit', cleanFilters.limit.toString());
 
       url += (params.toString() ? '?' + params.toString() : '');
       const { data } = await api.get<MouvementsStockResponse>(url);
-
-      // Si pas de filtres, on retourne directement la réponse de l'API
-      if (!hasFilters) {
-        return data;
-      }
-
-      // Filtrage côté client
-      let filteredData = [...data.data];
-
-      if (cleanFilters.type) {
-        filteredData = filteredData.filter(m => m.type === cleanFilters.type);
-      }
-
-      if (cleanFilters.startDate) {
-        const startDate = new Date(cleanFilters.startDate);
-        startDate.setHours(0, 0, 0, 0);
-        filteredData = filteredData.filter(m => new Date(m.createdAt) >= startDate);
-      }
-
-      if (cleanFilters.endDate) {
-        const endDate = new Date(cleanFilters.endDate);
-        endDate.setHours(23, 59, 59, 999);
-        filteredData = filteredData.filter(m => new Date(m.createdAt) <= endDate);
-      }
-
-      // Pagination côté client
-      const total = filteredData.length;
-      const totalPages = Math.ceil(total / requestedLimit);
-      const startIndex = (requestedPage - 1) * requestedLimit;
-      const endIndex = startIndex + requestedLimit;
-      const paginatedData = filteredData.slice(startIndex, endIndex);
-
-      return {
-        data: paginatedData,
-        pagination: {
-          page: requestedPage,
-          limit: requestedLimit,
-          total: total,
-          totalPages: totalPages,
-        }
-      };
+      return data;
     },
     staleTime: 0,
     gcTime: 1000 * 60 * 5,
