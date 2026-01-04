@@ -1,6 +1,7 @@
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useRendezVousToday } from '@/lib/hooks/useRendezVous';
-import { useDashboardStats } from '@/lib/hooks/useDashboardStats';
+import { useDashboardStats as useDashboardStatsOld } from '@/lib/hooks/useDashboardStats';
+import { useDashboardStats } from '@/lib/hooks/useRapports';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SyncStatus } from '@/components/sync/SyncStatus';
 import { SyncButton } from '@/components/sync/SyncButton';
@@ -184,7 +185,7 @@ function WelcomeBanner({ userName, rdvCount = 0, nouveauxPatients = 0, consultat
 export function DashboardPage() {
   const { user, isInfirmier } = useAuth();
   const { data: rendezVousToday } = useRendezVousToday();
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: stats, isLoading: statsLoading } = useDashboardStatsOld();
 
   // Handle sync
   const handleSync = async () => {
@@ -196,6 +197,9 @@ export function DashboardPage() {
     }
   };
 
+  // Récupérer les statistiques du rapport dashboard pour les données d'activité
+  const { data: dashboardStats } = useDashboardStats();
+
   // Données pour les graphiques
   const servicesData = stats ? [
     { name: 'Patients', value: stats.patients.total },
@@ -204,15 +208,8 @@ export function DashboardPage() {
     { name: 'Vaccinations', value: stats.vaccinations.total },
   ] : [];
 
-  // Données simulées pour l'activité mensuelle (à remplacer par vraies données API)
-  const activityData = [
-    { name: 'Jan', consultations: 45, vaccinations: 20 },
-    { name: 'Fév', consultations: 52, vaccinations: 28 },
-    { name: 'Mar', consultations: 48, vaccinations: 25 },
-    { name: 'Avr', consultations: 61, vaccinations: 32 },
-    { name: 'Mai', consultations: 55, vaccinations: 30 },
-    { name: 'Juin', consultations: 67, vaccinations: 38 },
-  ];
+  // Données réelles pour l'activité mensuelle sur 6 mois
+  const activityData = dashboardStats?.activiteSurSixMois || [];
 
   // Dashboard pour l'Infirmier (Gestionnaire)
   if (isInfirmier) {

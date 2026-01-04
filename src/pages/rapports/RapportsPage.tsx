@@ -43,11 +43,35 @@ const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 export function RapportsPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState<'custom' | 'week' | 'month' | 'year'>('custom');
 
   // Filtres spécifiques pour les stocks
   const [stockStatut, setStockStatut] = useState<'RUPTURE' | 'CRITIQUE' | 'BAS' | 'NORMAL' | 'HAUT' | 'ALERTE' | ''>('');
   const [stockForme, setStockForme] = useState<string>('');
   const [stockExportType, setStockExportType] = useState<'TOUS' | 'RUPTURES' | 'ALERTES' | 'FORMES'>('TOUS');
+
+  // Fonction pour définir la période
+  const setPeriod = (period: 'week' | 'month' | 'year') => {
+    const now = new Date();
+    const end = now.toISOString().split('T')[0];
+    let start = new Date();
+
+    switch (period) {
+      case 'week':
+        start.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        start.setMonth(now.getMonth() - 1);
+        break;
+      case 'year':
+        start.setFullYear(now.getFullYear() - 1);
+        break;
+    }
+
+    setStartDate(start.toISOString().split('T')[0]);
+    setEndDate(end);
+    setSelectedPeriod(period);
+  };
 
   const { data: dashboardStats, isLoading: loadingDashboard } = useDashboardStats();
   const { data: consultationsStats, isLoading: loadingConsultations } = useRapportConsultations({ startDate, endDate });
@@ -156,24 +180,62 @@ export function RapportsPage() {
             Période du rapport
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Boutons de filtres rapides */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={() => setPeriod('week')}
+              variant={selectedPeriod === 'week' ? 'default' : 'outline'}
+              className={selectedPeriod === 'week' ? 'bg-purple-600 hover:bg-purple-700' : 'border-purple-300'}
+              size="sm"
+            >
+              7 derniers jours
+            </Button>
+            <Button
+              onClick={() => setPeriod('month')}
+              variant={selectedPeriod === 'month' ? 'default' : 'outline'}
+              className={selectedPeriod === 'month' ? 'bg-purple-600 hover:bg-purple-700' : 'border-purple-300'}
+              size="sm"
+            >
+              30 derniers jours
+            </Button>
+            <Button
+              onClick={() => setPeriod('year')}
+              variant={selectedPeriod === 'year' ? 'default' : 'outline'}
+              className={selectedPeriod === 'year' ? 'bg-purple-600 hover:bg-purple-700' : 'border-purple-300'}
+              size="sm"
+            >
+              12 derniers mois
+            </Button>
+          </div>
+
+          {/* Filtres de dates personnalisés */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setSelectedPeriod('custom');
+              }}
               className="bg-white border-purple-200"
+              placeholder="Date de début"
             />
             <Input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setSelectedPeriod('custom');
+              }}
               className="bg-white border-purple-200"
+              placeholder="Date de fin"
             />
             <Button
               onClick={() => {
                 setStartDate('');
                 setEndDate('');
+                setSelectedPeriod('custom');
                 toast.info('Filtres réinitialisés');
               }}
               variant="outline"

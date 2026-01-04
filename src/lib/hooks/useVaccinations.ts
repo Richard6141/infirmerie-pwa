@@ -43,6 +43,8 @@ export function useVaccinations(filters: VaccinationFilters = {}) {
       if (cleanFilters.endDate) params.append('endDate', cleanFilters.endDate);
       if (cleanFilters.page) params.append('page', cleanFilters.page.toString());
       if (cleanFilters.limit) params.append('limit', cleanFilters.limit.toString());
+      // Inclure les données du patient
+      params.append('include', 'patient');
       const url = '/vaccinations' + (params.toString() ? '?' + params.toString() : '');
       const { data } = await api.get<VaccinationsResponse>(url);
       return data;

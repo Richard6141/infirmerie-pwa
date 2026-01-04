@@ -8,6 +8,7 @@ export interface DashboardStats {
   consultationsParJour: ConsultationParJour[];
   topMotifsConsultations: MotifCount[];
   repartitionPatientsParDirection: DirectionCount[];
+  activiteSurSixMois: ActiviteMensuelle[];
 }
 
 export interface ConsultationParJour {
@@ -23,6 +24,12 @@ export interface MotifCount {
 export interface DirectionCount {
   direction: string;
   count: number;
+}
+
+export interface ActiviteMensuelle {
+  name: string;
+  consultations: number;
+  vaccinations: number;
 }
 
 // ==================== RAPPORT CONSULTATIONS ====================
