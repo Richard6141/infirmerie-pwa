@@ -1,13 +1,16 @@
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useRendezVousToday } from '@/lib/hooks/useRendezVous';
+import { useDashboardStats } from '@/lib/hooks/useDashboardStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SyncStatus } from '@/components/sync/SyncStatus';
 import { SyncButton } from '@/components/sync/SyncButton';
 import { OfflineBannerCompact } from '@/components/sync/OfflineBanner';
 import { StockAlertsWidget } from '@/components/stocks';
 import { RappelsVaccinsWidget } from '@/components/vaccinations';
+import { StatsChart, ActivityChart } from '@/components/dashboard';
 import { syncService } from '@/lib/sync/syncService';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Users,
   FileText,
@@ -30,46 +33,43 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  gradient: string;
-  trend?: {
-    value: string;
-    isPositive: boolean;
-  };
+  color: string;
+  isLoading?: boolean;
 }
 
-function StatCard({ title, value, icon, gradient, trend }: StatCardProps) {
+function StatCard({ title, value, icon, color, isLoading }: StatCardProps) {
+  if (isLoading) {
+    return (
+      <Card className="shadow-card border-slate-200">
+        <div className={`h-1 ${color}`}></div>
+        <CardContent className="p-5">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+            <Skeleton className="h-12 w-12 rounded-xl" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 border-0 bg-white overflow-hidden group hover-lift">
-      <div className={`h-1 ${gradient}`}></div>
+    <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 border-slate-200 bg-white overflow-hidden group hover-lift">
+      <div className={`h-1 ${color}`}></div>
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{title}</p>
             <div className="text-2xl font-bold text-slate-800">{value}</div>
           </div>
-          <div className={`stat-icon-wrapper ${gradient.replace('bg-gradient-to-r', 'bg-gradient-to-br')} shadow-sm`}>
+          <div className={`stat-icon-wrapper ${color} shadow-sm`}>
             <div className="text-white">
               {icon}
             </div>
           </div>
         </div>
-
-        {trend && (
-          <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
-            <div className={cn(
-              "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold",
-              trend.isPositive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-            )}>
-              {trend.isPositive ? (
-                <ArrowUpRight className="h-3 w-3" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3" />
-              )}
-              <span>{trend.value}</span>
-            </div>
-            <span className="text-xs text-slate-500">vs mois dernier</span>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
@@ -80,17 +80,17 @@ interface ModuleCardProps {
   icon: React.ReactNode;
   title: string;
   count?: number;
-  gradient: string;
+  color: string;
 }
 
-function ModuleCard({ to, icon, title, count, gradient }: ModuleCardProps) {
+function ModuleCard({ to, icon, title, count, color }: ModuleCardProps) {
   return (
     <Link to={to} className="group">
       <Card className="cursor-pointer transition-all duration-300 h-full border border-slate-200 shadow-card hover:shadow-card-hover hover:-translate-y-1 bg-white">
         <CardContent className="p-5">
           <div className="flex flex-col items-center text-center gap-3">
-            {/* Circular gradient icon */}
-            <div className={`h-16 w-16 rounded-2xl ${gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md`}>
+            {/* Circular solid color icon */}
+            <div className={`h-16 w-16 rounded-2xl ${color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md`}>
               <div className="text-white">
                 {icon}
               </div>
@@ -115,12 +115,12 @@ interface WelcomeBannerProps {
   rdvCount?: number;
 }
 
-function WelcomeBanner({ userName, rdvCount = 0 }: WelcomeBannerProps) {
+function WelcomeBanner({ userName, rdvCount = 0, nouveauxPatients = 0, consultationsJour = 0 }: WelcomeBannerProps & { nouveauxPatients?: number, consultationsJour?: number }) {
   const currentTime = new Date().getHours();
   const greeting = currentTime < 12 ? 'Bonjour' : currentTime < 18 ? 'Bon après-midi' : 'Bonsoir';
-  
+
   return (
-    <div className="relative overflow-hidden rounded-2xl gradient-primary p-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-6 shadow-xl">
       <div className="relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex-1">
@@ -154,7 +154,7 @@ function WelcomeBanner({ userName, rdvCount = 0 }: WelcomeBannerProps) {
                 <UserCheck className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white leading-none">0</p>
+                <p className="text-2xl font-bold text-white leading-none">{nouveauxPatients}</p>
                 <p className="text-xs text-blue-100 mt-1">Nouveaux</p>
               </div>
             </div>
@@ -165,8 +165,8 @@ function WelcomeBanner({ userName, rdvCount = 0 }: WelcomeBannerProps) {
                 <Stethoscope className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white leading-none">0</p>
-                <p className="text-xs text-blue-100 mt-1">Opérations</p>
+                <p className="text-2xl font-bold text-white leading-none">{consultationsJour}</p>
+                <p className="text-xs text-blue-100 mt-1">Consultations</p>
               </div>
             </div>
           </div>
@@ -184,6 +184,7 @@ function WelcomeBanner({ userName, rdvCount = 0 }: WelcomeBannerProps) {
 export function DashboardPage() {
   const { user, isInfirmier } = useAuth();
   const { data: rendezVousToday } = useRendezVousToday();
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
 
   // Handle sync
   const handleSync = async () => {
@@ -195,12 +196,35 @@ export function DashboardPage() {
     }
   };
 
+  // Données pour les graphiques
+  const servicesData = stats ? [
+    { name: 'Patients', value: stats.patients.total },
+    { name: 'Consultations', value: stats.consultations.total },
+    { name: 'Médicaments', value: stats.medicaments.total },
+    { name: 'Vaccinations', value: stats.vaccinations.total },
+  ] : [];
+
+  // Données simulées pour l'activité mensuelle (à remplacer par vraies données API)
+  const activityData = [
+    { name: 'Jan', consultations: 45, vaccinations: 20 },
+    { name: 'Fév', consultations: 52, vaccinations: 28 },
+    { name: 'Mar', consultations: 48, vaccinations: 25 },
+    { name: 'Avr', consultations: 61, vaccinations: 32 },
+    { name: 'Mai', consultations: 55, vaccinations: 30 },
+    { name: 'Juin', consultations: 67, vaccinations: 38 },
+  ];
+
   // Dashboard pour l'Infirmier (Gestionnaire)
   if (isInfirmier) {
     return (
       <div className="space-y-6 animate-fade-in">
         {/* Bannière de bienvenue */}
-        <WelcomeBanner userName={`${user?.prenom} ${user?.nom}`} rdvCount={rendezVousToday?.length || 0} />
+        <WelcomeBanner
+          userName={`${user?.prenom} ${user?.nom}`}
+          rdvCount={stats?.rendezVous.ceJour || 0}
+          nouveauxPatients={stats?.patients.nouveaux || 0}
+          consultationsJour={stats?.consultations.ceJour || 0}
+        />
 
         {/* Indicateur offline */}
         <OfflineBannerCompact />
@@ -219,45 +243,51 @@ export function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-slate-800">Vue d'ensemble</h2>
-            <div className="text-xs text-slate-500">Mis à jour il y a quelques secondes</div>
+            {!statsLoading && <div className="text-xs text-slate-500">Mis à jour il y a quelques secondes</div>}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              title="Nouveaux Patients"
-              value="0"
+              title="Total Patients"
+              value={stats?.patients.total || 0}
               icon={<Users className="h-6 w-6" />}
-              gradient="bg-gradient-to-r from-success to-emerald-600"
-              trend={{ value: "+12%", isPositive: true }}
+              color="bg-blue-600"
+              isLoading={statsLoading}
             />
             <StatCard
               title="Consultations"
-              value="0"
+              value={stats?.consultations.total || 0}
               icon={<FileText className="h-6 w-6" />}
-              gradient="bg-gradient-to-r from-primary to-blue-600"
-              trend={{ value: "+8%", isPositive: true }}
+              color="bg-green-600"
+              isLoading={statsLoading}
             />
             <StatCard
-              title="Tests Laboratoire"
-              value="0"
-              icon={<Activity className="h-6 w-6" />}
-              gradient="bg-gradient-to-r from-destructive to-rose-600"
-              trend={{ value: "+15%", isPositive: true }}
+              title="Vaccinations"
+              value={stats?.vaccinations.total || 0}
+              icon={<Syringe className="h-6 w-6" />}
+              color="bg-purple-600"
+              isLoading={statsLoading}
             />
             <StatCard
-              title="Revenus Total"
-              value="0 FCFA"
-              icon={<DollarSign className="h-6 w-6" />}
-              gradient="bg-gradient-to-r from-warning to-amber-600"
-              trend={{ value: "+22%", isPositive: true }}
+              title="Alertes Stocks"
+              value={stats?.stocks.alertes || 0}
+              icon={<Package className="h-6 w-6" />}
+              color="bg-orange-600"
+              isLoading={statsLoading}
             />
           </div>
+        </div>
+
+        {/* Graphiques d'activité */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ActivityChart title="Activité sur 6 mois" data={activityData} />
+          <StatsChart title="Répartition des services" data={servicesData} type="pie" />
         </div>
 
         {/* Modules Services */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-slate-800">Services Médicaux</h2>
-            <Link to="/rapports" className="text-sm font-medium text-primary hover:text-primary-dark flex items-center gap-1">
+            <Link to="/rapports" className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
               Voir tout
               <ArrowUpRight className="h-4 w-4" />
             </Link>
@@ -267,43 +297,43 @@ export function DashboardPage() {
               to="/patients"
               icon={<Users className="h-7 w-7" />}
               title="Patients"
-              count={0}
-              gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+              count={stats?.patients.total || 0}
+              color="bg-blue-600"
             />
             <ModuleCard
               to="/consultations"
               icon={<FileText className="h-7 w-7" />}
               title="Consultations"
-              count={0}
-              gradient="bg-gradient-to-br from-purple-500 to-purple-600"
+              count={stats?.consultations.total || 0}
+              color="bg-purple-600"
             />
             <ModuleCard
               to="/medicaments"
               icon={<Pill className="h-7 w-7" />}
               title="Médicaments"
-              count={0}
-              gradient="bg-gradient-to-br from-pink-500 to-pink-600"
+              count={stats?.medicaments.total || 0}
+              color="bg-pink-600"
             />
             <ModuleCard
               to="/stocks"
               icon={<Package className="h-7 w-7" />}
               title="Stocks"
-              count={0}
-              gradient="bg-gradient-to-br from-orange-500 to-orange-600"
+              count={stats?.stocks.total || 0}
+              color="bg-orange-600"
             />
             <ModuleCard
               to="/vaccinations"
               icon={<Syringe className="h-7 w-7" />}
               title="Vaccinations"
-              count={0}
-              gradient="bg-gradient-to-br from-green-500 to-green-600"
+              count={stats?.vaccinations.total || 0}
+              color="bg-green-600"
             />
             <ModuleCard
               to="/rendez-vous"
               icon={<Calendar className="h-7 w-7" />}
               title="Rendez-vous"
-              count={0}
-              gradient="bg-gradient-to-br from-cyan-500 to-cyan-600"
+              count={stats?.rendezVous.total || 0}
+              color="bg-cyan-600"
             />
           </div>
         </div>
@@ -331,28 +361,28 @@ export function DashboardPage() {
             to="/consultations"
             icon={<FileText className="h-7 w-7" />}
             title="Mes Consultations"
-            gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+            color="bg-blue-600"
           />
           <ModuleCard
             to="/vaccinations"
             icon={<Syringe className="h-7 w-7" />}
             title="Mes Vaccinations"
-            gradient="bg-gradient-to-br from-green-500 to-green-600"
+            color="bg-green-600"
           />
           <ModuleCard
             to="/rendez-vous"
             icon={<Calendar className="h-7 w-7" />}
             title="Mes Rendez-vous"
-            gradient="bg-gradient-to-br from-purple-500 to-purple-600"
+            color="bg-purple-600"
           />
         </div>
       </div>
 
       {/* Informations personnelles */}
-      <Card className="border-l-4 border-l-primary shadow-card overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+      <Card className="border-l-4 border-l-blue-600 shadow-card overflow-hidden">
+        <CardHeader className="bg-slate-50 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 gradient-primary rounded-xl shadow-sm">
+            <div className="p-2.5 bg-blue-600 rounded-xl shadow-sm">
               <Users className="h-5 w-5 text-white" />
             </div>
             <CardTitle className="text-lg font-bold text-slate-800">Informations Personnelles</CardTitle>
