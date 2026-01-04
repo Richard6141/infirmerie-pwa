@@ -119,7 +119,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             size="icon"
             onClick={handleLogout}
             title="Déconnexion"
-            className="text-slate-600 hover:text-destructive hover:bg-destructive/10 h-10 w-10 rounded-lg"
+            className="text-slate-600 hover:text-destructive hover:bg-destructive/10 h-10 w-10 rounded-lg cursor-pointer"
           >
             <LogOut className="h-5 w-5" />
           </Button>
