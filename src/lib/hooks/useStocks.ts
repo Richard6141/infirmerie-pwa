@@ -39,16 +39,10 @@ export function useStocks(filters: StockFilters = {}) {
     queryKey: stockKeys.list(cleanFilters),
     enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<StocksResponse> => {
-      const params = new URLSearchParams();
-
-      if (cleanFilters.search) params.append('search', cleanFilters.search);
-      if (cleanFilters.statut) params.append('statut', cleanFilters.statut);
-      if (cleanFilters.formeGalenique) params.append('formeGalenique', cleanFilters.formeGalenique);
-      if (cleanFilters.page) params.append('page', cleanFilters.page.toString());
-      if (cleanFilters.limit) params.append('limit', cleanFilters.limit.toString());
-
-      const url = '/stocks' + (params.toString() ? '?' + params.toString() : '');
-      const { data } = await api.get<StocksResponse>(url);
+      const url = '/stocks';
+      const { data } = await api.get<StocksResponse>(url, {
+        params: cleanFilters,
+      });
       return data;
     },
     staleTime: 0,
@@ -110,23 +104,20 @@ export function useMouvementsStock(filters: MouvementStockFilters = {}) {
     queryKey: stockKeys.mouvements.list(cleanFilters),
     enabled: isOnline, // Ne fait la requête que si online
     queryFn: async (): Promise<MouvementsStockResponse> => {
-      const params = new URLSearchParams();
-
       let url: string;
+      const requestParams = { ...cleanFilters };
+
       if (cleanFilters.medicamentId) {
         url = `/stocks/medicament/${cleanFilters.medicamentId}/mouvements`;
+        // Remove medicamentId from query params since it's in the path
+        delete requestParams.medicamentId;
       } else {
         url = '/stocks/mouvements/all';
       }
 
-      if (cleanFilters.type) params.append('type', cleanFilters.type);
-      if (cleanFilters.startDate) params.append('startDate', cleanFilters.startDate);
-      if (cleanFilters.endDate) params.append('endDate', cleanFilters.endDate);
-      if (cleanFilters.page) params.append('page', cleanFilters.page.toString());
-      if (cleanFilters.limit) params.append('limit', cleanFilters.limit.toString());
-
-      url += (params.toString() ? '?' + params.toString() : '');
-      const { data } = await api.get<MouvementsStockResponse>(url);
+      const { data } = await api.get<MouvementsStockResponse>(url, {
+        params: requestParams,
+      });
       return data;
     },
     staleTime: 0,

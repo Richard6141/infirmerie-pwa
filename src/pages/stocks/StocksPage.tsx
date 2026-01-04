@@ -379,7 +379,6 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
                 Sortie de stock
               </div>
             </SelectItem>
-            <SelectItem value="AJUSTEMENT">Ajustement d'inventaire</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -500,7 +499,6 @@ function HistoriqueMouvements() {
                 <SelectItem value="ALL">Tous les types</SelectItem>
                 <SelectItem value="ENTREE">Entrées</SelectItem>
                 <SelectItem value="SORTIE">Sorties</SelectItem>
-                <SelectItem value="AJUSTEMENT">Ajustements</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -560,17 +558,12 @@ function HistoriqueMouvements() {
               {data.data.map((mouvement) => (
                 <div key={mouvement.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full ${mouvement.type === 'ENTREE' ? 'bg-green-100' :
-                        mouvement.type === 'SORTIE' ? 'bg-red-100' : 'bg-blue-100'
+                    <div className={`p-2 rounded-full ${mouvement.type === 'ENTREE' ? 'bg-green-100' : 'bg-red-100'
                       }`}>
                       {mouvement.type === 'ENTREE' ? (
-                        <TrendingUp className={`h-4 w-4 ${mouvement.type === 'ENTREE' ? 'text-green-600' :
-                            mouvement.type === 'SORTIE' ? 'text-red-600' : 'text-blue-600'
-                          }`} />
-                      ) : mouvement.type === 'SORTIE' ? (
-                        <TrendingDown className="h-4 w-4 text-red-600" />
+                        <TrendingUp className="h-4 w-4 text-green-600" />
                       ) : (
-                        <Package className="h-4 w-4 text-blue-600" />
+                        <TrendingDown className="h-4 w-4 text-red-600" />
                       )}
                     </div>
                     <div>
@@ -591,8 +584,7 @@ function HistoriqueMouvements() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-bold ${mouvement.type === 'ENTREE' ? 'text-green-600' :
-                        mouvement.type === 'SORTIE' ? 'text-red-600' : 'text-blue-600'
+                    <p className={`font-bold ${mouvement.type === 'ENTREE' ? 'text-green-600' : 'text-red-600'
                       }`}>
                       {mouvement.type === 'ENTREE' ? '+' : '-'}{mouvement.quantite}
                     </p>

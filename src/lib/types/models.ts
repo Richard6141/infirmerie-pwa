@@ -33,7 +33,6 @@ export type StatutRendezVous = (typeof StatutRendezVous)[keyof typeof StatutRend
 export const TypeMouvement = {
   ENTREE: 'Entrée',
   SORTIE: 'Sortie',
-  AJUSTEMENT: 'Ajustement',
 } as const;
 
 export type TypeMouvement = (typeof TypeMouvement)[keyof typeof TypeMouvement];

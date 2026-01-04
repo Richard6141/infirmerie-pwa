@@ -1,18 +1,16 @@
 // ==================== MOUVEMENT STOCK ====================
 
-export const TYPE_MOUVEMENT_VALUES = ['ENTREE', 'SORTIE', 'AJUSTEMENT'] as const;
+export const TYPE_MOUVEMENT_VALUES = ['ENTREE', 'SORTIE'] as const;
 export type TypeMouvement = typeof TYPE_MOUVEMENT_VALUES[number];
 
 export const TYPE_MOUVEMENT_LABELS: Record<TypeMouvement, string> = {
   ENTREE: 'Entrée',
   SORTIE: 'Sortie',
-  AJUSTEMENT: 'Ajustement',
 };
 
 export const TYPE_MOUVEMENT_COLORS: Record<TypeMouvement, string> = {
   ENTREE: 'bg-green-100 text-green-800 border-green-200',
   SORTIE: 'bg-red-100 text-red-800 border-red-200',
-  AJUSTEMENT: 'bg-blue-100 text-blue-800 border-blue-200',
 };
 
 export interface MouvementStock {
