@@ -19,7 +19,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="flex-shrink-0 w-full h-16 bg-white border-b border-slate-200 shadow-header">
+    <header className="sticky top-0 z-30 flex-shrink-0 w-full h-16 bg-white border-b border-slate-200 shadow-header">
       <div className="flex h-full items-center px-4 md:px-6 gap-3 md:gap-4">
         {/* Menu burger pour mobile */}
         <Button
