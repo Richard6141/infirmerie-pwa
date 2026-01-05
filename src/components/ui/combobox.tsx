@@ -4,14 +4,6 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -34,6 +26,7 @@ interface ComboboxProps {
   disabled?: boolean
   onSearchChange?: (search: string) => void
   className?: string
+  "aria-invalid"?: boolean
 }
 
 export function Combobox({
@@ -47,6 +40,7 @@ export function Combobox({
   disabled = false,
   onSearchChange,
   className,
+  "aria-invalid": ariaInvalid,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
@@ -71,7 +65,12 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between bg-white hover:bg-slate-50", className)}
+          aria-invalid={ariaInvalid}
+          className={cn(
+            "w-full justify-between bg-white hover:bg-slate-50",
+            ariaInvalid && "border-red-500 ring-red-500",
+            className
+          )}
           disabled={disabled}
         >
           <span className="truncate">

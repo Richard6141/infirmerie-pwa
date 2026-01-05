@@ -81,7 +81,9 @@ export function LoginForm() {
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-red-600">{errors.email.message}</p>
+              <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -102,7 +104,9 @@ export function LoginForm() {
               />
             </div>
             {errors.password && (
-              <p className="text-xs text-red-600">{errors.password.message}</p>
+              <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
 

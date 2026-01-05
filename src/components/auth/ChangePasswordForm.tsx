@@ -59,8 +59,8 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message ||
-                          error?.message ||
-                          'Erreur lors du changement de mot de passe';
+        error?.message ||
+        'Erreur lors du changement de mot de passe';
       toast.error('Échec du changement de mot de passe', {
         description: errorMessage,
       });
@@ -104,7 +104,9 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
               />
             </div>
             {errors.currentPassword && (
-              <p className="text-xs text-red-600">{errors.currentPassword.message}</p>
+              <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
+                {errors.currentPassword.message}
+              </p>
             )}
           </div>
 
@@ -125,7 +127,9 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
               />
             </div>
             {errors.newPassword && (
-              <p className="text-xs text-red-600">{errors.newPassword.message}</p>
+              <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
+                {errors.newPassword.message}
+              </p>
             )}
             <p className="text-xs text-gray-500">
               Minimum 8 caractères avec majuscule, minuscule, chiffre et caractère spécial
@@ -149,7 +153,9 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
               />
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-red-600">{errors.confirmPassword.message}</p>
+              <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 
