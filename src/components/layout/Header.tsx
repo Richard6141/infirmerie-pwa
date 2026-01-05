@@ -38,7 +38,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-base text-slate-800 leading-tight">Infirmerie MDC</span>
-            <span className="text-[10px] text-slate-500 leading-tight">Ministère de la Culture</span>
+            <span className="text-[10px] text-slate-500 leading-tight">Ministère du Développement</span>
           </div>
         </div>
 

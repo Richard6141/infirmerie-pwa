@@ -4,6 +4,7 @@ import {
   Users,
   User,
   FileText,
+  FileHeart,
   Pill,
   Package,
   Syringe,
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/patients', icon: Users, label: 'Patients', roles: ['INFIRMIER'] },
   { to: '/consultations', icon: FileText, label: 'Consultations' },
+  { to: '/repos-sanitaire', icon: FileHeart, label: 'Repos Sanitaire', roles: ['INFIRMIER'] },
   { to: '/medicaments', icon: Pill, label: 'Médicaments', roles: ['INFIRMIER'] },
   { to: '/stocks', icon: Package, label: 'Gestion Stocks', roles: ['INFIRMIER'] },
   { to: '/vaccinations', icon: Syringe, label: 'Vaccinations' },
@@ -75,7 +77,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-base text-slate-800 leading-tight">Infirmerie MDC</span>
-                <span className="text-[10px] text-slate-500 leading-tight">Ministère de la Culture</span>
+                <span className="text-[10px] text-slate-500 leading-tight">Ministère du Développement</span>
               </div>
             </div>
             <Button

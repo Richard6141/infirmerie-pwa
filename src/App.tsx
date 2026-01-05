@@ -14,6 +14,7 @@ import { ConsultationsPage } from './pages/consultations/ConsultationsPage';
 import { NewConsultationPage } from './pages/consultations/NewConsultationPage';
 import { EditConsultationPage } from './pages/consultations/EditConsultationPage';
 import { ConsultationDetailPage } from './pages/consultations/ConsultationDetailPage';
+import { ReposSanitairePage, NewReposSanitairePage, EditReposSanitairePage, ReposSanitaireDetailPage } from './pages/repos-sanitaire';
 import { MedicamentsPage } from './pages/medicaments/MedicamentsPage';
 import { NewMedicamentPage } from './pages/medicaments/NewMedicamentPage';
 import { EditMedicamentPage } from './pages/medicaments/EditMedicamentPage';
@@ -126,6 +127,40 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
                 <EditConsultationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Repos Sanitaire - Infirmier uniquement */}
+          <Route
+            path="/repos-sanitaire"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <ReposSanitairePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/repos-sanitaire/nouvelle"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <NewReposSanitairePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/repos-sanitaire/:id"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <ReposSanitaireDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/repos-sanitaire/:id/modifier"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <EditReposSanitairePage />
               </ProtectedRoute>
             }
           />
