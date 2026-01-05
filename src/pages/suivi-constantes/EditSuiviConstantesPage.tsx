@@ -83,23 +83,24 @@ export function EditSuiviConstantesPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-4">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => navigate(`/suivi-constantes/${id}`)}
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <div>
-                    <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <Activity className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+            {/* Header */}
+            <div className="space-y-1">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigate(`/suivi-constantes/${id}`)}
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+                        <Activity className="h-5 w-5 md:h-8 md:w-8 text-primary" />
                         Modifier la prise de constantes
                     </h1>
-                    <p className="text-slate-600 mt-1">
-                        Patient: {constante.patient?.prenom} {constante.patient?.nom}
-                    </p>
                 </div>
+                <p className="text-slate-600">
+                    Patient: {constante.patient?.prenom} {constante.patient?.nom}
+                </p>
             </div>
 
             {/* Form */}

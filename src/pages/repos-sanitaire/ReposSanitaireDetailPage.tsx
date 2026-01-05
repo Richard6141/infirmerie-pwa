@@ -74,50 +74,53 @@ export function ReposSanitaireDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-              <FileHeart className="h-6 w-6 md:h-8 md:w-8 text-success" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+              <FileHeart className="h-5 w-5 md:h-8 md:w-8 text-success" />
               Fiche de Repos Sanitaire
             </h1>
-            <p className="text-slate-600 mt-1">
-              Examen du {formaterDateRepos(reposSanitaire.dateExamen)}
-            </p>
+          </div>
+
+          <div className="flex gap-2">
+            {/* Prominent PDF Button */}
+            <Button
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
+              onClick={handleGeneratePDF}
+            >
+              <FileDown className="h-4 w-4" />
+              <span className="hidden md:inline">Générer le PDF</span>
+              <span className="md:hidden">PDF</span>
+            </Button>
           </div>
         </div>
-
-        <div className="flex gap-2">
-          {/* Prominent PDF Button */}
-          <Button
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
-            onClick={handleGeneratePDF}
-          >
-            <FileDown className="h-4 w-4" />
-            Générer le PDF
-          </Button>
-          <Link to={`/repos-sanitaire/${reposSanitaire.id}/modifier`}>
-            <Button variant="outline" className="gap-2">
-              <Pencil className="h-4 w-4" />
-              Modifier
-            </Button>
-          </Link>
-          <Button
-            variant="destructive"
-            className="gap-2"
-            onClick={() => setDeleteDialogOpen(true)}
-          >
-            <Trash2 className="h-4 w-4" />
-            Supprimer
-          </Button>
-        </div>
+        <p className="text-slate-600 ml-14 md:ml-0">
+          Examen du {formaterDateRepos(reposSanitaire.dateExamen)}
+        </p>
       </div>
+      <Link to={`/repos-sanitaire/${reposSanitaire.id}/modifier`}>
+        <Button variant="outline" className="gap-2">
+          <Pencil className="h-4 w-4" />
+          Modifier
+        </Button>
+      </Link>
+      <Button
+        variant="destructive"
+        className="gap-2"
+        onClick={() => setDeleteDialogOpen(true)}
+      >
+        <Trash2 className="h-4 w-4" />
+        Supprimer
+      </Button>
+    </div>
+      </div >
 
-      {/* Informations Patient et Infirmier */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {/* Informations Patient et Infirmier */ }
+    < div className = "grid grid-cols-1 md:grid-cols-2 gap-6" >
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -155,30 +158,30 @@ export function ReposSanitaireDetailPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div >
 
-      {/* Diagnostic */}
-      <Card>
+    {/* Diagnostic */ }
+    < Card >
         <CardHeader>
           <CardTitle>Diagnostic Final</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-slate-700 whitespace-pre-wrap">{reposSanitaire.diagnosticFinal}</p>
         </CardContent>
-      </Card>
+      </Card >
 
-      {/* Soins Institués */}
-      <Card>
+    {/* Soins Institués */ }
+    < Card >
         <CardHeader>
           <CardTitle>Soins Institués</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-slate-700 whitespace-pre-wrap">{reposSanitaire.soinsInstitues}</p>
         </CardContent>
-      </Card>
+      </Card >
 
-      {/* Repos Physique */}
-      <Card>
+    {/* Repos Physique */ }
+    < Card >
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-red-500" />
@@ -216,10 +219,10 @@ export function ReposSanitaireDetailPage() {
             )}
           </div>
         </CardContent>
-      </Card>
+      </Card >
 
-      {/* Métadonnées */}
-      <Card className="bg-slate-50">
+    {/* Métadonnées */ }
+    < Card className = "bg-slate-50" >
         <CardHeader>
           <CardTitle className="text-sm">Métadonnées</CardTitle>
         </CardHeader>
@@ -229,46 +232,46 @@ export function ReposSanitaireDetailPage() {
             <p>Modifié le: {new Date(reposSanitaire.updatedAt).toLocaleString('fr-FR')}</p>
           </div>
         </CardContent>
-      </Card>
+      </Card >
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-900 text-xl">Confirmer la suppression</DialogTitle>
-            <DialogDescription className="text-slate-600 text-base mt-2">
-              Êtes-vous sûr de vouloir supprimer cette fiche de repos sanitaire pour{' '}
-              <span className="font-semibold text-slate-900">
-                {reposSanitaire.nomPatient}
-              </span>{' '}
-              ? Cette action est irréversible.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={deleteMutation.isPending}
-            >
-              Annuler
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Suppression...
-                </>
-              ) : (
-                'Supprimer'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    {/* Delete Confirmation Dialog */ }
+    < Dialog open = { deleteDialogOpen } onOpenChange = { setDeleteDialogOpen } >
+      <DialogContent className="bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-slate-900 text-xl">Confirmer la suppression</DialogTitle>
+          <DialogDescription className="text-slate-600 text-base mt-2">
+            Êtes-vous sûr de vouloir supprimer cette fiche de repos sanitaire pour{' '}
+            <span className="font-semibold text-slate-900">
+              {reposSanitaire.nomPatient}
+            </span>{' '}
+            ? Cette action est irréversible.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={deleteMutation.isPending}
+          >
+            Annuler
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Suppression...
+              </>
+            ) : (
+              'Supprimer'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+      </Dialog >
+    </div >
   );
 }

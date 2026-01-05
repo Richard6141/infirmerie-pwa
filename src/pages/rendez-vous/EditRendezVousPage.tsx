@@ -27,12 +27,12 @@ export function EditRendezVousPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-          <Calendar className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+      <div className="space-y-1">
+        <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+          <Calendar className="h-5 w-5 md:h-8 md:w-8 text-blue-600" />
           Modifier le Rendez-vous
         </h1>
-        <p className="text-slate-600 mt-1">
+        <p className="text-slate-600">
           Modifier les informations du rendez-vous
         </p>
       </div>

@@ -83,25 +83,26 @@ export function MedicamentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <Pill className="h-6 w-6 md:h-8 md:w-8 text-purple-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <Pill className="h-5 w-5 md:h-8 md:w-8 text-purple-600" />
             Catalogue Médicaments
           </h1>
-          <p className="text-slate-600 mt-1">
-            Gérer le catalogue des médicaments et suivre les stocks
-          </p>
-        </div>
 
-        {isInfirmier && (
-          <Link to="/medicaments/nouveau">
-            <Button className="gap-2 bg-purple-600 hover:bg-purple-700">
-              <Plus className="h-4 w-4" />
-              Nouveau Médicament
-            </Button>
-          </Link>
-        )}
+          {isInfirmier && (
+            <Link to="/medicaments/nouveau">
+              <Button className="gap-2 bg-purple-600 hover:bg-purple-700">
+                <Plus className="h-4 w-4" />
+                <span className="hidden md:inline">Nouveau Médicament</span>
+                <span className="md:hidden">Nouveau</span>
+              </Button>
+            </Link>
+          )}
+        </div>
+        <p className="text-slate-600">
+          Gérer le catalogue des médicaments et suivre les stocks
+        </p>
       </div>
 
       {/* Filters */}

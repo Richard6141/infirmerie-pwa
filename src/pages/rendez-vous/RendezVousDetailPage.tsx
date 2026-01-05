@@ -67,46 +67,47 @@ export function RendezVousDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-              <Calendar className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+              <Calendar className="h-5 w-5 md:h-8 md:w-8 text-blue-600" />
               Détail du Rendez-vous
             </h1>
-            <p className="text-slate-600 mt-1">
-              {formaterDateRendezVous(rendezVous.dateHeure)}
-            </p>
           </div>
-        </div>
 
-        {isInfirmier && (
-          <div className="flex gap-2">
-            <Link to={`/rendez-vous/${rendezVous.id}/modifier`}>
-              <Button variant="outline" className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Modifier
+          {isInfirmier && (
+            <div className="flex gap-2">
+              <Link to={`/rendez-vous/${rendezVous.id}/modifier`}>
+                <Button variant="outline" className="gap-2">
+                  <Pencil className="h-4 w-4" />
+                  <span className="hidden md:inline">Modifier</span>
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden md:inline">Supprimer</span>
               </Button>
-            </Link>
-            <Button
-              variant="destructive"
-              className="gap-2"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-              Supprimer
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
+        <p className="text-slate-600 ml-14 md:ml-0">
+          {formaterDateRendezVous(rendezVous.dateHeure)}
+        </p>
       </div>
 
+
       {/* Informations principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      < div className="grid grid-cols-1 md:grid-cols-2 gap-6" >
         {/* Patient */}
-        <Card>
+        < Card >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -119,10 +120,10 @@ export function RendezVousDetailPage() {
               <p className="text-sm text-slate-600">Matricule: {getMatriculePatient(rendezVous)}</p>
             </div>
           </CardContent>
-        </Card>
+        </Card >
 
         {/* Date et Heure */}
-        <Card>
+        < Card >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
@@ -138,11 +139,11 @@ export function RendezVousDetailPage() {
               </p>
             </div>
           </CardContent>
-        </Card>
-      </div>
+        </Card >
+      </div >
 
       {/* Statut */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle>Statut</CardTitle>
         </CardHeader>
@@ -153,10 +154,10 @@ export function RendezVousDetailPage() {
             {STATUT_RDV_LABELS[rendezVous.statut]}
           </span>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* Motif */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -166,19 +167,21 @@ export function RendezVousDetailPage() {
         <CardContent>
           <p className="text-slate-700 whitespace-pre-wrap">{rendezVous.motif}</p>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* Observations */}
-      {getObservations(rendezVous) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Observations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-slate-700 whitespace-pre-wrap">{getObservations(rendezVous)}</p>
-          </CardContent>
-        </Card>
-      )}
+      {
+        getObservations(rendezVous) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Observations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-700 whitespace-pre-wrap">{getObservations(rendezVous)}</p>
+            </CardContent>
+          </Card>
+        )
+      }
 
       {/* Infirmier */}
       <Card>
@@ -232,6 +235,6 @@ export function RendezVousDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

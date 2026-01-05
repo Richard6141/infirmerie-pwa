@@ -101,12 +101,12 @@ export function SuiviConstantesPage() {
 
         return (
             <div className="space-y-6">
-                <div>
-                    <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <Activity className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+                <div className="space-y-1">
+                    <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+                        <Activity className="h-5 w-5 md:h-8 md:w-8 text-primary" />
                         Mes Constantes
                     </h1>
-                    <p className="text-slate-600 mt-1">
+                    <p className="text-slate-600">
                         Suivez l'évolution de vos constantes vitales
                     </p>
                 </div>
@@ -162,23 +162,25 @@ export function SuiviConstantesPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <Activity className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+            {/* Header */}
+            <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+                        <Activity className="h-5 w-5 md:h-8 md:w-8 text-primary" />
                         Suivi des Constantes Médicales
                     </h1>
-                    <p className="text-slate-600 mt-1">
-                        Enregistrer et suivre l'évolution des constantes vitales des patients
-                    </p>
-                </div>
 
-                <Link to="/suivi-constantes/nouveau">
-                    <Button className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Nouvelle Prise
-                    </Button>
-                </Link>
+                    <Link to="/suivi-constantes/nouveau">
+                        <Button className="gap-2">
+                            <Plus className="h-4 w-4" />
+                            <span className="hidden md:inline">Nouvelle Prise</span>
+                            <span className="md:hidden">Nouvelle</span>
+                        </Button>
+                    </Link>
+                </div>
+                <p className="text-slate-600">
+                    Enregistrer et suivre l'évolution des constantes vitales des patients
+                </p>
             </div>
 
             {/* Filters & Search */}

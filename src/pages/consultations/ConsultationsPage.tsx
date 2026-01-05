@@ -126,27 +126,28 @@ export function ConsultationsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <FileText className="h-6 w-6 md:h-8 md:w-8 text-success" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <FileText className="h-5 w-5 md:h-8 md:w-8 text-success" />
             {isInfirmier ? 'Consultations' : 'Mes Consultations'}
           </h1>
-          <p className="text-slate-600 mt-1">
-            {isInfirmier
-              ? 'Gérer et suivre toutes les consultations médicales'
-              : 'Consulter votre historique médical'}
-          </p>
-        </div>
 
-        {isInfirmier && (
-          <Link to="/consultations/nouvelle">
-            <Button className="gap-2 bg-success hover:bg-success/90">
-              <Plus className="h-4 w-4" />
-              Nouvelle Consultation
-            </Button>
-          </Link>
-        )}
+          {isInfirmier && (
+            <Link to="/consultations/nouvelle">
+              <Button className="gap-2 bg-success hover:bg-success/90">
+                <Plus className="h-4 w-4" />
+                <span className="hidden md:inline">Nouvelle Consultation</span>
+                <span className="md:hidden">Nouvelle</span>
+              </Button>
+            </Link>
+          )}
+        </div>
+        <p className="text-slate-600">
+          {isInfirmier
+            ? 'Gérer et suivre toutes les consultations médicales'
+            : 'Consulter votre historique médical'}
+        </p>
       </div>
 
       {/* Filters & Search */}

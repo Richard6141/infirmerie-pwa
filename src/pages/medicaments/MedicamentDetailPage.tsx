@@ -64,40 +64,40 @@ export function MedicamentDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-              <Pill className="h-6 w-6 md:h-8 md:w-8 text-purple-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+              <Pill className="h-5 w-5 md:h-8 md:w-8 text-purple-600" />
               Détail du Médicament
             </h1>
-            <p className="text-slate-600 mt-1">
-              {medicament.nomCommercial}
-            </p>
           </div>
-        </div>
 
-        {isInfirmier && (
-          <div className="flex gap-2">
-            <Link to={`/medicaments/${medicament.id}/modifier`}>
-              <Button variant="outline" className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Modifier
+          {isInfirmier && (
+            <div className="flex gap-2">
+              <Link to={`/medicaments/${medicament.id}/modifier`}>
+                <Button variant="outline" className="gap-2">
+                  <Pencil className="h-4 w-4" />
+                  <span className="hidden md:inline">Modifier</span>
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden md:inline">Supprimer</span>
               </Button>
-            </Link>
-            <Button
-              variant="destructive"
-              className="gap-2"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-              Supprimer
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
+        <p className="text-slate-600 ml-14 md:ml-0">
+          {medicament.nomCommercial}
+        </p>
       </div>
 
       {/* Informations générales */}

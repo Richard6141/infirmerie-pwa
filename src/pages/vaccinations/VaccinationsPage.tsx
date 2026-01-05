@@ -39,83 +39,85 @@ export function VaccinationsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <Syringe className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <Syringe className="h-5 w-5 md:h-8 md:w-8 text-green-600" />
             {isInfirmier ? 'Vaccinations' : 'Mes Vaccinations'}
           </h1>
-          <p className="text-slate-600 mt-1">
-            {isInfirmier
-              ? 'Suivi des vaccinations du personnel'
-              : 'Votre carnet de vaccination'}
-          </p>
+          {isInfirmier && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="hidden md:inline">Nouvelle Vaccination</span>
+                  <span className="md:hidden">Nouvelle</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl bg-white">
+                <DialogHeader>
+                  <DialogTitle>Enregistrer une vaccination</DialogTitle>
+                </DialogHeader>
+                <VaccinationForm onClose={() => setIsDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
-
-        {isInfirmier && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Nouvelle Vaccination
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl bg-white">
-              <DialogHeader>
-                <DialogTitle>Enregistrer une vaccination</DialogTitle>
-              </DialogHeader>
-              <VaccinationForm onClose={() => setIsDialogOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        )}
+        <p className="text-slate-600">
+          {isInfirmier
+            ? 'Suivi des vaccinations du personnel'
+            : 'Votre carnet de vaccination'}
+        </p>
       </div>
 
       {/* Filtres */}
-      {isInfirmier && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  type="search"
-                  placeholder="Rechercher un patient..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+      {
+        isInfirmier && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    type="search"
+                    placeholder="Rechercher un patient..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-              <div className="flex gap-2">
-                <Select value={typeFilter || undefined} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Filtrer par type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {TYPES_VACCINS.map((type) => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {typeFilter && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setTypeFilter('')}
-                    className="px-3"
-                  >
-                    ✕
-                  </Button>
-                )}
-              </div>
+                <div className="flex gap-2">
+                  <Select value={typeFilter || undefined} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Filtrer par type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {TYPES_VACCINS.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {typeFilter && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setTypeFilter('')}
+                      className="px-3"
+                    >
+                      ✕
+                    </Button>
+                  )}
+                </div>
 
-              <Button variant="outline" onClick={() => { setSearch(''); setTypeFilter(''); }}>
-                Réinitialiser
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                <Button variant="outline" onClick={() => { setSearch(''); setTypeFilter(''); }}>
+                  Réinitialiser
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      }
 
       {/* Table vaccinations */}
       <Card>
@@ -304,7 +306,7 @@ export function VaccinationsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }
 

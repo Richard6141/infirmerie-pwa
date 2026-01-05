@@ -133,39 +133,42 @@ export function CalendrierRendezVousPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <Calendar className="h-6 w-6 md:h-8 md:w-8 text-cyan-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <Calendar className="h-5 w-5 md:h-8 md:w-8 text-cyan-600" />
             Calendrier des Rendez-vous
           </h1>
-          <p className="text-slate-600 mt-1">
-            Vue d'ensemble de tous vos rendez-vous
-          </p>
-        </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/rendez-vous/liste')}
-          >
-            <List className="h-4 w-4 mr-2" />
-            Vue Liste
-          </Button>
-          {isInfirmier && (
+          <div className="flex gap-2">
             <Button
-              onClick={() => navigate('/rendez-vous/nouveau')}
-              className="bg-cyan-600 hover:bg-cyan-700"
+              variant="outline"
+              onClick={() => navigate('/rendez-vous/liste')}
             >
-              <Calendar className="h-4 w-4 mr-2" />
-              Nouveau Rendez-vous
+              <List className="h-4 w-4 mr-2" />
+              <span className="hidden md:inline">Vue Liste</span>
+              <span className="md:hidden">Liste</span>
             </Button>
-          )}
+            {isInfirmier && (
+              <Button
+                onClick={() => navigate('/rendez-vous/nouveau')}
+                className="bg-cyan-600 hover:bg-cyan-700"
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="hidden md:inline">Nouveau RDV</span>
+                <span className="md:hidden">Nouveau</span>
+              </Button>
+            )}
+          </div>
         </div>
+        <p className="text-slate-600">
+          Vue d'ensemble de tous vos rendez-vous
+        </p>
       </div>
 
+
       {/* Légende */}
-      <Card className="border-slate-200 shadow-sm">
+      < Card className="border-slate-200 shadow-sm" >
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-slate-700">Légende des statuts</CardTitle>
         </CardHeader>
@@ -189,10 +192,10 @@ export function CalendrierRendezVousPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* Calendrier */}
-      <Card className="border-slate-200 shadow-lg">
+      < Card className="border-slate-200 shadow-lg" >
         <CardContent className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
@@ -340,10 +343,10 @@ export function CalendrierRendezVousPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card >
 
       {/* Dialog de détails du RDV */}
-      <Dialog open={!!selectedEvent && !deleteDialogOpen} onOpenChange={() => setSelectedEvent(null)}>
+      < Dialog open={!!selectedEvent && !deleteDialogOpen} onOpenChange={() => setSelectedEvent(null)}>
         <DialogContent className="bg-white max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -448,10 +451,10 @@ export function CalendrierRendezVousPage() {
             )}
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Dialog de confirmation de suppression */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      < Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} >
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Confirmer la suppression</DialogTitle>
@@ -475,7 +478,7 @@ export function CalendrierRendezVousPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </div>
+      </Dialog >
+    </div >
   );
 }

@@ -74,35 +74,37 @@ export function ConsultationDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-              <FileText className="h-6 w-6 md:h-8 md:w-8 text-success" />
+            <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+              <FileText className="h-5 w-5 md:h-8 md:w-8 text-success" />
               Détail de la Consultation
             </h1>
-            <p className="text-slate-600 mt-1">
-              Consultation du {formaterDateConsultation(consultation.date)}
-            </p>
           </div>
         </div>
 
-        {isInfirmier && (
-          <div className="flex gap-2">
-            <Link to={`/consultations/${consultation.id}/modifier`}>
-              <Button variant="outline" className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Modifier
+        <div className="flex flex-col gap-1 items-end">
+          {isInfirmier && (
+            <div className="flex gap-2">
+              <Link to={`/consultations/${consultation.id}/modifier`}>
+                <Button variant="outline" className="gap-2">
+                  <Pencil className="h-4 w-4" />
+                  <span className="hidden md:inline">Modifier</span>
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden md:inline">Supprimer</span>
               </Button>
-            </Link>
-            <Button
-              variant="destructive"
-              className="gap-2"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-              Supprimer
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
+      <p className="text-slate-600 ml-14 md:ml-0 -mt-4">
+        Consultation du {formaterDateConsultation(consultation.date)}
+      </p>
 
       {/* Informations Patient et Infirmier */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

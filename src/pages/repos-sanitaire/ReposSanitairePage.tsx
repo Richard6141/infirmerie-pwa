@@ -120,23 +120,24 @@ export function ReposSanitairePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <FileHeart className="h-6 w-6 md:h-8 md:w-8 text-success" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <FileHeart className="h-5 w-5 md:h-8 md:w-8 text-success" />
             Repos Sanitaire
           </h1>
-          <p className="text-slate-600 mt-1">
-            Gérer et suivre les fiches de repos sanitaire des patients
-          </p>
-        </div>
 
-        <Link to="/repos-sanitaire/nouvelle">
-          <Button className="gap-2 bg-success hover:bg-success/90">
-            <Plus className="h-4 w-4" />
-            Nouvelle Fiche de Repos
-          </Button>
-        </Link>
+          <Link to="/repos-sanitaire/nouvelle">
+            <Button className="gap-2 bg-success hover:bg-success/90">
+              <Plus className="h-4 w-4" />
+              <span className="hidden md:inline">Nouvelle Fiche de Repos</span>
+              <span className="md:hidden">Nouvelle</span>
+            </Button>
+          </Link>
+        </div>
+        <p className="text-slate-600">
+          Gérer et suivre les fiches de repos sanitaire des patients
+        </p>
       </div>
 
       {/* Filters & Search */}

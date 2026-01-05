@@ -74,67 +74,72 @@ export function SuiviConstantesDetailPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => navigate('/suivi-constantes')}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <div>
-                        <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                            <Activity className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+            {/* Header */}
+            <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Button variant="outline" size="icon" onClick={() => navigate('/suivi-constantes')}>
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                        <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+                            <Activity className="h-5 w-5 md:h-8 md:w-8 text-primary" />
                             Détail de la prise
                         </h1>
-                        <p className="text-slate-600 mt-1">{formatDatePrise(constante.datePrise)}</p>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <Link to={`/suivi-constantes/${id}/modifier`}>
+                            <Button variant="outline" className="gap-2">
+                                <Pencil className="h-4 w-4" />
+                                <span className="hidden md:inline">Modifier</span>
+                            </Button>
+                        </Link>
+                        <Button
+                            variant="destructive"
+                            className="gap-2"
+                            onClick={() => setDeleteDialogOpen(true)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="hidden md:inline">Supprimer</span>
+                        </Button>
                     </div>
                 </div>
-
-                <div className="flex gap-2">
-                    <Link to={`/suivi-constantes/${id}/modifier`}>
-                        <Button variant="outline" className="gap-2">
-                            <Pencil className="h-4 w-4" />
-                            Modifier
-                        </Button>
-                    </Link>
-                    <Button
-                        variant="destructive"
-                        className="gap-2"
-                        onClick={() => setDeleteDialogOpen(true)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                        Supprimer
-                    </Button>
-                </div>
+                <p className="text-slate-600 ml-14 md:ml-0">
+                    {formatDatePrise(constante.datePrise)}
+                </p>
             </div>
 
             {/* Informations patient */}
-            {constante.patient && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Patient</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <p className="text-sm text-slate-600">Nom complet</p>
-                                <p className="font-semibold">
-                                    {constante.patient.prenom} {constante.patient.nom}
-                                </p>
+            {
+                constante.patient && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Patient</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <p className="text-sm text-slate-600">Nom complet</p>
+                                    <p className="font-semibold">
+                                        {constante.patient.prenom} {constante.patient.nom}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-slate-600">Matricule</p>
+                                    <p className="font-semibold">{constante.patient.matricule}</p>
+                                </div>
+                                <div>
+                                    <Link to={`/patients/${constante.patient.id}`}>
+                                        <Button variant="outline" size="sm">
+                                            Voir le dossier patient
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm text-slate-600">Matricule</p>
-                                <p className="font-semibold">{constante.patient.matricule}</p>
-                            </div>
-                            <div>
-                                <Link to={`/patients/${constante.patient.id}`}>
-                                    <Button variant="outline" size="sm">
-                                        Voir le dossier patient
-                                    </Button>
-                                </Link>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+                        </CardContent>
+                    </Card>
+                )
+            }
 
             {/* Constantes vitales */}
             <Card>
@@ -211,61 +216,67 @@ export function SuiviConstantesDetailPage() {
             </Card>
 
             {/* Mesures anthropométriques */}
-            {(constante.poids || constante.taille || constante.imc) && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Mesures anthropométriques</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {constante.poids && (
-                                <div className="space-y-2">
-                                    <p className="text-sm text-slate-600">Poids</p>
-                                    <p className="text-2xl font-bold">{constante.poids} kg</p>
-                                </div>
-                            )}
+            {
+                (constante.poids || constante.taille || constante.imc) && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Mesures anthropométriques</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {constante.poids && (
+                                    <div className="space-y-2">
+                                        <p className="text-sm text-slate-600">Poids</p>
+                                        <p className="text-2xl font-bold">{constante.poids} kg</p>
+                                    </div>
+                                )}
 
-                            {constante.taille && (
-                                <div className="space-y-2">
-                                    <p className="text-sm text-slate-600">Taille</p>
-                                    <p className="text-2xl font-bold">{constante.taille} cm</p>
-                                </div>
-                            )}
+                                {constante.taille && (
+                                    <div className="space-y-2">
+                                        <p className="text-sm text-slate-600">Taille</p>
+                                        <p className="text-2xl font-bold">{constante.taille} cm</p>
+                                    </div>
+                                )}
 
-                            {constante.imc && (
-                                <div className="space-y-2">
-                                    <p className="text-sm text-slate-600">IMC</p>
-                                    <p className="text-2xl font-bold">{constante.imc}</p>
-                                    {constante.classificationIMC && (
-                                        <span
-                                            className={`inline-block px-3 py-1 rounded-md text-sm font-medium border ${getCouleurIMC(constante.classificationIMC)}`}
-                                        >
-                                            {constante.classificationIMC}
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+                                {constante.imc && (
+                                    <div className="space-y-2">
+                                        <p className="text-sm text-slate-600">IMC</p>
+                                        <p className="text-2xl font-bold">{constante.imc}</p>
+                                        {constante.classificationIMC && (
+                                            <span
+                                                className={`inline-block px-3 py-1 rounded-md text-sm font-medium border ${getCouleurIMC(constante.classificationIMC)}`}
+                                            >
+                                                {constante.classificationIMC}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )
+            }
 
             {/* Observations */}
-            {constante.observations && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Observations</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-slate-700 whitespace-pre-wrap">{constante.observations}</p>
-                    </CardContent>
-                </Card>
-            )}
+            {
+                constante.observations && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Observations</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-slate-700 whitespace-pre-wrap">{constante.observations}</p>
+                        </CardContent>
+                    </Card>
+                )
+            }
 
             {/* Graphiques d'évolution */}
-            {evolution && (
-                <SuiviConstantesCharts evolution={evolution} />
-            )}
+            {
+                evolution && (
+                    <SuiviConstantesCharts evolution={evolution} />
+                )
+            }
 
             {/* Delete Dialog */}
             <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -302,6 +313,6 @@ export function SuiviConstantesDetailPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

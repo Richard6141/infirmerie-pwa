@@ -116,35 +116,36 @@ export function RendezVousPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <Calendar className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <Calendar className="h-5 w-5 md:h-8 md:w-8 text-blue-600" />
             {isInfirmier ? 'Gestion des Rendez-vous' : 'Mes Rendez-vous'}
           </h1>
-          <p className="text-slate-600 mt-1">
-            {isInfirmier
-              ? 'Planifier et gérer les rendez-vous médicaux'
-              : 'Consulter vos rendez-vous médicaux'}
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          <Link to="/rendez-vous">
-            <Button variant="outline">
-              <Calendar className="h-4 w-4 mr-2" />
-              Vue Calendrier
-            </Button>
-          </Link>
-          {isInfirmier && (
-            <Link to="/rendez-vous/nouveau">
-              <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4" />
-                Nouveau Rendez-vous
+          <div className="flex gap-2">
+            <Link to="/rendez-vous">
+              <Button variant="outline">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="hidden md:inline">Vue Calendrier</span>
+                <span className="md:hidden">Calendrier</span>
               </Button>
             </Link>
-          )}
+            {isInfirmier && (
+              <Link to="/rendez-vous/nouveau">
+                <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden md:inline">Nouveau Rendez-vous</span>
+                  <span className="md:hidden">Nouveau</span>
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
+        <p className="text-slate-600">
+          {isInfirmier
+            ? 'Planifier et gérer les rendez-vous médicaux'
+            : 'Consulter vos rendez-vous médicaux'}
+        </p>
       </div>
 
       {/* Filters */}

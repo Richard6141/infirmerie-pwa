@@ -134,7 +134,7 @@ function WelcomeBanner({ userName, rdvCount = 0, nouveauxPatients = 0, consultat
                 {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </span>
             </div>
-            <h1 className="text-xl md:text-3xl font-bold text-white mb-1">
+            <h1 className="text-lg md:text-3xl font-bold text-white mb-1">
               {greeting}, {userName}
             </h1>
             <p className="text-blue-100 text-sm">Voici un aperçu de votre planning aujourd'hui</p>
