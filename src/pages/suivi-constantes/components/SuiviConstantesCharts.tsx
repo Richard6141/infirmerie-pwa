@@ -24,6 +24,10 @@ export function SuiviConstantesCharts({ evolution }: SuiviConstantesChartsProps)
         return (
             <div className="text-center py-12 text-slate-500 mb-6">
                 <p>Données d'évolution indisponibles</p>
+                <div className="mt-4 text-xs text-left bg-slate-100 p-4 rounded border overflow-auto max-h-60">
+                    <p className="font-bold mb-2">Debug API Response:</p>
+                    <pre>{JSON.stringify(evolution, null, 2)}</pre>
+                </div>
             </div>
         );
     }
