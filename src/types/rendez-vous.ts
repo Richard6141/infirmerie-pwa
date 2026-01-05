@@ -79,9 +79,9 @@ export interface RendezVousResponse {
 
 // Schema création rendez-vous
 export const createRendezVousSchema = z.object({
-  patientId: z.string().uuid('ID patient invalide'),
-  dateHeure: z.string().min(1, 'Date requise'),
-  motif: z.string().min(5, 'Motif requis (min 5 caractères)'),
+  patientId: z.string().uuid('Veuillez sélectionner un patient valide'),
+  dateHeure: z.string().min(1, 'La date et l\'heure sont requises'),
+  motif: z.string().min(5, 'Le motif est requis (min 5 caractères)'),
   statut: z.enum(STATUT_RDV_VALUES).optional(),
   notes: z.string().optional(),
 });

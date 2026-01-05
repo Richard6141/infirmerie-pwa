@@ -13,7 +13,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 // Schéma de validation
 const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
+  email: z.string().min(1, 'L\'adresse email est requise').email('Adresse email invalide'),
   password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 });
 

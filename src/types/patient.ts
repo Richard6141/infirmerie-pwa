@@ -41,35 +41,37 @@ export const strongPasswordSchema = z
 export const patientCreateSchema = z.object({
   email: z
     .string()
-    .min(1, 'Email requis')
-    .email('Email invalide'),
+    .min(1, 'L\'adresse email est requise')
+    .email('Veuillez entrer une adresse email valide'),
   nom: z
     .string()
-    .min(2, 'Nom doit contenir au moins 2 caractères')
-    .max(100, 'Nom trop long'),
+    .min(2, 'Le nom doit contenir au moins 2 caractères')
+    .max(100, 'Le nom est trop long (max 100)'),
   prenom: z
     .string()
-    .min(2, 'Prénom doit contenir au moins 2 caractères')
-    .max(100, 'Prénom trop long'),
+    .min(2, 'Le prénom doit contenir au moins 2 caractères')
+    .max(100, 'Le prénom est trop long (max 100)'),
   dateNaissance: z
     .string()
     .optional(),
   age: z
-    .number()
+    .number({
+      invalid_type_error: 'L\'âge doit être un nombre',
+    })
     .int('L\'âge doit être un nombre entier')
-    .min(0, 'L\'âge doit être positif')
-    .max(150, 'L\'âge doit être réaliste (maximum 150 ans)')
+    .min(0, 'L\'âge ne peut pas être négatif')
+    .max(150, 'L\'âge doit être réaliste (max 150 ans)')
     .optional(),
   sexe: z.enum(SEXE_VALUES, {
-    message: 'Sexe requis',
+    errorMap: () => ({ message: 'Le sexe est requis' }),
   }),
   telephone: z
     .string()
-    .min(8, 'Téléphone invalide')
-    .regex(/^[0-9+\s()-]+$/, 'Téléphone doit contenir uniquement des chiffres et symboles (+, -, (, ), espace)'),
+    .min(8, 'Le numéro de téléphone est trop court')
+    .regex(/^[0-9+\s()-]+$/, 'Format de téléphone invalide'),
   directionService: z
     .string()
-    .min(2, 'La direction/service est requise'),
+    .min(2, 'La direction ou le service est requis'),
   groupeSanguin: z
     .enum(GROUPE_SANGUIN_VALUES)
     .optional(),

@@ -16,9 +16,9 @@ import { authApi } from '@/lib/api/auth';
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Le mot de passe actuel est requis'),
   newPassword: strongPasswordSchema,
-  confirmPassword: z.string().min(1, 'Veuillez confirmer le mot de passe'),
+  confirmPassword: z.string().min(1, 'La confirmation du mot de passe est requise'),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-  message: 'Les mots de passe ne correspondent pas',
+  message: 'Les nouveaux mots de passe ne correspondent pas',
   path: ['confirmPassword'],
 });
 

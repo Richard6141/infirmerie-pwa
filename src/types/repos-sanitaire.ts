@@ -65,23 +65,23 @@ export interface ReposSanitaireResponse {
 // ==================== SCHEMAS ZOD ====================
 
 export const createReposSanitaireSchema = z.object({
-  patientId: z.string().uuid('Patient requis'),
-  dateExamen: z.string().min(1, "Date d'examen requise"),
+  patientId: z.string().uuid('Le patient est requis'),
+  dateExamen: z.string().min(1, 'La date d\'examen est requise'),
   diagnosticFinal: z
     .string()
-    .min(5, 'Diagnostic requis (min 5 caractères)')
-    .max(1000, 'Diagnostic trop long (max 1000 caractères)'),
+    .min(5, 'Le diagnostic est requis (min 5 caractères)')
+    .max(1000, 'Le diagnostic est trop long (max 1000 caractères)'),
   soinsInstitues: z
     .string()
-    .min(5, 'Soins institués requis (min 5 caractères)')
-    .max(1000, 'Soins trop longs (max 1000 caractères)'),
+    .min(5, 'Les soins institués sont requis (min 5 caractères)')
+    .max(1000, 'Le texte des soins est trop long (max 1000 caractères)'),
   dureeRepos: z
-    .number()
-    .int('Durée doit être un nombre entier')
+    .number({ invalid_type_error: 'La durée doit être un nombre' })
+    .int('La durée doit être un nombre entier')
     .min(1, 'Durée minimale: 1 jour')
     .max(365, 'Durée maximale: 365 jours'),
-  dateDebut: z.string().min(1, 'Date de début requise'),
-  dateFin: z.string().min(1, 'Date de fin requise'),
+  dateDebut: z.string().min(1, 'La date de début est requise'),
+  dateFin: z.string().min(1, 'La date de fin est requise'),
   dateControle: z.string().optional(),
   lieuRedaction: z.string().default('Cotonou').optional(),
 }).refine(

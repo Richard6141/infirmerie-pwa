@@ -88,42 +88,42 @@ export interface ConsultationsResponse {
 // Schema constantes vitales
 export const constantesVitalesSchema = z.object({
   temperature: z
-    .number()
+    .number({ invalid_type_error: 'La température doit être un nombre' })
     .min(35, 'Température minimale: 35°C')
     .max(42, 'Température maximale: 42°C')
     .optional(),
   tensionSystolique: z
-    .number()
+    .number({ invalid_type_error: 'La tension doit être un nombre' })
     .min(50, 'Tension systolique minimale: 50 mmHg')
     .max(250, 'Tension systolique maximale: 250 mmHg')
     .optional(),
   tensionDiastolique: z
-    .number()
+    .number({ invalid_type_error: 'La tension doit être un nombre' })
     .min(30, 'Tension diastolique minimale: 30 mmHg')
     .max(150, 'Tension diastolique maximale: 150 mmHg')
     .optional(),
   frequenceCardiaque: z
-    .number()
+    .number({ invalid_type_error: 'La fréquence doit être un nombre' })
     .min(30, 'Fréquence cardiaque minimale: 30 bpm')
     .max(200, 'Fréquence cardiaque maximale: 200 bpm')
     .optional(),
   frequenceRespiratoire: z
-    .number()
+    .number({ invalid_type_error: 'La fréquence doit être un nombre' })
     .min(8, 'Fréquence respiratoire minimale: 8 cycles/min')
     .max(40, 'Fréquence respiratoire maximale: 40 cycles/min')
     .optional(),
   saturationOxygene: z
-    .number()
+    .number({ invalid_type_error: 'La saturation doit être un nombre' })
     .min(70, 'Saturation minimale: 70%')
     .max(100, 'Saturation maximale: 100%')
     .optional(),
   poids: z
-    .number()
+    .number({ invalid_type_error: 'Le poids doit être un nombre' })
     .positive('Le poids doit être positif')
     .max(300, 'Poids maximal: 300 kg')
     .optional(),
   taille: z
-    .number()
+    .number({ invalid_type_error: 'La taille doit être un nombre' })
     .min(50, 'Taille minimale: 50 cm')
     .max(250, 'Taille maximale: 250 cm')
     .optional(),
@@ -131,15 +131,15 @@ export const constantesVitalesSchema = z.object({
 
 // Schema prescription
 export const prescriptionSchema = z.object({
-  medicamentId: z.string().uuid('ID médicament invalide'),
-  posologie: z.string().min(3, 'Posologie requise (min 3 caractères)'),
-  duree: z.string().min(2, 'Durée requise (ex: 7 jours)'),
+  medicamentId: z.string().uuid('Veuillez sélectionner un médicament valide'),
+  posologie: z.string().min(3, 'La posologie est requise (min 3 caractères)'),
+  duree: z.string().min(2, 'La durée est requise (ex: 7 jours)'),
 });
 
 // Schema création consultation
 export const createConsultationSchema = z.object({
-  patientId: z.string().uuid('ID patient invalide'),
-  motif: z.string().min(5, 'Motif requis (min 5 caractères)'),
+  patientId: z.string().uuid('Veuillez sélectionner un patient valide'),
+  motif: z.string().min(5, 'Le motif est requis (min 5 caractères)'),
   constantesVitales: constantesVitalesSchema,
   examenClinique: z.string().optional(),
   diagnostic: z.string().optional(),

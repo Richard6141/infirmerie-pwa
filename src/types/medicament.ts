@@ -94,27 +94,27 @@ export interface MedicamentsResponse {
 export const createMedicamentSchema = z.object({
   code: z
     .string()
-    .min(1, 'Code requis')
-    .max(50, 'Code trop long')
-    .regex(/^[A-Z0-9-]+$/, 'Code: majuscules, chiffres et tirets uniquement'),
+    .min(1, 'Le code est requis')
+    .max(50, 'Le code est trop long (max 50)')
+    .regex(/^[A-Z0-9-]+$/, 'Le code doit contenir uniquement des majuscules, chiffres et tirets'),
   dci: z
     .string()
-    .min(2, 'DCI: minimum 2 caractères')
-    .max(200, 'DCI trop long'),
+    .min(2, 'La DCI doit contenir au moins 2 caractères')
+    .max(200, 'La DCI est trop longue'),
   nomCommercial: z
     .string()
-    .min(2, 'Nom commercial: minimum 2 caractères')
-    .max(200, 'Nom trop long'),
+    .min(2, 'Le nom commercial doit contenir au moins 2 caractères')
+    .max(200, 'Le nom commercial est trop long'),
   forme: z.enum(FORME_GALENIQUE_VALUES, {
-    message: 'Forme galénique requise',
+    errorMap: () => ({ message: 'La forme galénique est requise' }),
   }),
   dosage: z
     .string()
-    .min(1, 'Dosage requis')
-    .max(100, 'Dosage trop long'),
-  seuilMin: z.number().min(0, 'Seuil minimum ne peut être négatif').optional(),
-  seuilMax: z.number().min(0, 'Seuil maximum ne peut être négatif').optional(),
-  stockSecurite: z.number().min(0, 'Stock sécurité ne peut être négatif').optional(),
+    .min(1, 'Le dosage est requis')
+    .max(100, 'Le dosage est trop long'),
+  seuilMin: z.number({ invalid_type_error: 'Le seuil doit être un nombre' }).min(0, 'Le seuil minimum ne peut pas être négatif').optional(),
+  seuilMax: z.number({ invalid_type_error: 'Le seuil doit être un nombre' }).min(0, 'Le seuil maximum ne peut pas être négatif').optional(),
+  stockSecurite: z.number({ invalid_type_error: 'Le seuil doit être un nombre' }).min(0, 'Le stock de sécurité ne peut pas être négatif').optional(),
 });
 
 // Schema mise à jour médicament
