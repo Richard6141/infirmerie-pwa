@@ -1,15 +1,19 @@
 import jsPDF from 'jspdf';
 import type { ReposSanitaire } from '@/types/repos-sanitaire';
-import { formaterDuree, formaterDateRepos, formaterSexe } from '@/types/repos-sanitaire';
+import { formaterDateRepos } from '@/types/repos-sanitaire';
+
+// Importation des images "en dur" depuis les assets
+// @ts-ignore
+import logoMinistere from '@/assets/logo-ministere.png';
+// @ts-ignore
+import signatureInfirmier from '@/assets/signature-infirmier.png';
 
 /**
  * Générer un PDF professionnel pour une fiche de repos sanitaire
  * @param repos Données de la fiche de repos sanitaire
- * @param logoDataUrl URL du logo MDC (optionnel)
  */
 export function generateReposSanitairePDF(
   repos: ReposSanitaire,
-  logoDataUrl?: string,
 ) {
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -18,172 +22,244 @@ export function generateReposSanitairePDF(
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const marginLeft = 20;
   const marginRight = 20;
   const contentWidth = pageWidth - marginLeft - marginRight;
   let yPos = 20;
 
+  // ==================== FILIGRANE (WATERMARK) ====================
+  doc.saveGraphicsState();
+  doc.setFontSize(60);
+  doc.setTextColor(245, 245, 245); // Très très clair
+  doc.setFont('helvetica', 'bold');
+  // Centre de la page avec rotation
+  doc.text('Infirmerie MDC', pageWidth / 2, pageHeight / 2, {
+    align: 'center',
+    angle: 45,
+  });
+  doc.restoreGraphicsState();
+
   // ==================== EN-TÊTE ====================
-  // Logo à gauche (si fourni)
-  if (logoDataUrl) {
-    try {
-      doc.addImage(logoDataUrl, 'PNG', marginLeft, yPos, 30, 30);
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout du logo:', error);
+  // Logo à gauche (Importé en dur)
+  try {
+    // On vérifie si logoMinistere est défini (si le fichier existe)
+    if (logoMinistere && logoMinistere !== '') {
+      doc.addImage(logoMinistere, 'PNG', marginLeft, yPos, 25, 25);
+    } else {
+      throw new Error('Logo non défini');
     }
+  } catch (error) {
+    // Placeholder si l'image n'est pas encore là
+    doc.setDrawColor(200);
+    doc.setLineWidth(0.1);
+    doc.rect(marginLeft, yPos, 25, 25);
+    doc.setFontSize(8);
+    doc.text('LOGO', marginLeft + 12.5, yPos + 12.5, { align: 'center' });
   }
 
-  // Informations du ministère à droite
-  doc.setFontSize(12);
+  // Texte Ministère à gauche (sous/à côté du logo)
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  const textXPos = logoDataUrl ? marginLeft + 35 : marginLeft;
-
-  const headerText = [
-    'Ministère du Développement et de la Coordination',
-    'de l\'Action Gouvernementale',
-    'Infirmerie - Direction des Ressources Humaines',
-    'Cotonou, République du Bénin',
+  const ministryText = [
+    'MINISTÈRE DU DÉVELOPPEMENT',
+    'ET DE LA COORDINATION DE',
+    "L'ACTION GOUVERNEMENTALE",
+    '-------------------------',
+    'RÉPUBLIQUE DU BÉNIN',
   ];
 
-  headerText.forEach((line, index) => {
-    doc.text(line, textXPos, yPos + index * 6, { maxWidth: contentWidth - 35 });
+  ministryText.forEach((line, index) => {
+    doc.text(line, marginLeft, yPos + 30 + (index * 4));
   });
 
-  yPos += 40;
-
-  // Date du document
-  doc.setFontSize(10);
+  // Informations de contact à droite (HARDCODÉES)
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  const dateDoc = new Date().toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-  doc.text(`Date: ${dateDoc}`, marginLeft, yPos);
-  yPos += 15;
+  const contactInfo = [
+    '08 BP 755 Cotonou',
+    'BÉNIN',
+    'Tél: +229 21 30 94 00',
+    'mdc.info@gouv.bj',
+    'www.dev.gouv.bj',
+  ];
 
-  // ==================== TITRE ====================
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('FICHE DE REPOS SANITAIRE', pageWidth / 2, yPos, {
-    align: 'center',
+  contactInfo.forEach((line, index) => {
+    doc.text(line, pageWidth - marginRight, yPos + 5 + (index * 5), { align: 'right' });
   });
 
-  // Ligne de séparation sous le titre
-  yPos += 5;
-  doc.setDrawColor(0, 102, 255); // Bleu
-  doc.setLineWidth(0.5);
-  doc.line(marginLeft, yPos, pageWidth - marginRight, yPos);
-  yPos += 15;
+  yPos += 55;
 
-  // ==================== CORPS ADMINISTRATIF ====================
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-
-  // Introduction
-  const dateExamen = formaterDateRepos(repos.dateExamen);
-  const sexeLabel = formaterSexe(repos.sexePatient);
-
-  const introText = `Je soussigné ${repos.nomInfirmier}, Infirmier du Ministère du Développement et de la Coordination de l'Action Gouvernementale, reconnais avoir examiné ce jour ${dateExamen} ${sexeLabel} ${repos.nomPatient}, âgé(e) de ${repos.agePatient} ans, matricule ${repos.matriculePatient}.`;
-
-  const introLines = doc.splitTextToSize(introText, contentWidth);
-  doc.text(introLines, marginLeft, yPos);
-  yPos += introLines.length * 7 + 10;
-
-  // ==================== DIAGNOSTIC ====================
-  doc.setFont('helvetica', 'bold');
-  doc.text('Diagnostic final :', marginLeft, yPos);
-  doc.setFont('helvetica', 'normal');
-  yPos += 7;
-
-  const diagnosticLines = doc.splitTextToSize(
-    repos.diagnosticFinal,
-    contentWidth - 10,
-  );
-  doc.text(diagnosticLines, marginLeft + 5, yPos);
-  yPos += diagnosticLines.length * 7 + 10;
-
-  // ==================== SOINS ====================
-  doc.setFont('helvetica', 'bold');
-  doc.text('Soins institués :', marginLeft, yPos);
-  doc.setFont('helvetica', 'normal');
-  yPos += 7;
-
-  const soinsLines = doc.splitTextToSize(
-    repos.soinsInstitues,
-    contentWidth - 10,
-  );
-  doc.text(soinsLines, marginLeft + 5, yPos);
-  yPos += soinsLines.length * 7 + 10;
-
-  // ==================== REPOS ====================
-  doc.setFont('helvetica', 'bold');
-  const dureeText = `Repos physique de : ${formaterDuree(repos.dureeRepos)}`;
-  doc.text(dureeText, marginLeft, yPos);
-  yPos += 10;
-
-  const dateDebut = formaterDateRepos(repos.dateDebut);
-  const dateFin = formaterDateRepos(repos.dateFin);
-  doc.text(`Du ${dateDebut} au ${dateFin}`, marginLeft, yPos);
-  yPos += 15;
-
-  // ==================== DATE CONTRÔLE ====================
-  if (repos.dateControle) {
-    const dateControle = formaterDateRepos(repos.dateControle);
-    doc.text(
-      `À revoir le ${dateControle} pour contrôle physique.`,
-      marginLeft,
-      yPos,
-    );
-    yPos += 15;
-  }
-
-  // ==================== SIGNATURE ====================
-  yPos += 20;
-
-  // Fait à + date
+  // Date et Lieu
   const dateLieu = new Date().toLocaleDateString('fr-FR', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
   });
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'italic');
+  doc.text(`${repos.lieuRedaction || 'Cotonou'}, le ${dateLieu}`, pageWidth - marginRight, yPos, { align: 'right' });
+
+  yPos += 15;
+
+  // ==================== TITRE ====================
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FICHE DE REPOS SANITAIRE', pageWidth / 2, yPos, { align: 'center' });
+
+  // Ligne de séparation sous le titre
+  yPos += 2;
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.5);
+  doc.line(marginLeft + 40, yPos, pageWidth - marginRight - 40, yPos);
+
+  yPos += 15;
+
+  // ==================== CORPS DU DOCUMENT ====================
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Fait à ${repos.lieuRedaction}, le ${dateLieu}`, marginLeft, yPos);
+  const lineSpacing = 10;
+
+  const drawDottedLine = (x1: number, y1: number, x2: number) => {
+    doc.setDrawColor(200);
+    doc.setLineDashPattern([0.5, 1], 0);
+    doc.line(x1, y1, x2, y1);
+    doc.setLineDashPattern([], 0); // Reset
+  };
+
+  // Je soussigné
+  doc.text('Je soussigné', marginLeft, yPos);
+  const nameInfirmier = repos.nomInfirmier;
+  doc.setFont('helvetica', 'bold');
+  doc.text(nameInfirmier, marginLeft + 25, yPos);
+  drawDottedLine(marginLeft + 25, yPos + 1, pageWidth - marginRight);
+  yPos += lineSpacing;
+
+  // Infirmier du MDC...
+  doc.setFont('helvetica', 'normal');
+  doc.text("Infirmier du MDC reconnais avoir examiné ce jour", marginLeft, yPos);
+  const dateExamen = formaterDateRepos(repos.dateExamen);
+  doc.setFont('helvetica', 'bold');
+  doc.text(dateExamen, marginLeft + 85, yPos);
+  drawDottedLine(marginLeft + 85, yPos + 1, pageWidth - marginRight);
+  yPos += lineSpacing;
+
+  // Monsieur (Madame)
+  doc.setFont('helvetica', 'normal');
+  doc.text('Monsieur (Madame)', marginLeft, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(repos.nomPatient, marginLeft + 35, yPos);
+  drawDottedLine(marginLeft + 35, yPos + 1, pageWidth - marginRight);
+  yPos += lineSpacing;
+
+  // Agé(e) de
+  doc.setFont('helvetica', 'normal');
+  doc.text('Agé(e) de', marginLeft, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${repos.agePatient} ans`, marginLeft + 20, yPos);
+  drawDottedLine(marginLeft + 20, yPos + 1, pageWidth - marginRight);
+  yPos += lineSpacing;
+
+  // Diagnostic final
+  doc.setFont('helvetica', 'normal');
+  doc.text('Diagnostic final :', marginLeft, yPos);
+  yPos += 7;
+  const diagnosticLines = doc.splitTextToSize(repos.diagnosticFinal, contentWidth);
+  diagnosticLines.forEach((line: string) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(line, marginLeft + 5, yPos);
+    drawDottedLine(marginLeft + 5, yPos + 1, pageWidth - marginRight);
+    yPos += 8;
+  });
+  yPos += 2;
+
+  // Soins institués
+  doc.setFont('helvetica', 'normal');
+  doc.text('Soins institués :', marginLeft, yPos);
+  yPos += 7;
+  const soinsLines = doc.splitTextToSize(repos.soinsInstitues, contentWidth);
+  soinsLines.forEach((line: string) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(line, marginLeft + 5, yPos);
+    drawDottedLine(marginLeft + 5, yPos + 1, pageWidth - marginRight);
+    yPos += 8;
+  });
+  yPos += 2;
+
+  // Repos physique
+  doc.setFont('helvetica', 'normal');
+  doc.text('Repos physique de', marginLeft, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${repos.dureeRepos} jours`, marginLeft + 35, yPos);
+  doc.setFont('helvetica', 'normal');
+  doc.text('du', marginLeft + 55, yPos);
+  const dateDebut = formaterDateRepos(repos.dateDebut);
+  doc.setFont('helvetica', 'bold');
+  doc.text(dateDebut, marginLeft + 62, yPos);
+  drawDottedLine(marginLeft + 35, yPos + 1, marginLeft + 53);
+  drawDottedLine(marginLeft + 62, yPos + 1, pageWidth - marginRight);
+  yPos += lineSpacing;
+
+  // A revoir le
+  doc.setFont('helvetica', 'normal');
+  doc.text('A revoir le', marginLeft, yPos);
+  if (repos.dateControle) {
+    const dateControle = formaterDateRepos(repos.dateControle);
+    doc.setFont('helvetica', 'bold');
+    doc.text(dateControle, marginLeft + 22, yPos);
+  }
+  doc.setFont('helvetica', 'normal');
+  doc.text('pour contrôle physique.', pageWidth - marginRight, yPos, { align: 'right' });
+  drawDottedLine(marginLeft + 22, yPos + 1, pageWidth - marginRight - 45);
   yPos += 20;
 
-  // Signature
+  // ==================== SIGNATURE ====================
+  const signatureX = pageWidth - marginRight - 50;
+
+  // Image de la signature au-dessus du mot "SIGNATURE" (Importée en dur)
+  try {
+    if (signatureInfirmier && signatureInfirmier !== '') {
+      doc.addImage(signatureInfirmier, 'PNG', signatureX, yPos - 15, 50, 20);
+    }
+  } catch (error) {
+    console.error('Erreur signature (Fichier manquant dans assets ?):', error);
+  }
+
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text("L'Infirmier", pageWidth - marginRight - 40, yPos);
-  yPos += 30;
+  doc.text('SIGNATURE', signatureX + 25, yPos, { align: 'center' });
 
-  // Ligne de signature
-  doc.setDrawColor(150);
-  doc.setLineWidth(0.3);
-  doc.line(
-    pageWidth - marginRight - 60,
-    yPos,
-    pageWidth - marginRight,
-    yPos,
-  );
+  yPos += 15;
+  // Nom de l'infirmier
+  doc.setFont('helvetica', 'bold');
+  doc.text(repos.nomInfirmier, signatureX + 25, yPos, { align: 'center' });
 
-  // Label "Signature"
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Signature', pageWidth - marginRight - 30, yPos + 5, {
-    align: 'center',
-  });
+  // ==================== PIED DE PAGE (DRAPEAU BENIN) ====================
+  const footerY = pageHeight - 15;
+  const stripeWidth = pageWidth / 3;
+  const stripeHeight = 3;
 
-  // ==================== PIED DE PAGE ====================
+  // Vert
+  doc.setFillColor(0, 135, 82);
+  doc.rect(0, pageHeight - stripeHeight, stripeWidth, stripeHeight, 'F');
+  // Jaune
+  doc.setFillColor(252, 209, 22);
+  doc.rect(stripeWidth, pageHeight - stripeHeight, stripeWidth, stripeHeight, 'F');
+  // Rouge
+  doc.setFillColor(232, 17, 45);
+  doc.rect(stripeWidth * 2, pageHeight - stripeHeight, stripeWidth, stripeHeight, 'F');
+
   doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(100);
   doc.text(
-    'Ce document est délivré pour servir et valoir ce que de droit.',
+    'Infirmerie du Ministère du Développement et de la Coordination de l\'Action Gouvernementale',
     pageWidth / 2,
-    doc.internal.pageSize.getHeight() - 15,
-    { align: 'center' },
+    footerY,
+    { align: 'center' }
   );
 
   // ==================== TÉLÉCHARGER ====================
-  const fileName = `fiche_repos_sanitaire_${repos.nomPatient.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+  const fileName = `fiche_repos_sanitaire_${repos.nomPatient.replace(/\s+/g, '_')}.pdf`;
   doc.save(fileName);
 }

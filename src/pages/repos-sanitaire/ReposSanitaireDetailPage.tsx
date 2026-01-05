@@ -46,8 +46,6 @@ export function ReposSanitaireDetailPage() {
     if (!reposSanitaire) return;
 
     try {
-      // TODO: Une fois le logo importé, passer logoMDC comme second paramètre
-      // generateReposSanitairePDF(reposSanitaire, logoMDC);
       generateReposSanitairePDF(reposSanitaire);
       toast.success('PDF généré avec succès');
     } catch (error) {
