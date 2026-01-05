@@ -54,18 +54,8 @@ export function generateReposSanitairePDF(
   // Texte Ministère à gauche
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  const ministryText = [
-    'MINISTÈRE DU DÉVELOPPEMENT',
-    'ET DE LA COORDINATION DE',
-    "L'ACTION GOUVERNEMENTALE",
-    '-------------------------',
-    'RÉPUBLIQUE DU BÉNIN',
-  ];
 
-  // yPos reste à 20, le texte commence après le logo agrandi (20 + 28 = 48)
-  ministryText.forEach((line, index) => {
-    doc.text(line, marginLeft, yPos + 28 + (index * 4));
-  });
+
 
   // Informations de contact à droite
   doc.setFontSize(9);
