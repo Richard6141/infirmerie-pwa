@@ -112,11 +112,14 @@ export function generateReposSanitairePDF(
   yPos += lineSpacing;
 
   doc.setFont('helvetica', 'normal');
-  doc.text("Infirmier du MDC reconnais avoir examiné ce jour ", marginLeft, yPos);
+  const introLabel = "Infirmier du MDC reconnais avoir examiné ce jour ";
+  doc.text(introLabel, marginLeft, yPos);
+  const labelWidth = doc.getTextWidth(introLabel);
+
   const dateExamen = formaterDateRepos(repos.dateExamen);
   doc.setFont('helvetica', 'bold');
-  doc.text(dateExamen, marginLeft + 85, yPos);
-  drawDottedLine(marginLeft + 85, yPos + 1, pageWidth - marginRight);
+  doc.text(dateExamen, marginLeft + labelWidth, yPos);
+  drawDottedLine(marginLeft + labelWidth, yPos + 1, pageWidth - marginRight);
   yPos += lineSpacing;
 
   doc.setFont('helvetica', 'normal');
@@ -188,7 +191,7 @@ export function generateReposSanitairePDF(
 
   try {
     // Largeur : 70mm (+10), Hauteur : 55mm (+25) pour la signature
-    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 30, 70, 45);
+    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 30, 65, 50);
     hasSignature = true;
   } catch (error) {
     // Si l'image n'est pas chargée, hasSignature reste à false
