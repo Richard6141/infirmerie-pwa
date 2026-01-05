@@ -239,26 +239,40 @@ export interface SuiviConstantesResponse {
 
 // ==================== EVOLUTION DATA ====================
 
-export interface EvolutionData {
-    dates: string[];
-    tensionSystolique: (number | null)[];
-    tensionDiastolique: (number | null)[];
-    frequenceCardiaque: (number | null)[];
-    temperature: (number | null)[];
-    saturationOxygene: (number | null)[];
-    glycemie: (number | null)[];
-    poids: (number | null)[];
-    imc: (number | null)[];
-    statistiques: {
-        tensionSystolique?: { min: number; max: number; moyenne: number };
-        tensionDiastolique?: { min: number; max: number; moyenne: number };
-        frequenceCardiaque?: { min: number; max: number; moyenne: number };
-        temperature?: { min: number; max: number; moyenne: number };
-        saturationOxygene?: { min: number; max: number; moyenne: number };
-        glycemie?: { min: number; max: number; moyenne: number };
-        poids?: { min: number; max: number; moyenne: number };
-        imc?: { min: number; max: number; moyenne: number };
+export interface EvolutionPoint {
+    date: string;
+    valeur: number;
+    statut?: string;
+}
+
+export interface EvolutionStats {
+    glycemieMoyenne?: number;
+    tensionMoyenne?: {
+        systolique: number;
+        diastolique: number;
     };
+    poidsMoyen?: number;
+    imcMoyen?: number;
+    nombrePrises?: number;
+    [key: string]: any;
+}
+
+export interface EvolutionData {
+    patientId: string;
+    nomPatient: string;
+    periode: {
+        debut: string;
+        fin: string;
+    };
+    glycemie: EvolutionPoint[];
+    tensionSystolique: EvolutionPoint[];
+    tensionDiastolique: EvolutionPoint[];
+    poids: EvolutionPoint[];
+    imc: EvolutionPoint[];
+    frequenceCardiaque?: EvolutionPoint[];
+    temperature?: EvolutionPoint[];
+    saturationOxygene?: EvolutionPoint[];
+    stats: EvolutionStats;
 }
 
 // ==================== HELPERS ====================
