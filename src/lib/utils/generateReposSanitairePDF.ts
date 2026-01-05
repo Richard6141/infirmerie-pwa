@@ -129,7 +129,7 @@ export function generateReposSanitairePDF(
   yPos += lineSpacing;
 
   doc.setFont('helvetica', 'normal');
-  doc.text("Infirmier du MDC reconnais avoir examiné ce jour", marginLeft, yPos);
+  doc.text("Infirmier du MDC reconnais avoir examiné ce jour ", marginLeft, yPos);
   const dateExamen = formaterDateRepos(repos.dateExamen);
   doc.setFont('helvetica', 'bold');
   doc.text(dateExamen, marginLeft + 85, yPos);
