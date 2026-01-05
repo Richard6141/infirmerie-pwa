@@ -89,22 +89,22 @@ interface ModuleCardProps {
 
 function ModuleCard({ to, icon, title, count, color }: ModuleCardProps) {
   return (
-    <Link to={to} className="group">
+    <Link to={to} className="group h-full block">
       <Card className="cursor-pointer transition-all duration-300 h-full border border-slate-200 shadow-card hover:shadow-card-hover hover:-translate-y-1 bg-white">
-        <CardContent className="p-5">
-          <div className="flex flex-col items-center text-center gap-3">
+        <CardContent className="p-2.5 md:p-5 h-full flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center text-center gap-2 md:gap-3 w-full">
             {/* Circular solid color icon */}
-            <div className={`h-16 w-16 rounded-2xl ${color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md`}>
-              <div className="text-white">
+            <div className={`h-10 w-10 md:h-16 md:w-16 rounded-xl md:rounded-2xl ${color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md shrink-0`}>
+              <div className="text-white [&>svg]:!h-5 [&>svg]:!w-5 md:[&>svg]:!h-9 md:[&>svg]:!w-9 max-h-min">
                 {icon}
               </div>
             </div>
 
             {/* Title and Count */}
-            <div className="space-y-1">
-              <CardTitle className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">{title}</CardTitle>
+            <div className="space-y-0.5 md:space-y-1 w-full">
+              <CardTitle className="text-[10px] md:text-sm font-semibold text-slate-700 group-hover:text-slate-900 leading-tight line-clamp-2">{title}</CardTitle>
               {count !== undefined && (
-                <div className="text-2xl font-bold text-slate-800">{count}</div>
+                <div className="text-lg md:text-2xl font-bold text-slate-800">{count}</div>
               )}
             </div>
           </div>
@@ -360,23 +360,23 @@ export function DashboardPage() {
       {/* Modules patient */}
       <div>
         <h2 className="text-xl font-bold text-slate-800 mb-4">Mes Services</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-2 md:gap-4">
           <ModuleCard
             to="/consultations"
-            icon={<FileText className="h-7 w-7" />}
-            title="Mes Consultations"
+            icon={<FileText />}
+            title="Consultations" // "Mes" retiré pour gain place
             color="bg-blue-600"
           />
           <ModuleCard
             to="/vaccinations"
-            icon={<Syringe className="h-7 w-7" />}
-            title="Mes Vaccinations"
+            icon={<Syringe />}
+            title="Vaccinations"
             color="bg-green-600"
           />
           <ModuleCard
             to="/rendez-vous"
-            icon={<Calendar className="h-7 w-7" />}
-            title="Mes Rendez-vous"
+            icon={<Calendar />}
+            title="RDV" // "Mes Rendez-vous" -> "RDV"
             color="bg-purple-600"
           />
         </div>
