@@ -67,36 +67,36 @@ export function PatientDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/patients">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-              <UserCircle className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/patients">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+              <UserCircle className="h-5 w-5 md:h-8 md:w-8 text-primary" />
               {fullName}
             </h1>
-            <p className="text-slate-600 mt-1">
-              {patient.matricule} • {age} ans • {patient.sexe}
-            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Link to={`/patients/${patient.id}/modifier`}>
+              <Button variant="outline" className="gap-2">
+                <Edit className="h-4 w-4" />
+                <span className="hidden md:inline">Modifier</span>
+              </Button>
+            </Link>
+            <Button variant="outline" className="gap-2">
+              <Printer className="h-4 w-4" />
+              <span className="hidden md:inline">Imprimer</span>
+            </Button>
           </div>
         </div>
-
-        <div className="flex gap-2">
-          <Link to={`/patients/${patient.id}/modifier`}>
-            <Button variant="outline" className="gap-2">
-              <Edit className="h-4 w-4" />
-              Modifier
-            </Button>
-          </Link>
-          <Button variant="outline" className="gap-2">
-            <Printer className="h-4 w-4" />
-            Imprimer
-          </Button>
-        </div>
+        <p className="text-slate-600 ml-14 md:ml-0">
+          {patient.matricule} • {age} ans • {patient.sexe}
+        </p>
       </div>
 
       {/* Informations Personnelles */}

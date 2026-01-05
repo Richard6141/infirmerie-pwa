@@ -160,16 +160,16 @@ export function RapportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-            <BarChartIcon className="h-6 w-6 md:h-8 md:w-8 text-purple-600" />
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <BarChartIcon className="h-5 w-5 md:h-8 md:w-8 text-purple-600" />
             Rapports & Statistiques
           </h1>
-          <p className="text-slate-600 mt-1">
-            Analyse complète de l'activité avec graphiques et exports
-          </p>
         </div>
+        <p className="text-slate-600">
+          Analyse complète de l'activité avec graphiques et exports
+        </p>
       </div>
 
       {/* Période de rapport */}
@@ -393,11 +393,11 @@ export function RapportsPage() {
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
-                          data={(dashboardStats.topMotifsConsultations || []).slice(0, 5)}
+                          data={(dashboardStats.topMotifsConsultations || []).slice(0, 5) as any[]}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ motif, percent }) => `${motif}: ${(percent * 100).toFixed(0)}%`}
+                          label={({ motif, percent }: any) => `${motif}: ${(percent * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="count"
@@ -754,11 +754,11 @@ export function RapportsPage() {
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                           <Pie
-                            data={vaccinationsStats.statistiquesParType || []}
+                            data={(vaccinationsStats.statistiquesParType || []) as any[]}
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            label={({ typeVaccin, pourcentage }) => `${typeVaccin}: ${pourcentage.toFixed(1)}%`}
+                            label={({ typeVaccin, pourcentage }: any) => `${typeVaccin}: ${pourcentage.toFixed(1)}%`}
                             outerRadius={100}
                             fill="#8884d8"
                             dataKey="count"

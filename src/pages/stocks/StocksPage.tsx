@@ -57,8 +57,7 @@ export function StocksPage() {
               <DialogHeader>
                 <DialogTitle>Enregistrer un mouvement de stock</DialogTitle>
               </DialogHeader>
-              {/* <MouvementForm onClose={() => setIsMovementDialogOpen(false)} /> */}
-              <p className="p-4 text-center text-slate-500">Formulaire de mouvement (TODO)</p>
+              <MouvementForm onClose={() => setIsMovementDialogOpen(false)} />
             </DialogContent>
           </Dialog>
         </div>
@@ -554,48 +553,43 @@ function HistoriqueMouvements() {
         ) : (
           <>
             <div className="space-y-3">
-              <div className="p-4 text-center text-slate-500">
-                Affichage des stocks à implémenter (Données disponibles: {data?.data?.length || 0})
-              </div>
-              {/*
-                  {data.data.map((mouvement) => (
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${mouvement.type === 'ENTREE' ? 'bg-green-100' : 'bg-red-100'
-                          }`}>
-                          {mouvement.type === 'ENTREE' ? (
-                            <TrendingUp className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <TrendingDown className="h-4 w-4 text-red-600" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800">
-                            {mouvement.nomMedicament || mouvement.medicament?.nomCommercial || 'Médicament inconnu'}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
-                            <span className="font-medium text-slate-700">{TYPE_MOUVEMENT_LABELS[mouvement.type]}</span>
+              {data.data.map((mouvement: any) => (
+                <div key={mouvement.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${mouvement.type === 'ENTREE' ? 'bg-green-100' : 'bg-red-100'}`}>
+                      {mouvement.type === 'ENTREE' ? (
+                        <TrendingUp className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <TrendingDown className="h-4 w-4 text-red-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {mouvement.nomMedicament || mouvement.medicament?.nomCommercial || 'Médicament inconnu'}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+                        <span className="font-medium text-slate-700">{TYPE_MOUVEMENT_LABELS[mouvement.type as TypeMouvement]}</span>
+                        <span>•</span>
+                        <span>{new Date(mouvement.createdAt).toLocaleString('fr-FR')}</span>
+                        {mouvement.motif && (
+                          <>
                             <span>•</span>
-                            <span>{new Date(mouvement.createdAt).toLocaleString('fr-FR')}</span>
-                            {mouvement.motif && (
-                              <>
-                                <span>•</span>
-                                <span className="italic truncate max-w-[200px]" title={mouvement.motif}>{mouvement.motif}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
+                            <span className="italic truncate max-w-[200px]" title={mouvement.motif}>{mouvement.motif}</span>
+                          </>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${mouvement.type === 'ENTREE' ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                          {mouvement.type === 'ENTREE' ? '+' : '-'}{mouvement.quantite}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          Stock: {mouvement.quantiteAvant} → {mouvement.quantiteApres}
-                        </p>
-                      </div>
-                  ))}
-                  */}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-bold ${mouvement.type === 'ENTREE' ? 'text-green-600' : 'text-red-600'}`}>
+                      {mouvement.type === 'ENTREE' ? '+' : '-'}{mouvement.quantite}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Stock: {mouvement.quantiteAvant} → {mouvement.quantiteApres}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {data?.pagination && data.pagination.totalPages > 1 && (
@@ -629,7 +623,5 @@ function HistoriqueMouvements() {
         )}
       </CardContent>
     </Card>
-      </div >
-    </div >
   );
 }

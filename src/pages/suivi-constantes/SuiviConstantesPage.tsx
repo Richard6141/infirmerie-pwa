@@ -85,9 +85,9 @@ export function SuiviConstantesPage() {
 
         if (isPatientError || !myPatient) {
             return (
-                <div className="space-y-6">
-                    <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <Activity className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+                <div className="space-y-1">
+                    <h1 className="text-lg md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+                        <Activity className="h-5 w-5 md:h-8 md:w-8 text-primary" />
                         Mes Constantes
                     </h1>
                     <div className="flex flex-col items-center justify-center py-12 text-slate-500 bg-slate-50 rounded-lg border border-slate-100">
