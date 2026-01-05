@@ -38,19 +38,17 @@ export function generateReposSanitairePDF(
   const logoPath = '/logo-ministere.png';
   const signaturePath = '/signature-infirmier.png';
 
-  // Logo à gauche
-  // Note: addImage peut prendre une URL vers une image du dossier public
+  // Logo à gauche - Largeur augmentée (45mm) et hauteur proportionnelle pour éviter la compression
   try {
-    // On tente d'utiliser le logo s'il existe dans le dossier public
-    // Pour éviter les erreurs bloquantes, on utilise un try/catch
-    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 25, 25);
+    // Largeur : 45mm (approx l'espace du texte en dessous), Hauteur : 20mm
+    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 45, 20);
   } catch (error) {
     // Placeholder si l'image n'est pas trouvée
     doc.setDrawColor(200);
     doc.setLineWidth(0.1);
-    doc.rect(marginLeft, yPos, 25, 25);
+    doc.rect(marginLeft, yPos, 45, 20);
     doc.setFontSize(8);
-    doc.text('LOGO', marginLeft + 12.5, yPos + 12.5, { align: 'center' });
+    doc.text('LOGO', marginLeft + 22.5, yPos + 10, { align: 'center' });
   }
 
   // Texte Ministère à gauche
@@ -64,8 +62,9 @@ export function generateReposSanitairePDF(
     'RÉPUBLIQUE DU BÉNIN',
   ];
 
+  // yPos reste à 20, le texte commence après le logo (20 + 25 = 45)
   ministryText.forEach((line, index) => {
-    doc.text(line, marginLeft, yPos + 30 + (index * 4));
+    doc.text(line, marginLeft, yPos + 25 + (index * 4));
   });
 
   // Informations de contact à droite
@@ -200,21 +199,28 @@ export function generateReposSanitairePDF(
   yPos += 20;
 
   // ==================== SIGNATURE ====================
-  const signatureX = pageWidth - marginRight - 50;
+  const signatureX = pageWidth - marginRight - 60; // Décalé un peu plus à gauche pour plus de place
+  let hasSignature = false;
 
   try {
-    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 15, 50, 20);
+    // Augmentation de la largeur (60mm) et de la hauteur (30mm) pour la signature
+    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 20, 60, 30);
+    hasSignature = true;
   } catch (error) {
-    // Ignorer si la signature n'existe pas encore
+    // Si l'image n'est pas chargée, hasSignature reste à false
   }
 
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('SIGNATURE', signatureX + 25, yPos, { align: 'center' });
+  // N'afficher le texte "SIGNATURE" que si l'image est absente
+  if (!hasSignature) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SIGNATURE', signatureX + 30, yPos, { align: 'center' });
+  }
 
   yPos += 15;
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text(repos.nomInfirmier, signatureX + 25, yPos, { align: 'center' });
+  doc.text(repos.nomInfirmier, signatureX + 30, yPos, { align: 'center' });
 
   // ==================== PIED DE PAGE ====================
   const stripeHeight = 3;
