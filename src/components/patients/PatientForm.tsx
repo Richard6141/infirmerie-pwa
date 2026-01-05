@@ -448,7 +448,7 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
                 <FormItem>
                   <FormLabel>Téléphone *</FormLabel>
                   <FormControl>
-                    <Input placeholder="+237 6XX XX XX XX" {...field} />
+                    <Input placeholder="XX XX XX XX XX" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

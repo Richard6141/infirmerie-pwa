@@ -1,16 +1,32 @@
-import { ArrowLeft, UserCircle, Edit, FileText, Syringe, Calendar, Printer, Loader2 } from 'lucide-react';
+import { ArrowLeft, UserCircle, Edit, FileText, Syringe, Calendar, Printer, Loader2, Activity, Eye } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePatient } from '@/lib/hooks/usePatients';
+import { useSuiviConstantesByPatient } from '@/lib/hooks/useSuiviConstantes';
 import { getPatientAge, getPatientFullName } from '@/types/patient';
+import {
+  formatDatePrise,
+  getCouleurTension,
+  getCouleurGlycemie,
+  getCouleurIMC
+} from '@/types/suivi-constantes';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export function PatientDetailPage() {
   const { id } = useParams<{ id: string }>();
 
   const { data: patient, isLoading, isError } = usePatient(id);
+  const { data: constantes } = useSuiviConstantesByPatient(id);
 
   if (isLoading) {
     return (
@@ -163,7 +179,7 @@ export function PatientDetailPage() {
 
       {/* Onglets */}
       <Tabs defaultValue="consultations" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="consultations" className="gap-2">
             <FileText className="h-4 w-4" />
             Consultations
@@ -175,6 +191,10 @@ export function PatientDetailPage() {
           <TabsTrigger value="rendez-vous" className="gap-2">
             <Calendar className="h-4 w-4" />
             Rendez-vous
+          </TabsTrigger>
+          <TabsTrigger value="constantes" className="gap-2">
+            <Activity className="h-4 w-4" />
+            Constantes
           </TabsTrigger>
         </TabsList>
 
@@ -243,6 +263,120 @@ export function PatientDetailPage() {
                   Les rendez-vous de ce patient apparaîtront ici
                 </p>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="constantes" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Historique des Constantes</CardTitle>
+              <div className="flex gap-2">
+                {constantes && constantes.length > 0 && (
+                  <Link to={`/suivi-constantes/${constantes[0].id}`}>
+                    <Button variant="outline" className="gap-2">
+                      <Activity className="h-4 w-4" />
+                      Voir évolution
+                    </Button>
+                  </Link>
+                )}
+                <Link to={`/suivi-constantes/nouveau?patientId=${patient.id}`}>
+                  <Button className="gap-2">
+                    <Activity className="h-4 w-4" />
+                    Nouvelle Prise
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {!constantes || constantes.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <Activity className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                  <p className="font-semibold">Aucune prise de constantes</p>
+                  <p className="text-sm mt-1">
+                    Les relevés de constantes de ce patient apparaîtront ici
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Tension</TableHead>
+                        <TableHead>Glycémie</TableHead>
+                        <TableHead>IMC</TableHead>
+                        <TableHead>Temp.</TableHead>
+                        <TableHead>SpO₂</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {constantes.slice(0, 5).map((constante) => (
+                        <TableRow key={constante.id}>
+                          <TableCell className="font-medium">
+                            {formatDatePrise(constante.datePrise)}
+                          </TableCell>
+                          <TableCell>
+                            {constante.tensionSystolique ? (
+                              <div>
+                                <span className="font-medium">
+                                  {constante.tensionSystolique}/{constante.tensionDiastolique}
+                                </span>
+                                {constante.classificationTension && (
+                                  <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded border ${getCouleurTension(constante.classificationTension)}`}>
+                                    {constante.classificationTension}
+                                  </span>
+                                )}
+                              </div>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {constante.glycemie ? (
+                              <div>
+                                <span className="font-medium">{constante.glycemie}</span>
+                                {constante.classificationGlycemie && (
+                                  <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded border ${getCouleurGlycemie(constante.classificationGlycemie)}`}>
+                                    {constante.classificationGlycemie}
+                                  </span>
+                                )}
+                              </div>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {constante.imc ? (
+                              <div>
+                                <span className="font-medium">{constante.imc}</span>
+                                {constante.classificationIMC && (
+                                  <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded border ${getCouleurIMC(constante.classificationIMC)}`}>
+                                    {constante.classificationIMC}
+                                  </span>
+                                )}
+                              </div>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>{constante.temperature ? `${constante.temperature}°C` : '-'}</TableCell>
+                          <TableCell>{constante.saturationOxygene ? `${constante.saturationOxygene}%` : '-'}</TableCell>
+                          <TableCell className="text-right">
+                            <Link to={`/suivi-constantes/${constante.id}`}>
+                              <Button variant="ghost" size="icon">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {constantes.length > 5 && (
+                    <div className="mt-4 text-center">
+                      <Link to={`/suivi-constantes?patientId=${patient.id}`}>
+                        <Button variant="link">Voir tout l'historique</Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

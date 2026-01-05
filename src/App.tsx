@@ -15,6 +15,7 @@ import { NewConsultationPage } from './pages/consultations/NewConsultationPage';
 import { EditConsultationPage } from './pages/consultations/EditConsultationPage';
 import { ConsultationDetailPage } from './pages/consultations/ConsultationDetailPage';
 import { ReposSanitairePage, NewReposSanitairePage, EditReposSanitairePage, ReposSanitaireDetailPage } from './pages/repos-sanitaire';
+import { SuiviConstantesPage, NewSuiviConstantesPage, SuiviConstantesDetailPage, EditSuiviConstantesPage } from './pages/suivi-constantes';
 import { MedicamentsPage } from './pages/medicaments/MedicamentsPage';
 import { NewMedicamentPage } from './pages/medicaments/NewMedicamentPage';
 import { EditMedicamentPage } from './pages/medicaments/EditMedicamentPage';
@@ -127,6 +128,26 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
                 <EditConsultationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Suivi Constantes - Accessible à tous */}
+          <Route path="/suivi-constantes" element={<SuiviConstantesPage />} />
+          <Route
+            path="/suivi-constantes/nouveau"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <NewSuiviConstantesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/suivi-constantes/:id" element={<SuiviConstantesDetailPage />} />
+          <Route
+            path="/suivi-constantes/:id/modifier"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <EditSuiviConstantesPage />
               </ProtectedRoute>
             }
           />

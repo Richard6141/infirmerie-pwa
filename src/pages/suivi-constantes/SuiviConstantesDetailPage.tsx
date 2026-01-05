@@ -1,0 +1,522 @@
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Pencil, Trash2, Activity, TrendingUp, Loader2 } from 'lucide-react';
+import {
+    useSuiviConstante,
+    useDeleteSuiviConstantes,
+    useEvolutionConstantes,
+} from '@/lib/hooks/useSuiviConstantes';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    ReferenceLine,
+} from 'recharts';
+import {
+    formatDatePrise,
+    getCouleurIMC,
+    getCouleurGlycemie,
+    getCouleurTension,
+} from '@/types/suivi-constantes';
+import { toast } from 'sonner';
+import { useState } from 'react';
+
+export function SuiviConstantesDetailPage() {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    const { data: constante, isLoading, isError } = useSuiviConstante(id);
+    const deleteMutation = useDeleteSuiviConstantes();
+
+    // Charger l'évolution si on a un patient
+    const { data: evolution } = useEvolutionConstantes(constante?.patientId);
+
+    const handleDelete = async () => {
+        if (!id) return;
+
+        try {
+            await deleteMutation.mutateAsync(id);
+            toast.success('Prise de constantes supprimée avec succès');
+            navigate('/suivi-constantes');
+        } catch (error) {
+            toast.error('Erreur lors de la suppression');
+            console.error(error);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (isError || !constante) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-destructive">
+                <p className="font-semibold">Erreur lors du chargement</p>
+                <Button onClick={() => navigate('/suivi-constantes')} className="mt-4">
+                    Retour à la liste
+                </Button>
+            </div>
+        );
+    }
+
+    // Préparer les données pour les graphiques
+    const chartData = evolution?.dates.map((date, index) => ({
+        date: new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+        tensionSystolique: evolution.tensionSystolique[index],
+        tensionDiastolique: evolution.tensionDiastolique[index],
+        frequenceCardiaque: evolution.frequenceCardiaque[index],
+        temperature: evolution.temperature[index],
+        saturationOxygene: evolution.saturationOxygene[index],
+        glycemie: evolution.glycemie[index],
+        poids: evolution.poids[index],
+        imc: evolution.imc[index],
+    })) || [];
+
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button variant="outline" size="icon" onClick={() => navigate('/suivi-constantes')}>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                            <Activity className="h-8 w-8 text-primary" />
+                            Détail de la prise
+                        </h1>
+                        <p className="text-slate-600 mt-1">{formatDatePrise(constante.datePrise)}</p>
+                    </div>
+                </div>
+
+                <div className="flex gap-2">
+                    <Link to={`/suivi-constantes/${id}/modifier`}>
+                        <Button variant="outline" className="gap-2">
+                            <Pencil className="h-4 w-4" />
+                            Modifier
+                        </Button>
+                    </Link>
+                    <Button
+                        variant="destructive"
+                        className="gap-2"
+                        onClick={() => setDeleteDialogOpen(true)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        Supprimer
+                    </Button>
+                </div>
+            </div>
+
+            {/* Informations patient */}
+            {constante.patient && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Patient</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p className="text-sm text-slate-600">Nom complet</p>
+                                <p className="font-semibold">
+                                    {constante.patient.prenom} {constante.patient.nom}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-slate-600">Matricule</p>
+                                <p className="font-semibold">{constante.patient.matricule}</p>
+                            </div>
+                            <div>
+                                <Link to={`/patients/${constante.patient.id}`}>
+                                    <Button variant="outline" size="sm">
+                                        Voir le dossier patient
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Constantes vitales */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Constantes vitales</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Tension artérielle */}
+                        {constante.tensionSystolique && constante.tensionDiastolique && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-slate-600">Tension artérielle</p>
+                                <p className="text-2xl font-bold">
+                                    {constante.tensionSystolique}/{constante.tensionDiastolique} mmHg
+                                </p>
+                                {constante.classificationTension && (
+                                    <span
+                                        className={`inline-block px-3 py-1 rounded-md text-sm font-medium border ${getCouleurTension(constante.classificationTension)}`}
+                                    >
+                                        {constante.classificationTension}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Fréquence cardiaque */}
+                        {constante.frequenceCardiaque && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-slate-600">Fréquence cardiaque</p>
+                                <p className="text-2xl font-bold">{constante.frequenceCardiaque} bpm</p>
+                            </div>
+                        )}
+
+                        {/* Fréquence respiratoire */}
+                        {constante.frequenceRespiratoire && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-slate-600">Fréquence respiratoire</p>
+                                <p className="text-2xl font-bold">{constante.frequenceRespiratoire} /min</p>
+                            </div>
+                        )}
+
+                        {/* Température */}
+                        {constante.temperature && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-slate-600">Température</p>
+                                <p className="text-2xl font-bold">{constante.temperature}°C</p>
+                            </div>
+                        )}
+
+                        {/* Saturation en oxygène */}
+                        {constante.saturationOxygene && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-slate-600">Saturation en oxygène</p>
+                                <p className="text-2xl font-bold">{constante.saturationOxygene}%</p>
+                            </div>
+                        )}
+
+                        {/* Glycémie */}
+                        {constante.glycemie && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-slate-600">Glycémie</p>
+                                <p className="text-2xl font-bold">{constante.glycemie} g/L</p>
+                                {constante.classificationGlycemie && (
+                                    <span
+                                        className={`inline-block px-3 py-1 rounded-md text-sm font-medium border ${getCouleurGlycemie(constante.classificationGlycemie)}`}
+                                    >
+                                        {constante.classificationGlycemie}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Mesures anthropométriques */}
+            {(constante.poids || constante.taille || constante.imc) && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Mesures anthropométriques</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {constante.poids && (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-slate-600">Poids</p>
+                                    <p className="text-2xl font-bold">{constante.poids} kg</p>
+                                </div>
+                            )}
+
+                            {constante.taille && (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-slate-600">Taille</p>
+                                    <p className="text-2xl font-bold">{constante.taille} cm</p>
+                                </div>
+                            )}
+
+                            {constante.imc && (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-slate-600">IMC</p>
+                                    <p className="text-2xl font-bold">{constante.imc}</p>
+                                    {constante.classificationIMC && (
+                                        <span
+                                            className={`inline-block px-3 py-1 rounded-md text-sm font-medium border ${getCouleurIMC(constante.classificationIMC)}`}
+                                        >
+                                            {constante.classificationIMC}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Observations */}
+            {constante.observations && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Observations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-slate-700 whitespace-pre-wrap">{constante.observations}</p>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Graphiques d'évolution */}
+            {evolution && chartData.length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5" />
+                            Évolution des constantes
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="tension" className="w-full">
+                            <TabsList className="grid w-full grid-cols-4">
+                                <TabsTrigger value="tension">Tension</TabsTrigger>
+                                <TabsTrigger value="glycemie">Glycémie</TabsTrigger>
+                                <TabsTrigger value="imc">IMC</TabsTrigger>
+                                <TabsTrigger value="autres">Autres</TabsTrigger>
+                            </TabsList>
+
+                            {/* Graphique Tension */}
+                            <TabsContent value="tension" className="space-y-4">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend />
+                                        <ReferenceLine y={120} stroke="#22c55e" strokeDasharray="3 3" label="Normal systolique" />
+                                        <ReferenceLine y={80} stroke="#22c55e" strokeDasharray="3 3" label="Normal diastolique" />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="tensionSystolique"
+                                            stroke="#ef4444"
+                                            name="Systolique (mmHg)"
+                                            strokeWidth={2}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="tensionDiastolique"
+                                            stroke="#3b82f6"
+                                            name="Diastolique (mmHg)"
+                                            strokeWidth={2}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                                {evolution.statistiques.tensionSystolique && (
+                                    <div className="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-slate-600">Minimum</p>
+                                            <p className="font-semibold">
+                                                {evolution.statistiques.tensionSystolique.min}/
+                                                {evolution.statistiques.tensionDiastolique?.min} mmHg
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-slate-600">Moyenne</p>
+                                            <p className="font-semibold">
+                                                {evolution.statistiques.tensionSystolique.moyenne.toFixed(0)}/
+                                                {evolution.statistiques.tensionDiastolique?.moyenne.toFixed(0)} mmHg
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-slate-600">Maximum</p>
+                                            <p className="font-semibold">
+                                                {evolution.statistiques.tensionSystolique.max}/
+                                                {evolution.statistiques.tensionDiastolique?.max} mmHg
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            {/* Graphique Glycémie */}
+                            <TabsContent value="glycemie" className="space-y-4">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend />
+                                        <ReferenceLine y={0.8} stroke="#22c55e" strokeDasharray="3 3" label="Min normal" />
+                                        <ReferenceLine y={1.2} stroke="#22c55e" strokeDasharray="3 3" label="Max normal" />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="glycemie"
+                                            stroke="#8b5cf6"
+                                            name="Glycémie (g/L)"
+                                            strokeWidth={2}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                                {evolution.statistiques.glycemie && (
+                                    <div className="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-slate-600">Minimum</p>
+                                            <p className="font-semibold">{evolution.statistiques.glycemie.min} g/L</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-slate-600">Moyenne</p>
+                                            <p className="font-semibold">
+                                                {evolution.statistiques.glycemie.moyenne.toFixed(2)} g/L
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-slate-600">Maximum</p>
+                                            <p className="font-semibold">{evolution.statistiques.glycemie.max} g/L</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            {/* Graphique IMC */}
+                            <TabsContent value="imc" className="space-y-4">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend />
+                                        <ReferenceLine y={18.5} stroke="#f59e0b" strokeDasharray="3 3" label="Maigreur" />
+                                        <ReferenceLine y={25} stroke="#22c55e" strokeDasharray="3 3" label="Normal" />
+                                        <ReferenceLine y={30} stroke="#f59e0b" strokeDasharray="3 3" label="Surpoids" />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="imc"
+                                            stroke="#10b981"
+                                            name="IMC"
+                                            strokeWidth={2}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="poids"
+                                            stroke="#6366f1"
+                                            name="Poids (kg)"
+                                            strokeWidth={2}
+                                            yAxisId="right"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                                {evolution.statistiques.imc && (
+                                    <div className="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-slate-600">Minimum</p>
+                                            <p className="font-semibold">{evolution.statistiques.imc.min}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-slate-600">Moyenne</p>
+                                            <p className="font-semibold">
+                                                {evolution.statistiques.imc.moyenne.toFixed(1)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-slate-600">Maximum</p>
+                                            <p className="font-semibold">{evolution.statistiques.imc.max}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            {/* Autres constantes */}
+                            <TabsContent value="autres" className="space-y-4">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="frequenceCardiaque"
+                                            stroke="#f97316"
+                                            name="FC (bpm)"
+                                            strokeWidth={2}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="temperature"
+                                            stroke="#ec4899"
+                                            name="Temp (°C)"
+                                            strokeWidth={2}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="saturationOxygene"
+                                            stroke="#06b6d4"
+                                            name="SpO₂ (%)"
+                                            strokeWidth={2}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Delete Dialog */}
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent className="bg-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-900 text-xl">Confirmer la suppression</DialogTitle>
+                        <DialogDescription className="text-slate-600 text-base mt-2">
+                            Êtes-vous sûr de vouloir supprimer cette prise de constantes ? Cette action est
+                            irréversible.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeleteDialogOpen(false)}
+                            disabled={deleteMutation.isPending}
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleteMutation.isPending}
+                        >
+                            {deleteMutation.isPending ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Suppression...
+                                </>
+                            ) : (
+                                'Supprimer'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}
