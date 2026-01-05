@@ -19,6 +19,15 @@ interface SuiviConstantesChartsProps {
 }
 
 export function SuiviConstantesCharts({ evolution }: SuiviConstantesChartsProps) {
+    // Vérification défensive
+    if (!evolution || !evolution.dates || !Array.isArray(evolution.dates)) {
+        return (
+            <div className="text-center py-12 text-slate-500 mb-6">
+                <p>Données d'évolution indisponibles</p>
+            </div>
+        );
+    }
+
     // Préparer les données pour les graphiques
     const chartData = evolution.dates.map((date, index) => ({
         date: new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),

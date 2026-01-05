@@ -46,6 +46,7 @@ export interface User {
   role: Role;
   isInfirmier: boolean;
   isPatient: boolean;
+  patientId?: string; // Retourné par l'API login/me
   mustChangePassword: boolean;
   createdAt: string;
   updatedAt: string;
