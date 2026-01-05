@@ -41,7 +41,7 @@ export function generateReposSanitairePDF(
   // Logo à gauche - Largeur encore augmentée (55mm)
   try {
     // Largeur : 55mm, Hauteur : 22mm
-    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 55, 22);
+    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 60, 20);
   } catch (error) {
     // Placeholder si l'image n'est pas trouvée
     doc.setDrawColor(200);
