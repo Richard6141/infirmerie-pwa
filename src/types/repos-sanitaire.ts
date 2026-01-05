@@ -83,7 +83,7 @@ export const createReposSanitaireSchema = z.object({
   dateDebut: z.string().min(1, 'Date de début requise'),
   dateFin: z.string().min(1, 'Date de fin requise'),
   dateControle: z.string().optional(),
-  lieuRedaction: z.string().optional(),
+  lieuRedaction: z.string().default('Cotonou').optional(),
 }).refine(
   (data) => {
     if (data.dateDebut && data.dateFin) {

@@ -78,7 +78,7 @@ export function ReposSanitaireForm({
     : {
         patientId: preselectedPatientId || '',
         dateExamen: new Date().toISOString().split('T')[0],
-        lieuRedaction: 'Kinshasa',
+        lieuRedaction: 'Cotonou',
       };
 
   const form = useForm<ReposSanitaireFormData>({
@@ -374,12 +374,12 @@ export function ReposSanitaireForm({
                   <FormLabel>Lieu de rédaction</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Kinshasa"
+                      placeholder="Cotonou"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription className="text-xs">
-                    Ville ou lieu où le document est rédigé (défaut: Kinshasa)
+                    Ville ou lieu où le document est rédigé (défaut: Cotonou)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

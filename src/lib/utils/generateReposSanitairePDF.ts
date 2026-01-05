@@ -40,8 +40,9 @@ export function generateReposSanitairePDF(
 
   const headerText = [
     'Ministère du Développement et de la Coordination',
+    'de l\'Action Gouvernementale',
     'Infirmerie - Direction des Ressources Humaines',
-    'Kinshasa, République Démocratique du Congo',
+    'Cotonou, République du Bénin',
   ];
 
   headerText.forEach((line, index) => {
@@ -83,7 +84,7 @@ export function generateReposSanitairePDF(
   const dateExamen = formaterDateRepos(repos.dateExamen);
   const sexeLabel = formaterSexe(repos.sexePatient);
 
-  const introText = `Je soussigné ${repos.nomInfirmier}, Infirmier du Ministère du Développement et de la Coordination, reconnais avoir examiné ce jour ${dateExamen} ${sexeLabel} ${repos.nomPatient}, âgé(e) de ${repos.agePatient} ans, matricule ${repos.matriculePatient}.`;
+  const introText = `Je soussigné ${repos.nomInfirmier}, Infirmier du Ministère du Développement et de la Coordination de l'Action Gouvernementale, reconnais avoir examiné ce jour ${dateExamen} ${sexeLabel} ${repos.nomPatient}, âgé(e) de ${repos.agePatient} ans, matricule ${repos.matriculePatient}.`;
 
   const introLines = doc.splitTextToSize(introText, contentWidth);
   doc.text(introLines, marginLeft, yPos);

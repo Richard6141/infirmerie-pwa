@@ -1,8 +1,8 @@
 # Assets Directory
 
-## Logo MDC
+## Logo MDCAG
 
-Pour intégrer le logo du Ministère du Développement et de la Coordination dans les PDF de repos sanitaire :
+Pour intégrer le logo du Ministère du Développement et de la Coordination de l'Action Gouvernementale dans les PDF de repos sanitaire :
 
 1. Placer le fichier du logo dans ce répertoire avec le nom : `logo-mdc.png`
 2. Le logo sera automatiquement intégré dans les PDF générés
