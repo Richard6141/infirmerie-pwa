@@ -124,9 +124,9 @@ function WelcomeBanner({ userName, rdvCount = 0, nouveauxPatients = 0, consultat
   const greeting = currentTime < 12 ? 'Bonjour' : currentTime < 18 ? 'Bon après-midi' : 'Bonsoir';
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-4 md:p-6 shadow-xl">
       <div className="relative z-10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
               <Clock className="h-3 w-3 text-white" />
@@ -134,43 +134,43 @@ function WelcomeBanner({ userName, rdvCount = 0, nouveauxPatients = 0, consultat
                 {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+            <h1 className="text-xl md:text-3xl font-bold text-white mb-1">
               {greeting}, {userName}
             </h1>
             <p className="text-blue-100 text-sm">Voici un aperçu de votre planning aujourd'hui</p>
           </div>
 
-          <div className="flex flex-wrap md:flex-nowrap gap-3">
+          <div className="grid grid-cols-3 gap-2 md:flex md:gap-3">
             {/* Appointments */}
-            <Link to="/rendez-vous" className="flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20 shadow-lg min-w-[140px] hover:bg-white/20 transition-colors">
-              <div className="p-2.5 bg-white/20 rounded-lg">
-                <Calendar className="h-5 w-5 text-white" />
+            <Link to="/rendez-vous" className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-2 py-2 md:px-4 md:py-3 border border-white/20 shadow-lg md:min-w-[140px] hover:bg-white/20 transition-colors">
+              <div className="p-1.5 md:p-2.5 bg-white/20 rounded-lg">
+                <Calendar className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white leading-none">{rdvCount}</p>
-                <p className="text-xs text-blue-100 mt-1">RDV aujourd'hui</p>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold text-white leading-none">{rdvCount}</p>
+                <p className="text-[10px] md:text-xs text-blue-100 mt-0.5 md:mt-1">RDV</p>
               </div>
             </Link>
 
             {/* New Patients */}
-            <div className="flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20 shadow-lg min-w-[140px]">
-              <div className="p-2.5 bg-white/20 rounded-lg">
-                <UserCheck className="h-5 w-5 text-white" />
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-2 py-2 md:px-4 md:py-3 border border-white/20 shadow-lg md:min-w-[140px]">
+              <div className="p-1.5 md:p-2.5 bg-white/20 rounded-lg">
+                <UserCheck className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white leading-none">{nouveauxPatients}</p>
-                <p className="text-xs text-blue-100 mt-1">Nouveaux</p>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold text-white leading-none">{nouveauxPatients}</p>
+                <p className="text-[10px] md:text-xs text-blue-100 mt-0.5 md:mt-1">Nouveaux</p>
               </div>
             </div>
 
             {/* Consultations */}
-            <div className="flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20 shadow-lg min-w-[140px]">
-              <div className="p-2.5 bg-white/20 rounded-lg">
-                <Stethoscope className="h-5 w-5 text-white" />
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-2 py-2 md:px-4 md:py-3 border border-white/20 shadow-lg md:min-w-[140px]">
+              <div className="p-1.5 md:p-2.5 bg-white/20 rounded-lg">
+                <Stethoscope className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white leading-none">{consultationsJour}</p>
-                <p className="text-xs text-blue-100 mt-1">Consultations</p>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold text-white leading-none">{consultationsJour}</p>
+                <p className="text-[10px] md:text-xs text-blue-100 mt-0.5 md:mt-1">Consult.</p>
               </div>
             </div>
           </div>
