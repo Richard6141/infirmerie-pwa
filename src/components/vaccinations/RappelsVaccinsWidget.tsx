@@ -31,7 +31,7 @@ export function RappelsVaccinsWidget() {
       .map((vaccination) => ({
         vaccinationId: vaccination.id,
         patientId: vaccination.patientId,
-        nomPatient: vaccination.patient?.user ? `${vaccination.patient.user.nom} ${vaccination.patient.user.prenom}` : 'Patient inconnu',
+        nomPatient: vaccination.patient ? `${vaccination.patient.nom} ${vaccination.patient.prenom}` : 'Patient inconnu',
         typeVaccin: vaccination.typeVaccin,
         dateRappel: vaccination.prochainRappel!,
         statut: getStatutRappel(vaccination.prochainRappel!),
