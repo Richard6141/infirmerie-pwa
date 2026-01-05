@@ -295,7 +295,7 @@ export function PatientDetailPage() {
               {evolution && <SuiviConstantesCharts evolution={evolution} />}
 
               {/* Tableau historique */}
-              {!constantes || constantes.length === 0 ? (
+              {!constantes || !Array.isArray(constantes) || constantes.length === 0 ? (
                 <div className="text-center py-12 text-slate-500">
                   <Activity className="h-12 w-12 mx-auto mb-3 text-slate-300" />
                   <p className="font-semibold">Aucune prise de constantes</p>
