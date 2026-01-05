@@ -34,7 +34,7 @@ const navItems: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/patients', icon: Users, label: 'Patients', roles: ['INFIRMIER'] },
   { to: '/consultations', icon: FileText, label: 'Consultations' },
-  { to: '/suivi-constantes', icon: Activity, label: 'Suivi Constantes' },
+  { to: '/suivi-constantes', icon: Activity, label: 'Suivi Constantes', roles: ['INFIRMIER'] },
   { to: '/repos-sanitaire', icon: FileHeart, label: 'Repos Sanitaire', roles: ['INFIRMIER'] },
   { to: '/medicaments', icon: Pill, label: 'Médicaments', roles: ['INFIRMIER'] },
   { to: '/stocks', icon: Package, label: 'Gestion Stocks', roles: ['INFIRMIER'] },
