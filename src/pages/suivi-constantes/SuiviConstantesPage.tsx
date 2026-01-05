@@ -330,6 +330,15 @@ export function SuiviConstantesPage() {
                                                                 {constante.patient.matricule}
                                                             </p>
                                                         </div>
+                                                    ) : constante.nomPatient ? (
+                                                        <div>
+                                                            <p className="font-medium">
+                                                                {constante.nomPatient}
+                                                            </p>
+                                                            <p className="text-xs text-slate-500">
+                                                                {constante.matriculePatient || '-'}
+                                                            </p>
+                                                        </div>
                                                     ) : (
                                                         '-'
                                                     )}

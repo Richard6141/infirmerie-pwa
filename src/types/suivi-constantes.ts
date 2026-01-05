@@ -41,6 +41,9 @@ export interface SuiviConstantes {
     patientId: string;
     infirmierId: string;
     datePrise: string; // ISO date string
+    nomPatient?: string;
+    matriculePatient?: string;
+    nomInfirmier?: string;
 
     // Constantes vitales
     tensionSystolique?: number;
