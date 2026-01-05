@@ -38,17 +38,17 @@ export function generateReposSanitairePDF(
   const logoPath = '/logo-ministere.png';
   const signaturePath = '/signature-infirmier.png';
 
-  // Logo à gauche - Largeur augmentée (45mm) et hauteur proportionnelle pour éviter la compression
+  // Logo à gauche - Largeur encore augmentée (55mm)
   try {
-    // Largeur : 45mm (approx l'espace du texte en dessous), Hauteur : 20mm
-    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 45, 20);
+    // Largeur : 55mm, Hauteur : 22mm
+    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 55, 22);
   } catch (error) {
     // Placeholder si l'image n'est pas trouvée
     doc.setDrawColor(200);
     doc.setLineWidth(0.1);
-    doc.rect(marginLeft, yPos, 45, 20);
+    doc.rect(marginLeft, yPos, 55, 22);
     doc.setFontSize(8);
-    doc.text('LOGO', marginLeft + 22.5, yPos + 10, { align: 'center' });
+    doc.text('LOGO', marginLeft + 27.5, yPos + 11, { align: 'center' });
   }
 
   // Texte Ministère à gauche
@@ -62,9 +62,9 @@ export function generateReposSanitairePDF(
     'RÉPUBLIQUE DU BÉNIN',
   ];
 
-  // yPos reste à 20, le texte commence après le logo (20 + 25 = 45)
+  // yPos reste à 20, le texte commence après le logo agrandi (20 + 28 = 48)
   ministryText.forEach((line, index) => {
-    doc.text(line, marginLeft, yPos + 25 + (index * 4));
+    doc.text(line, marginLeft, yPos + 28 + (index * 4));
   });
 
   // Informations de contact à droite
@@ -196,15 +196,15 @@ export function generateReposSanitairePDF(
   doc.setFont('helvetica', 'normal');
   doc.text('pour contrôle physique.', pageWidth - marginRight, yPos, { align: 'right' });
   drawDottedLine(marginLeft + 22, yPos + 1, pageWidth - marginRight - 45);
-  yPos += 20;
+  yPos += 30; // Augmentation de la marge avant la signature (passé de 20 à 30)
 
   // ==================== SIGNATURE ====================
-  const signatureX = pageWidth - marginRight - 60; // Décalé un peu plus à gauche pour plus de place
+  const signatureX = pageWidth - marginRight - 70; // Décalé encore un peu plus à gauche (largeur 70)
   let hasSignature = false;
 
   try {
-    // Augmentation de la largeur (60mm) et de la hauteur (30mm) pour la signature
-    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 20, 60, 30);
+    // Largeur : 70mm (+10), Hauteur : 40mm (+10) pour la signature
+    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 30, 70, 40);
     hasSignature = true;
   } catch (error) {
     // Si l'image n'est pas chargée, hasSignature reste à false
@@ -214,13 +214,13 @@ export function generateReposSanitairePDF(
   if (!hasSignature) {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('SIGNATURE', signatureX + 30, yPos, { align: 'center' });
+    doc.text('SIGNATURE', signatureX + 35, yPos, { align: 'center' });
   }
 
-  yPos += 15;
+  yPos += 20; // Un peu plus d'espace pour le nom sous la signature agrandie
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text(repos.nomInfirmier, signatureX + 30, yPos, { align: 'center' });
+  doc.text(repos.nomInfirmier, signatureX + 35, yPos, { align: 'center' });
 
   // ==================== PIED DE PAGE ====================
   const stripeHeight = 3;
