@@ -15,18 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    ReferenceLine,
-} from 'recharts';
+
 import { SuiviConstantesCharts } from './components/SuiviConstantesCharts';
 import {
     formatDatePrise,
@@ -80,18 +69,7 @@ export function SuiviConstantesDetailPage() {
         );
     }
 
-    // Préparer les données pour les graphiques
-    const chartData = evolution?.dates.map((date, index) => ({
-        date: new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-        tensionSystolique: evolution.tensionSystolique[index],
-        tensionDiastolique: evolution.tensionDiastolique[index],
-        frequenceCardiaque: evolution.frequenceCardiaque[index],
-        temperature: evolution.temperature[index],
-        saturationOxygene: evolution.saturationOxygene[index],
-        glycemie: evolution.glycemie[index],
-        poids: evolution.poids[index],
-        imc: evolution.imc[index],
-    })) || [];
+    // Données préparées par SuiviConstantesCharts désormais
 
     return (
         <div className="space-y-6">
