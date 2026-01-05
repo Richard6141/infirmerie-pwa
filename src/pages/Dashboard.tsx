@@ -1,8 +1,7 @@
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useRendezVousToday } from '@/lib/hooks/useRendezVous';
 import { useDashboardStats as useDashboardStatsOld } from '@/lib/hooks/useDashboardStats';
 import { useDashboardStats } from '@/lib/hooks/useRapports';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { SyncStatus } from '@/components/sync/SyncStatus';
 import { SyncButton } from '@/components/sync/SyncButton';
 import { OfflineBannerCompact } from '@/components/sync/OfflineBanner';
@@ -23,12 +22,9 @@ import {
   UserCheck,
   Stethoscope,
   ArrowUpRight,
-  ArrowDownRight,
   Clock,
-  DollarSign,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import { SuiviConstantesCharts } from '@/pages/suivi-constantes/components/SuiviConstantesCharts';
 import { useEvolutionConstantes } from '@/lib/hooks/useSuiviConstantes';
 import { useMyPatientProfile } from '@/lib/hooks/usePatients';
@@ -187,7 +183,6 @@ function WelcomeBanner({ userName, rdvCount = 0, nouveauxPatients = 0, consultat
 
 export function DashboardPage() {
   const { user, isInfirmier } = useAuth();
-  const { data: rendezVousToday } = useRendezVousToday();
   const { data: stats, isLoading: statsLoading } = useDashboardStatsOld();
 
   // Handle sync

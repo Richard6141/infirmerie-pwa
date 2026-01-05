@@ -168,7 +168,7 @@ export function CalendrierRendezVousPage() {
 
 
       {/* Légende */}
-      < Card className="border-slate-200 shadow-sm" >
+      <Card className="border-slate-200 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-slate-700">Légende des statuts</CardTitle>
         </CardHeader>
@@ -192,10 +192,10 @@ export function CalendrierRendezVousPage() {
             </div>
           </div>
         </CardContent>
-      </Card >
+      </Card>
 
       {/* Calendrier */}
-      < Card className="border-slate-200 shadow-lg" >
+      <Card className="border-slate-200 shadow-lg">
         <CardContent className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
@@ -343,10 +343,10 @@ export function CalendrierRendezVousPage() {
             </div>
           )}
         </CardContent>
-      </Card >
+      </Card>
 
       {/* Dialog de détails du RDV */}
-      < Dialog open={!!selectedEvent && !deleteDialogOpen} onOpenChange={() => setSelectedEvent(null)}>
+      <Dialog open={!!selectedEvent && !deleteDialogOpen} onOpenChange={() => setSelectedEvent(null)}>
         <DialogContent className="bg-white max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -451,10 +451,10 @@ export function CalendrierRendezVousPage() {
             )}
           </DialogFooter>
         </DialogContent>
-      </Dialog >
+      </Dialog>
 
       {/* Dialog de confirmation de suppression */}
-      < Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} >
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Confirmer la suppression</DialogTitle>
@@ -478,7 +478,7 @@ export function CalendrierRendezVousPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog >
-    </div >
+      </Dialog>
+    </div>
   );
 }

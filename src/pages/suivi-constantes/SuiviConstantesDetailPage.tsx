@@ -313,6 +313,6 @@ export function SuiviConstantesDetailPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div >
+        </div>
     );
 }

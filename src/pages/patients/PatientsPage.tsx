@@ -350,6 +350,6 @@ export function PatientsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div >
+    </div>
   );
 }

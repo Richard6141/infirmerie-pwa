@@ -306,7 +306,7 @@ export function VaccinationsPage() {
           )}
         </CardContent>
       </Card>
-    </div >
+    </div>
   );
 }
 

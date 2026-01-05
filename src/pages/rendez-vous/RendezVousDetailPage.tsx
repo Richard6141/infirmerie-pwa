@@ -107,7 +107,7 @@ export function RendezVousDetailPage() {
       {/* Informations principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Patient */}
-        < Card >
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -120,10 +120,10 @@ export function RendezVousDetailPage() {
               <p className="text-sm text-slate-600">Matricule: {getMatriculePatient(rendezVous)}</p>
             </div>
           </CardContent>
-        </Card >
+        </Card>
 
         {/* Date et Heure */}
-        < Card >
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
@@ -139,11 +139,11 @@ export function RendezVousDetailPage() {
               </p>
             </div>
           </CardContent>
-        </Card >
-      </div >
+        </Card>
+      </div>
 
       {/* Statut */}
-      < Card >
+      <Card>
         <CardHeader>
           <CardTitle>Statut</CardTitle>
         </CardHeader>
@@ -154,10 +154,10 @@ export function RendezVousDetailPage() {
             {STATUT_RDV_LABELS[rendezVous.statut]}
           </span>
         </CardContent>
-      </Card >
+      </Card>
 
       {/* Motif */}
-      < Card >
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -167,7 +167,7 @@ export function RendezVousDetailPage() {
         <CardContent>
           <p className="text-slate-700 whitespace-pre-wrap">{rendezVous.motif}</p>
         </CardContent>
-      </Card >
+      </Card>
 
       {/* Observations */}
       {
@@ -235,6 +235,6 @@ export function RendezVousDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div >
+    </div>
   );
 }
