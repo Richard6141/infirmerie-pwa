@@ -24,6 +24,7 @@ export interface Patient {
   allergies?: string;
   antecedents?: string; // Le backend utilise 'antecedents' pas 'antecedentsMedicaux'
   antecedentsMedicaux?: string; // Alias pour le frontend
+  userId?: string; // Liaison avec User
   createdAt: string;
   updatedAt: string;
 }

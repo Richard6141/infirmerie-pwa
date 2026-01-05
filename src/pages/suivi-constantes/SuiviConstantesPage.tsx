@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Plus, Search, Eye, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useSuiviConstantes, useDeleteSuiviConstantes } from '@/lib/hooks/useSuiviConstantes';
+import { useSuiviConstantes, useDeleteSuiviConstantes, useEvolutionConstantes } from '@/lib/hooks/useSuiviConstantes';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { usePatients } from '@/lib/hooks/usePatients';
+import { Role } from '@/lib/types/models';
+import { SuiviConstantesCharts } from './components/SuiviConstantesCharts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,6 +59,73 @@ export function SuiviConstantesPage() {
     });
 
     const deleteMutation = useDeleteSuiviConstantes();
+
+    // Auth & Check Role
+    const { user } = useAuth();
+    const isPatient = user?.role === Role.PATIENT;
+
+    // Pour Patient : Récupérer son profil patient et l'évolution
+    const { data: patientsData, isLoading: isLoadingPatients } = usePatients(
+        isPatient ? { limit: 1000 } : undefined // Ne pas charger si pas patient
+    );
+
+    // Trouver le patient lié à l'utilisateur connecté
+    const myPatient = isPatient && patientsData?.data
+        ? patientsData.data.find(p => p.userId === user?.id)
+        : null;
+
+    const { data: evolution, isLoading: isLoadingEvolution } = useEvolutionConstantes(myPatient?.id);
+
+    // Si c'est un patient, on retourne une vue simplifiée AVEC GRAPHIQUES UNIQUEMENT
+    if (isPatient) {
+        if (isLoadingPatients || (myPatient && isLoadingEvolution)) {
+            return (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+            );
+        }
+
+        if (!myPatient) {
+            return (
+                <div className="space-y-6">
+                    <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                        <Activity className="h-8 w-8 text-primary" />
+                        Mes Constantes
+                    </h1>
+                    <div className="flex flex-col items-center justify-center py-12 text-slate-500 bg-slate-50 rounded-lg border border-slate-100">
+                        <Activity className="h-12 w-12 mb-3 text-slate-300" />
+                        <p className="font-semibold">Dossier patient non trouvé</p>
+                        <p className="text-sm mt-1">Votre compte utilisateur n'est pas encore lié à un dossier patient.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                        <Activity className="h-8 w-8 text-primary" />
+                        Mes Constantes
+                    </h1>
+                    <p className="text-slate-600 mt-1">
+                        Suivez l'évolution de vos constantes vitales
+                    </p>
+                </div>
+
+                {evolution ? (
+                    <SuiviConstantesCharts evolution={evolution} />
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-slate-500 bg-slate-50 rounded-lg border border-slate-100">
+                        <Activity className="h-12 w-12 mb-3 text-slate-300" />
+                        <p className="font-semibold">Aucune donnée disponible</p>
+                        <p className="text-sm mt-1">Aucune prise de constantes n'a été enregistrée pour le moment.</p>
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     // Debounce search
     useEffect(() => {

@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePatient } from '@/lib/hooks/usePatients';
-import { useSuiviConstantesByPatient } from '@/lib/hooks/useSuiviConstantes';
+import { useSuiviConstantesByPatient, useEvolutionConstantes } from '@/lib/hooks/useSuiviConstantes';
+import { SuiviConstantesCharts } from '@/pages/suivi-constantes/components/SuiviConstantesCharts';
 import { getPatientAge, getPatientFullName } from '@/types/patient';
 import {
   formatDatePrise,
@@ -27,6 +28,7 @@ export function PatientDetailPage() {
 
   const { data: patient, isLoading, isError } = usePatient(id);
   const { data: constantes } = useSuiviConstantesByPatient(id);
+  const { data: evolution } = useEvolutionConstantes(id);
 
   if (isLoading) {
     return (
@@ -289,6 +291,10 @@ export function PatientDetailPage() {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Graphiques d'évolution */}
+              {evolution && <SuiviConstantesCharts evolution={evolution} />}
+
+              {/* Tableau historique */}
               {!constantes || constantes.length === 0 ? (
                 <div className="text-center py-12 text-slate-500">
                   <Activity className="h-12 w-12 mx-auto mb-3 text-slate-300" />
