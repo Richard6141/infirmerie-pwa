@@ -60,16 +60,16 @@ function StatCard({ title, value, icon, color, isLoading }: StatCardProps) {
   }
 
   return (
-    <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 border-slate-200 bg-white overflow-hidden group hover-lift">
+    <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 border-slate-200 bg-white overflow-hidden group hover-lift h-full">
       <div className={`h-1 ${color}`}></div>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{title}</p>
-            <div className="text-2xl font-bold text-slate-800">{value}</div>
+      <CardContent className="p-3 md:p-5">
+        <div className="flex flex-row items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wide mb-0.5 md:mb-1 truncate">{title}</p>
+            <div className="text-xl md:text-2xl font-bold text-slate-800 truncate">{value}</div>
           </div>
-          <div className={`stat-icon-wrapper ${color} shadow-sm`}>
-            <div className="text-white">
+          <div className={`stat-icon-wrapper ${color} shadow-sm rounded-lg p-2 shrink-0 md:p-2.5`}>
+            <div className="text-white [&>svg]:h-4 [&>svg]:w-4 md:[&>svg]:h-6 md:[&>svg]:w-6">
               {icon}
             </div>
           </div>
@@ -249,7 +249,7 @@ export function DashboardPage() {
             <h2 className="text-xl font-bold text-slate-800">Vue d'ensemble</h2>
             {!statsLoading && <div className="text-xs text-slate-500">Mis à jour il y a quelques secondes</div>}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
             <StatCard
               title="Total Patients"
               value={stats?.patients.total || 0}
