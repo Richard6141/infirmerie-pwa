@@ -29,6 +29,9 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { SuiviConstantesCharts } from '@/pages/suivi-constantes/components/SuiviConstantesCharts';
+import { useEvolutionConstantes } from '@/lib/hooks/useSuiviConstantes';
+import { useMyPatientProfile } from '@/lib/hooks/usePatients';
 
 interface StatCardProps {
   title: string;
@@ -199,6 +202,10 @@ export function DashboardPage() {
 
   // Récupérer les statistiques du rapport dashboard pour les données d'activité
   const { data: dashboardStats } = useDashboardStats();
+
+  // Données pour le Patient (Graphiques)
+  const { data: myPatient } = useMyPatientProfile();
+  const { data: evolution } = useEvolutionConstantes(myPatient?.id);
 
   // Données pour les graphiques
   const servicesData = stats ? [
@@ -375,39 +382,17 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Informations personnelles */}
-      <Card className="border-l-4 border-l-blue-600 shadow-card overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-600 rounded-xl shadow-sm">
-              <Users className="h-5 w-5 text-white" />
-            </div>
-            <CardTitle className="text-lg font-bold text-slate-800">Informations Personnelles</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <div className="p-2.5 bg-primary/10 rounded-lg">
-                <Activity className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-medium text-slate-500 uppercase mb-1">Email</p>
-                <p className="text-sm font-semibold text-slate-800">{user?.email}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <div className="p-2.5 bg-success/10 rounded-lg">
-                <Users className="h-5 w-5 text-success" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-medium text-slate-500 uppercase mb-1">Statut</p>
-                <p className="text-sm font-semibold text-slate-800">Personnel du Ministère</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Graphiques d'évolution des constantes (au lieu des infos persos) */}
+      {evolution ? (
+        <SuiviConstantesCharts evolution={evolution} />
+      ) : (
+        <Card className="border-l-4 border-l-blue-600 shadow-card">
+          <CardContent className="p-8 text-center text-slate-500">
+            <Activity className="h-8 w-8 mx-auto mb-2 text-slate-300 animate-pulse" />
+            <p>Chargement de vos données de santé...</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
