@@ -2,12 +2,6 @@ import jsPDF from 'jspdf';
 import type { ReposSanitaire } from '@/types/repos-sanitaire';
 import { formaterDateRepos } from '@/types/repos-sanitaire';
 
-// Importation des images "en dur" depuis les assets
-// @ts-ignore
-import logoMinistere from '@/assets/logo-ministere.png';
-// @ts-ignore
-import signatureInfirmier from '@/assets/signature-infirmier.png';
-
 /**
  * Générer un PDF professionnel pour une fiche de repos sanitaire
  * @param repos Données de la fiche de repos sanitaire
@@ -33,7 +27,6 @@ export function generateReposSanitairePDF(
   doc.setFontSize(60);
   doc.setTextColor(245, 245, 245); // Très très clair
   doc.setFont('helvetica', 'bold');
-  // Centre de la page avec rotation
   doc.text('Infirmerie MDC', pageWidth / 2, pageHeight / 2, {
     align: 'center',
     angle: 45,
@@ -41,16 +34,18 @@ export function generateReposSanitairePDF(
   doc.restoreGraphicsState();
 
   // ==================== EN-TÊTE ====================
-  // Logo à gauche (Importé en dur)
+  // Chemins vers les assets dans le dossier public/
+  const logoPath = '/logo-ministere.png';
+  const signaturePath = '/signature-infirmier.png';
+
+  // Logo à gauche
+  // Note: addImage peut prendre une URL vers une image du dossier public
   try {
-    // On vérifie si logoMinistere est défini (si le fichier existe)
-    if (logoMinistere && logoMinistere !== '') {
-      doc.addImage(logoMinistere, 'PNG', marginLeft, yPos, 25, 25);
-    } else {
-      throw new Error('Logo non défini');
-    }
+    // On tente d'utiliser le logo s'il existe dans le dossier public
+    // Pour éviter les erreurs bloquantes, on utilise un try/catch
+    doc.addImage(logoPath, 'PNG', marginLeft, yPos, 25, 25);
   } catch (error) {
-    // Placeholder si l'image n'est pas encore là
+    // Placeholder si l'image n'est pas trouvée
     doc.setDrawColor(200);
     doc.setLineWidth(0.1);
     doc.rect(marginLeft, yPos, 25, 25);
@@ -58,7 +53,7 @@ export function generateReposSanitairePDF(
     doc.text('LOGO', marginLeft + 12.5, yPos + 12.5, { align: 'center' });
   }
 
-  // Texte Ministère à gauche (sous/à côté du logo)
+  // Texte Ministère à gauche
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   const ministryText = [
@@ -73,7 +68,7 @@ export function generateReposSanitairePDF(
     doc.text(line, marginLeft, yPos + 30 + (index * 4));
   });
 
-  // Informations de contact à droite (HARDCODÉES)
+  // Informations de contact à droite
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   const contactInfo = [
@@ -107,7 +102,7 @@ export function generateReposSanitairePDF(
   doc.setFont('helvetica', 'bold');
   doc.text('FICHE DE REPOS SANITAIRE', pageWidth / 2, yPos, { align: 'center' });
 
-  // Ligne de séparation sous le titre
+  // Ligne de séparation
   yPos += 2;
   doc.setDrawColor(0);
   doc.setLineWidth(0.5);
@@ -124,18 +119,15 @@ export function generateReposSanitairePDF(
     doc.setDrawColor(200);
     doc.setLineDashPattern([0.5, 1], 0);
     doc.line(x1, y1, x2, y1);
-    doc.setLineDashPattern([], 0); // Reset
+    doc.setLineDashPattern([], 0);
   };
 
-  // Je soussigné
   doc.text('Je soussigné', marginLeft, yPos);
-  const nameInfirmier = repos.nomInfirmier;
   doc.setFont('helvetica', 'bold');
-  doc.text(nameInfirmier, marginLeft + 25, yPos);
+  doc.text(repos.nomInfirmier, marginLeft + 25, yPos);
   drawDottedLine(marginLeft + 25, yPos + 1, pageWidth - marginRight);
   yPos += lineSpacing;
 
-  // Infirmier du MDC...
   doc.setFont('helvetica', 'normal');
   doc.text("Infirmier du MDC reconnais avoir examiné ce jour", marginLeft, yPos);
   const dateExamen = formaterDateRepos(repos.dateExamen);
@@ -144,7 +136,6 @@ export function generateReposSanitairePDF(
   drawDottedLine(marginLeft + 85, yPos + 1, pageWidth - marginRight);
   yPos += lineSpacing;
 
-  // Monsieur (Madame)
   doc.setFont('helvetica', 'normal');
   doc.text('Monsieur (Madame)', marginLeft, yPos);
   doc.setFont('helvetica', 'bold');
@@ -152,7 +143,6 @@ export function generateReposSanitairePDF(
   drawDottedLine(marginLeft + 35, yPos + 1, pageWidth - marginRight);
   yPos += lineSpacing;
 
-  // Agé(e) de
   doc.setFont('helvetica', 'normal');
   doc.text('Agé(e) de', marginLeft, yPos);
   doc.setFont('helvetica', 'bold');
@@ -160,7 +150,6 @@ export function generateReposSanitairePDF(
   drawDottedLine(marginLeft + 20, yPos + 1, pageWidth - marginRight);
   yPos += lineSpacing;
 
-  // Diagnostic final
   doc.setFont('helvetica', 'normal');
   doc.text('Diagnostic final :', marginLeft, yPos);
   yPos += 7;
@@ -173,7 +162,6 @@ export function generateReposSanitairePDF(
   });
   yPos += 2;
 
-  // Soins institués
   doc.setFont('helvetica', 'normal');
   doc.text('Soins institués :', marginLeft, yPos);
   yPos += 7;
@@ -186,7 +174,6 @@ export function generateReposSanitairePDF(
   });
   yPos += 2;
 
-  // Repos physique
   doc.setFont('helvetica', 'normal');
   doc.text('Repos physique de', marginLeft, yPos);
   doc.setFont('helvetica', 'bold');
@@ -200,7 +187,6 @@ export function generateReposSanitairePDF(
   drawDottedLine(marginLeft + 62, yPos + 1, pageWidth - marginRight);
   yPos += lineSpacing;
 
-  // A revoir le
   doc.setFont('helvetica', 'normal');
   doc.text('A revoir le', marginLeft, yPos);
   if (repos.dateControle) {
@@ -216,13 +202,10 @@ export function generateReposSanitairePDF(
   // ==================== SIGNATURE ====================
   const signatureX = pageWidth - marginRight - 50;
 
-  // Image de la signature au-dessus du mot "SIGNATURE" (Importée en dur)
   try {
-    if (signatureInfirmier && signatureInfirmier !== '') {
-      doc.addImage(signatureInfirmier, 'PNG', signatureX, yPos - 15, 50, 20);
-    }
+    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 15, 50, 20);
   } catch (error) {
-    console.error('Erreur signature (Fichier manquant dans assets ?):', error);
+    // Ignorer si la signature n'existe pas encore
   }
 
   doc.setFontSize(10);
@@ -230,22 +213,16 @@ export function generateReposSanitairePDF(
   doc.text('SIGNATURE', signatureX + 25, yPos, { align: 'center' });
 
   yPos += 15;
-  // Nom de l'infirmier
   doc.setFont('helvetica', 'bold');
   doc.text(repos.nomInfirmier, signatureX + 25, yPos, { align: 'center' });
 
-  // ==================== PIED DE PAGE (DRAPEAU BENIN) ====================
-  const footerY = pageHeight - 15;
-  const stripeWidth = pageWidth / 3;
+  // ==================== PIED DE PAGE ====================
   const stripeHeight = 3;
-
-  // Vert
+  const stripeWidth = pageWidth / 3;
   doc.setFillColor(0, 135, 82);
   doc.rect(0, pageHeight - stripeHeight, stripeWidth, stripeHeight, 'F');
-  // Jaune
   doc.setFillColor(252, 209, 22);
   doc.rect(stripeWidth, pageHeight - stripeHeight, stripeWidth, stripeHeight, 'F');
-  // Rouge
   doc.setFillColor(232, 17, 45);
   doc.rect(stripeWidth * 2, pageHeight - stripeHeight, stripeWidth, stripeHeight, 'F');
 
@@ -255,11 +232,10 @@ export function generateReposSanitairePDF(
   doc.text(
     'Infirmerie du Ministère du Développement et de la Coordination de l\'Action Gouvernementale',
     pageWidth / 2,
-    footerY,
+    pageHeight - 15,
     { align: 'center' }
   );
 
-  // ==================== TÉLÉCHARGER ====================
   const fileName = `fiche_repos_sanitaire_${repos.nomPatient.replace(/\s+/g, '_')}.pdf`;
   doc.save(fileName);
 }
