@@ -201,7 +201,7 @@ export function generateReposSanitairePDF(
     doc.text('SIGNATURE', signatureX + 35, yPos, { align: 'center' });
   }
 
-  yPos += 20; // Un peu plus d'espace pour le nom sous la signature agrandie
+  yPos += 30; // Augmentation de l'espace (de 20 à 30) pour que le nom ne monte pas sur la signature agrandie
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
   doc.text(repos.nomInfirmier, signatureX + 35, yPos, { align: 'center' });
