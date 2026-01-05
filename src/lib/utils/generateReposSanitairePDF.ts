@@ -188,7 +188,7 @@ export function generateReposSanitairePDF(
 
   try {
     // Largeur : 70mm (+10), Hauteur : 55mm (+25) pour la signature
-    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 30, 70, 55);
+    doc.addImage(signaturePath, 'PNG', signatureX, yPos - 30, 70, 45);
     hasSignature = true;
   } catch (error) {
     // Si l'image n'est pas chargée, hasSignature reste à false
