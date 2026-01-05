@@ -51,12 +51,6 @@ export function generateReposSanitairePDF(
     doc.text('LOGO', marginLeft + 27.5, yPos + 11, { align: 'center' });
   }
 
-  // Texte Ministère à gauche
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-
-
-
   // Informations de contact à droite
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
@@ -72,7 +66,7 @@ export function generateReposSanitairePDF(
     doc.text(line, pageWidth - marginRight, yPos + 5 + (index * 5), { align: 'right' });
   });
 
-  yPos += 55;
+  yPos += 35;
 
   // Date et Lieu
   const dateLieu = new Date().toLocaleDateString('fr-FR', {
