@@ -80,8 +80,8 @@ export function SuiviConstantesDetailPage() {
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-                            <Activity className="h-8 w-8 text-primary" />
+                        <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+                            <Activity className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                             Détail de la prise
                         </h1>
                         <p className="text-slate-600 mt-1">{formatDatePrise(constante.datePrise)}</p>

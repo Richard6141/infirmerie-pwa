@@ -51,8 +51,8 @@ export function EditPatientPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-            <UserPen className="h-8 w-8 text-primary" />
+          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <UserPen className="h-6 w-6 md:h-8 md:w-8 text-primary" />
             Modifier Patient
           </h1>
           <p className="text-slate-600 mt-1">

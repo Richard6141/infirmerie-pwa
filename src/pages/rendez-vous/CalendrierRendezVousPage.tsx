@@ -135,8 +135,8 @@ export function CalendrierRendezVousPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-            <Calendar className="h-8 w-8 text-cyan-600" />
+          <h1 className="text-xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
+            <Calendar className="h-6 w-6 md:h-8 md:w-8 text-cyan-600" />
             Calendrier des Rendez-vous
           </h1>
           <p className="text-slate-600 mt-1">
@@ -300,42 +300,42 @@ export function CalendrierRendezVousPage() {
                 }
               `}</style>
               <FullCalendar
-              ref={calendarRef}
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-              initialView="dayGridMonth"
-              locale={frLocale}
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-              }}
-              buttonText={{
-                today: "Aujourd'hui",
-                month: 'Mois',
-                week: 'Semaine',
-                day: 'Jour',
-                list: 'Liste',
-              }}
-              events={events}
-              eventClick={handleEventClick}
-              dateClick={handleDateClick}
-              editable={false}
-              selectable={isInfirmier}
-              selectMirror={true}
-              dayMaxEvents={3}
-              weekends={true}
-              height="auto"
-              eventDisplay="block"
-              displayEventTime={true}
-              eventTimeFormat={{
-                hour: '2-digit',
-                minute: '2-digit',
-                meridiem: false,
-              }}
-              slotMinTime="07:00:00"
-              slotMaxTime="19:00:00"
-              allDaySlot={false}
-              nowIndicator={true}
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                initialView="dayGridMonth"
+                locale={frLocale}
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+                }}
+                buttonText={{
+                  today: "Aujourd'hui",
+                  month: 'Mois',
+                  week: 'Semaine',
+                  day: 'Jour',
+                  list: 'Liste',
+                }}
+                events={events}
+                eventClick={handleEventClick}
+                dateClick={handleDateClick}
+                editable={false}
+                selectable={isInfirmier}
+                selectMirror={true}
+                dayMaxEvents={3}
+                weekends={true}
+                height="auto"
+                eventDisplay="block"
+                displayEventTime={true}
+                eventTimeFormat={{
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  meridiem: false,
+                }}
+                slotMinTime="07:00:00"
+                slotMaxTime="19:00:00"
+                allDaySlot={false}
+                nowIndicator={true}
               />
             </div>
           )}
