@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 
 export function RappelsVaccinsWidget() {
   // Récupérer toutes les vaccinations avec rappel (limité à 100)
+  // Les données patient sont automatiquement incluses par l'API
   const { data: vaccinationsData, isLoading, isError } = useVaccinations({ limit: 100 });
 
   // Calculer les rappels côté client
@@ -18,7 +19,6 @@ export function RappelsVaccinsWidget() {
       return { data: [], total: 0 };
     }
 
-    const aujourdhui = new Date();
     const limite = new Date();
     limite.setDate(limite.getDate() + 60); // 60 jours à l'avance
 

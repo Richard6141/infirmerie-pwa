@@ -213,18 +213,58 @@ export function CalendrierRendezVousPage() {
 
                 /* En-tête du calendrier */
                 .calendar-container .fc-toolbar-title {
-                  font-size: 1.5rem !important;
+                  font-size: 1.25rem !important;
                   font-weight: 700 !important;
                   color: #1e293b;
+                }
+
+                /* Responsive: titre plus petit sur mobile */
+                @media (max-width: 640px) {
+                  .calendar-container .fc-toolbar-title {
+                    font-size: 1rem !important;
+                  }
+                }
+
+                .calendar-container .fc-toolbar {
+                  flex-wrap: wrap !important;
+                  gap: 0.5rem !important;
+                }
+
+                /* Responsive: toolbar sur mobile */
+                @media (max-width: 768px) {
+                  .calendar-container .fc-toolbar {
+                    flex-direction: column !important;
+                  }
+                  
+                  .calendar-container .fc-toolbar-chunk {
+                    width: 100% !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                  }
+                  
+                  .calendar-container .fc-button-group {
+                    width: 100% !important;
+                    display: flex !important;
+                    justify-content: space-evenly !important;
+                  }
                 }
 
                 .calendar-container .fc-button {
                   background-color: #0891b2 !important;
                   border-color: #0891b2 !important;
                   text-transform: capitalize !important;
-                  padding: 0.5rem 1rem !important;
+                  padding: 0.5rem 0.75rem !important;
                   font-weight: 500 !important;
+                  font-size: 0.875rem !important;
                   transition: all 0.2s !important;
+                }
+
+                /* Responsive: boutons plus petits sur mobile */
+                @media (max-width: 640px) {
+                  .calendar-container .fc-button {
+                    padding: 0.375rem 0.5rem !important;
+                    font-size: 0.75rem !important;
+                  }
                 }
 
                 .calendar-container .fc-button:hover {
@@ -249,11 +289,28 @@ export function CalendrierRendezVousPage() {
                   color: #334155;
                   font-weight: 600;
                   text-decoration: none !important;
+                  font-size: 0.875rem !important;
+                }
+
+                /* Responsive: numéros de jour plus petits sur mobile */
+                @media (max-width: 640px) {
+                  .calendar-container .fc-daygrid-day-number {
+                    font-size: 0.75rem !important;
+                  }
                 }
 
                 .calendar-container .fc-col-header-cell {
                   background-color: #f8fafc;
                   border-color: #e2e8f0;
+                  font-size: 0.875rem !important;
+                }
+
+                /* Responsive: en-têtes de jours abrégés sur mobile */
+                @media (max-width: 640px) {
+                  .calendar-container .fc-col-header-cell {
+                    font-size: 0.75rem !important;
+                    padding: 0.25rem !important;
+                  }
                 }
 
                 /* Événements */
@@ -265,6 +322,15 @@ export function CalendrierRendezVousPage() {
                   cursor: pointer !important;
                   transition: all 0.2s !important;
                   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+                }
+
+                /* Responsive: événements plus petits sur mobile */
+                @media (max-width: 640px) {
+                  .calendar-container .rdv-event {
+                    padding: 2px 4px !important;
+                    font-size: 0.7rem !important;
+                    border-radius: 4px !important;
+                  }
                 }
 
                 .calendar-container .rdv-event:hover {
@@ -301,6 +367,24 @@ export function CalendrierRendezVousPage() {
                   border-color: #0891b2 !important;
                   border-width: 2px !important;
                 }
+
+                /* Responsive: cellules de jour avec hauteur minimale sur mobile */
+                @media (max-width: 640px) {
+                  .calendar-container .fc-daygrid-day {
+                    min-height: 50px !important;
+                  }
+                  
+                  .calendar-container .fc-daygrid-day-frame {
+                    min-height: 50px !important;
+                  }
+                }
+
+                /* Overflow pour petits écrans */
+                @media (max-width: 768px) {
+                  .calendar-container {
+                    overflow-x: auto !important;
+                  }
+                }
               `}</style>
               <FullCalendar
                 ref={calendarRef}
@@ -310,7 +394,7 @@ export function CalendrierRendezVousPage() {
                 headerToolbar={{
                   left: 'prev,next today',
                   center: 'title',
-                  right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+                  right: 'dayGridMonth,timeGridWeek,listWeek',
                 }}
                 buttonText={{
                   today: "Aujourd'hui",
@@ -328,6 +412,10 @@ export function CalendrierRendezVousPage() {
                 dayMaxEvents={3}
                 weekends={true}
                 height="auto"
+                contentHeight="auto"
+                aspectRatio={1.5}
+                handleWindowResize={true}
+                windowResizeDelay={100}
                 eventDisplay="block"
                 displayEventTime={true}
                 eventTimeFormat={{
