@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Users, Plus, Search, Pencil, Trash2, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePatients, useDeletePatient } from '@/lib/hooks/usePatients';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ import type { Patient } from '@/types/patient';
 import { toast } from 'sonner';
 
 export function PatientsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -274,7 +275,11 @@ export function PatientsPage() {
                 </TableHeader>
                 <TableBody>
                   {data.data.map((patient) => (
-                    <TableRow key={patient.id}>
+                    <TableRow
+                      key={patient.id}
+                      className="cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => navigate(`/patients/${patient.id}`)}
+                    >
                       <TableCell className="font-medium">{patient.matricule}</TableCell>
                       <TableCell>{patient.nom}</TableCell>
                       <TableCell>{patient.prenom}</TableCell>
@@ -283,12 +288,18 @@ export function PatientsPage() {
                       <TableCell>{patient.directionService || patient.direction || '-'}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link to={`/patients/${patient.id}`}>
+                          <Link
+                            to={`/patients/${patient.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button variant="ghost" size="icon" title="Voir détails">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Link to={`/patients/${patient.id}/modifier`}>
+                          <Link
+                            to={`/patients/${patient.id}/modifier`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button variant="ghost" size="icon" title="Modifier">
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -297,7 +308,10 @@ export function PatientsPage() {
                             variant="ghost"
                             size="icon"
                             title="Supprimer"
-                            onClick={() => handleDeleteClick(patient)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(patient);
+                            }}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>

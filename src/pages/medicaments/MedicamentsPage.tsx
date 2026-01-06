@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Pill, Plus, Search, Pencil, Trash2, Eye, Loader2, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useMedicaments, useDeleteMedicament } from '@/lib/hooks/useMedicaments';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -33,6 +33,7 @@ import {
 import { toast } from 'sonner';
 
 export function MedicamentsPage() {
+  const navigate = useNavigate();
   const { isInfirmier } = useAuth();
   const [search, setSearch] = useState('');
   const [forme, setForme] = useState<FormeGalenique | ''>('');
@@ -327,7 +328,11 @@ export function MedicamentsPage() {
                   {data.data.map((medicament) => {
                     const status = getStockStatus(medicament);
                     return (
-                      <TableRow key={medicament.id}>
+                      <TableRow
+                        key={medicament.id}
+                        className="cursor-pointer hover:bg-slate-50 transition-colors"
+                        onClick={() => navigate(`/medicaments/${medicament.id}`)}
+                      >
                         <TableCell className="font-medium font-mono text-sm">
                           {medicament.code}
                         </TableCell>
@@ -353,12 +358,18 @@ export function MedicamentsPage() {
                         {isInfirmier && (
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <Link to={`/medicaments/${medicament.id}`}>
+                              <Link
+                                to={`/medicaments/${medicament.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <Button variant="ghost" size="icon" title="Voir détails">
                                   <Eye className="h-4 w-4" />
                                 </Button>
                               </Link>
-                              <Link to={`/medicaments/${medicament.id}/modifier`}>
+                              <Link
+                                to={`/medicaments/${medicament.id}/modifier`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <Button variant="ghost" size="icon" title="Modifier">
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -367,7 +378,8 @@ export function MedicamentsPage() {
                                 variant="ghost"
                                 size="icon"
                                 title="Supprimer"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   if (window.confirm('Voulez-vous vraiment supprimer ce médicament ?')) {
                                     handleDelete(medicament.id);
                                   }

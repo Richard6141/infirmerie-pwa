@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, Plus, Search, Pencil, Trash2, Eye, Loader2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { useRendezVous, useUpdateStatutRendezVous, useDeleteRendezVous } from '@/lib/hooks/useRendezVous';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -46,6 +46,7 @@ import {
 import { toast } from 'sonner';
 
 export function RendezVousPage() {
+  const navigate = useNavigate();
   const { isInfirmier } = useAuth();
   const [search, setSearch] = useState('');
   const [statut, setStatut] = useState<StatutRendezVous | ''>('');
@@ -377,7 +378,11 @@ export function RendezVousPage() {
                     const isPast = isRendezVousPasse(rdv.dateHeure);
 
                     return (
-                      <TableRow key={rdv.id} className={isToday ? 'bg-blue-50' : ''}>
+                      <TableRow
+                        key={rdv.id}
+                        className={`cursor-pointer hover:bg-slate-50 transition-colors ${isToday ? 'bg-blue-50 hover:bg-blue-100' : ''}`}
+                        onClick={() => navigate(`/rendez-vous/${rdv.id}`)}
+                      >
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">{formaterDateCourte(rdv.dateHeure)}</span>
@@ -409,6 +414,7 @@ export function RendezVousPage() {
                             >
                               <SelectTrigger
                                 className={`w-32 text-xs font-semibold border ${STATUT_RDV_COLORS[rdv.statut]}`}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <SelectValue />
                               </SelectTrigger>
@@ -431,12 +437,18 @@ export function RendezVousPage() {
                         {isInfirmier && (
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <Link to={`/rendez-vous/${rdv.id}`}>
+                              <Link
+                                to={`/rendez-vous/${rdv.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <Button variant="ghost" size="icon" title="Voir détails">
                                   <Eye className="h-4 w-4" />
                                 </Button>
                               </Link>
-                              <Link to={`/rendez-vous/${rdv.id}/modifier`}>
+                              <Link
+                                to={`/rendez-vous/${rdv.id}/modifier`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <Button variant="ghost" size="icon" title="Modifier">
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -445,7 +457,10 @@ export function RendezVousPage() {
                                 variant="ghost"
                                 size="icon"
                                 title="Supprimer"
-                                onClick={() => handleDeleteClick(rdv)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(rdv);
+                                }}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FileHeart, Plus, Search, Pencil, Trash2, Eye, Loader2, ChevronLeft, ChevronRight, Calendar, FileDown } from 'lucide-react';
 import { useReposSanitaire, useDeleteReposSanitaire } from '@/lib/hooks/useReposSanitaire';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,7 @@ import { generateReposSanitairePDF } from '@/lib/utils/generateReposSanitairePDF
 import { toast } from 'sonner';
 
 export function ReposSanitairePage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -304,7 +305,11 @@ export function ReposSanitairePage() {
                 </TableHeader>
                 <TableBody>
                   {reposSanitaires.map((repos) => (
-                    <TableRow key={repos.id}>
+                    <TableRow
+                      key={repos.id}
+                      className="cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => navigate(`/repos-sanitaire/${repos.id}`)}
+                    >
                       <TableCell className="font-medium">
                         {formaterDateRepos(repos.dateExamen)}
                       </TableCell>
@@ -335,16 +340,25 @@ export function ReposSanitairePage() {
                             variant="ghost"
                             size="icon"
                             title="Générer PDF"
-                            onClick={() => handleGeneratePDF(repos)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGeneratePDF(repos);
+                            }}
                           >
                             <FileDown className="h-4 w-4 text-blue-600" />
                           </Button>
-                          <Link to={`/repos-sanitaire/${repos.id}`}>
+                          <Link
+                            to={`/repos-sanitaire/${repos.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button variant="ghost" size="icon" title="Voir détails">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Link to={`/repos-sanitaire/${repos.id}/modifier`}>
+                          <Link
+                            to={`/repos-sanitaire/${repos.id}/modifier`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button variant="ghost" size="icon" title="Modifier">
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -353,7 +367,10 @@ export function ReposSanitairePage() {
                             variant="ghost"
                             size="icon"
                             title="Supprimer"
-                            onClick={() => handleDeleteClick(repos)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(repos);
+                            }}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>

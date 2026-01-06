@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Plus, Search, Pencil, Trash2, Eye, Loader2, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useConsultations, useMyConsultations, useDeleteConsultation } from '@/lib/hooks/useConsultations';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -37,6 +37,7 @@ import {
 import { toast } from 'sonner';
 
 export function ConsultationsPage() {
+  const navigate = useNavigate();
   const { isInfirmier } = useAuth();
 
   const [search, setSearch] = useState('');
@@ -365,7 +366,11 @@ export function ConsultationsPage() {
                 </TableHeader>
                 <TableBody>
                   {consultations.map((consultation) => (
-                    <TableRow key={consultation.id}>
+                    <TableRow
+                      key={consultation.id}
+                      className="cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => navigate(`/consultations/${consultation.id}`)}
+                    >
                       <TableCell className="font-medium">
                         {formaterDateConsultation(consultation.date)}
                       </TableCell>
@@ -392,14 +397,20 @@ export function ConsultationsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link to={`/consultations/${consultation.id}`}>
+                          <Link
+                            to={`/consultations/${consultation.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button variant="ghost" size="icon" title="Voir détails">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
                           {isInfirmier && (
                             <>
-                              <Link to={`/consultations/${consultation.id}/modifier`}>
+                              <Link
+                                to={`/consultations/${consultation.id}/modifier`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <Button variant="ghost" size="icon" title="Modifier">
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -408,7 +419,10 @@ export function ConsultationsPage() {
                                 variant="ghost"
                                 size="icon"
                                 title="Supprimer"
-                                onClick={() => handleDeleteClick(consultation)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(consultation);
+                                }}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
