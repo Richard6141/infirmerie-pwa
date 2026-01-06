@@ -195,6 +195,14 @@ export function ConsultationDetailPage() {
                 </p>
               </div>
             )}
+            {consultation.constantesVitales.glycemie && (
+              <div>
+                <p className="text-sm text-slate-600">Glycémie</p>
+                <p className="text-lg font-semibold">
+                  {consultation.constantesVitales.glycemie} g/L
+                </p>
+              </div>
+            )}
             {consultation.constantesVitales.poids && (
               <div>
                 <p className="text-sm text-slate-600">Poids</p>

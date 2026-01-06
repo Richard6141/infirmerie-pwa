@@ -74,24 +74,24 @@ export function ConsultationForm({ consultation, preselectedPatientId, onSuccess
   // Valeurs par défaut du formulaire
   const defaultValues: Partial<ConsultationFormData> = consultation
     ? {
-        patientId: consultation.patientId,
-        motif: consultation.motif,
-        constantesVitales: consultation.constantesVitales,
-        examenClinique: consultation.examenClinique ?? undefined,
-        diagnostic: consultation.diagnostic ?? undefined,
-        observations: consultation.observations ?? undefined,
-        prochainRDV: consultation.prochainRDV?.split('T')[0],
-        prescriptions: consultation.prescriptions.map(p => ({
-          medicamentId: p.medicamentId,
-          posologie: p.posologie,
-          duree: p.duree,
-        })),
-      }
+      patientId: consultation.patientId,
+      motif: consultation.motif,
+      constantesVitales: consultation.constantesVitales,
+      examenClinique: consultation.examenClinique ?? undefined,
+      diagnostic: consultation.diagnostic ?? undefined,
+      observations: consultation.observations ?? undefined,
+      prochainRDV: consultation.prochainRDV?.split('T')[0],
+      prescriptions: consultation.prescriptions.map(p => ({
+        medicamentId: p.medicamentId,
+        posologie: p.posologie,
+        duree: p.duree,
+      })),
+    }
     : {
-        patientId: preselectedPatientId || '',
-        constantesVitales: {},
-        prescriptions: [],
-      };
+      patientId: preselectedPatientId || '',
+      constantesVitales: {},
+      prescriptions: [],
+    };
 
   const form = useForm<ConsultationFormData>({
     resolver: zodResolver(createConsultationSchema),
@@ -361,6 +361,28 @@ export function ConsultationForm({ consultation, preselectedPatientId, onSuccess
                 )}
               />
 
+              {/* Glycémie */}
+              <FormField
+                control={form.control}
+                name="constantesVitales.glycemie"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Glycémie (g/L)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.95"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">0.3-5.0 g/L</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* Poids */}
               <FormField
                 control={form.control}
@@ -506,80 +528,80 @@ export function ConsultationForm({ consultation, preselectedPatientId, onSuccess
                   Aucune prescription. Cliquez sur "Ajouter une prescription" pour commencer.
                 </p>
               ) : (
-              fields.map((field, index) => (
-                <Card key={field.id} className="border-slate-200">
-                  <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`prescriptions.${index}.medicamentId`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Médicament *</FormLabel>
-                            <FormControl>
-                              <Combobox
-                                options={medicamentOptions}
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                onSearchChange={setMedicamentSearch}
-                                placeholder="Sélectionner un médicament"
-                                searchPlaceholder="Rechercher un médicament..."
-                                emptyMessage="Aucun médicament trouvé"
-                                isLoading={isMedicamentsLoading}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                fields.map((field, index) => (
+                  <Card key={field.id} className="border-slate-200">
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`prescriptions.${index}.medicamentId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Médicament *</FormLabel>
+                              <FormControl>
+                                <Combobox
+                                  options={medicamentOptions}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  onSearchChange={setMedicamentSearch}
+                                  placeholder="Sélectionner un médicament"
+                                  searchPlaceholder="Rechercher un médicament..."
+                                  emptyMessage="Aucun médicament trouvé"
+                                  isLoading={isMedicamentsLoading}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name={`prescriptions.${index}.posologie`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Posologie *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Ex: 1 comprimé 3x/jour" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name={`prescriptions.${index}.posologie`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Posologie *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Ex: 1 comprimé 3x/jour" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name={`prescriptions.${index}.duree`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Durée *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Ex: 7 jours" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                        <FormField
+                          control={form.control}
+                          name={`prescriptions.${index}.duree`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Durée *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Ex: 7 jours" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                    <div className="flex justify-end mt-4">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => remove(index)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Retirer
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                      <div className="flex justify-end mt-4">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Retirer
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
         )}
 
         {/* Note pour mode édition */}

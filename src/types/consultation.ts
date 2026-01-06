@@ -11,6 +11,7 @@ export interface ConstantesVitales {
   frequenceCardiaque?: number; // bpm (30-200)
   frequenceRespiratoire?: number; // cycles/min (8-40)
   saturationOxygene?: number; // % (70-100)
+  glycemie?: number; // g/L (0.3-5.0)
   poids?: number; // kg (1-300)
   taille?: number; // cm (50-250)
 }
@@ -117,6 +118,11 @@ export const constantesVitalesSchema = z.object({
     .min(70, 'Saturation minimale: 70%')
     .max(100, 'Saturation maximale: 100%')
     .optional(),
+  glycemie: z
+    .number({ invalid_type_error: 'La glycémie doit être un nombre' })
+    .min(0.3, 'Glycémie minimale: 0.3 g/L')
+    .max(5.0, 'Glycémie maximale: 5.0 g/L')
+    .optional(),
   poids: z
     .number({ invalid_type_error: 'Le poids doit être un nombre' })
     .positive('Le poids doit être positif')
@@ -211,6 +217,9 @@ export function formaterConstantesVitales(constantes: ConstantesVitales): string
   }
   if (constantes.saturationOxygene) {
     parts.push(`SpO2: ${constantes.saturationOxygene}%`);
+  }
+  if (constantes.glycemie) {
+    parts.push(`Glycémie: ${constantes.glycemie} g/L`);
   }
   if (constantes.poids && constantes.taille) {
     const imc = calculerIMC(constantes.poids, constantes.taille);
