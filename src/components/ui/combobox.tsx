@@ -58,6 +58,20 @@ export function Combobox({
     setSearch("")
   }
 
+  // Filtrer les options côté client selon la recherche
+  const filteredOptions = React.useMemo(() => {
+    if (!search || search.trim() === '') {
+      return options
+    }
+
+    const searchLower = search.toLowerCase()
+    return options.filter((option) => {
+      const labelMatch = option.label.toLowerCase().includes(searchLower)
+      const descriptionMatch = option.description?.toLowerCase().includes(searchLower)
+      return labelMatch || descriptionMatch
+    })
+  }, [options, search])
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -95,13 +109,13 @@ export function Combobox({
               <div className="flex items-center justify-center py-6">
                 <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
               </div>
-            ) : options.length === 0 ? (
+            ) : filteredOptions.length === 0 ? (
               <div className="py-6 text-center text-sm text-slate-500">
                 {emptyMessage}
               </div>
             ) : (
               <div className="space-y-1">
-                {options.map((option) => {
+                {filteredOptions.map((option) => {
                   const isSelected = value === option.value
                   return (
                     <div
