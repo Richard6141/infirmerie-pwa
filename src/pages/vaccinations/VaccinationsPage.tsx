@@ -55,7 +55,7 @@ export function VaccinationsPage() {
                   <span className="md:hidden">Nouvelle</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl bg-white">
+              <DialogContent className="max-w-lg bg-white max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Enregistrer une vaccination</DialogTitle>
                 </DialogHeader>
