@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,13 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { toast } from 'sonner';
 import {
     suiviConstantesCreateSchema,
@@ -29,8 +24,14 @@ export function NewSuiviConstantesPage() {
     const preselectedPatientId = searchParams.get('patientId');
     const createMutation = useCreateSuiviConstantes();
 
-    // Charger la liste des patients pour le select
-    const { data: patientsData } = usePatients({ limit: 1000 });
+    // État local pour la recherche de patient
+    const [patientSearch, setPatientSearch] = useState('');
+
+    // Charger la liste des patients avec recherche
+    const { data: patientsData, isLoading: isPatientsLoading } = usePatients({
+        search: patientSearch,
+        limit: 20
+    });
 
     const {
         register,
@@ -47,6 +48,13 @@ export function NewSuiviConstantesPage() {
     });
 
     const patientId = watch('patientId');
+
+    // Convertir les données en options pour le combobox
+    const patientOptions: ComboboxOption[] = patientsData?.data.map(patient => ({
+        value: patient.id,
+        label: getPatientFullName(patient),
+        description: `Matricule: ${patient.matricule}`,
+    })) || [];
 
     const onSubmit = async (data: SuiviConstantesFormData) => {
         try {
@@ -96,24 +104,16 @@ export function NewSuiviConstantesPage() {
                             <Label htmlFor="patientId">
                                 Patient <span className="text-red-500">*</span>
                             </Label>
-                            <Select
+                            <Combobox
+                                options={patientOptions}
                                 value={patientId}
                                 onValueChange={(value) => setValue('patientId', value, { shouldValidate: true })}
-                            >
-                                <SelectTrigger
-                                    id="patientId"
-                                    className={errors.patientId ? 'border-red-500' : ''}
-                                >
-                                    <SelectValue placeholder="Sélectionner un patient" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {patientsData?.data.map((patient) => (
-                                        <SelectItem key={patient.id} value={patient.id}>
-                                            {getPatientFullName(patient)} - {patient.matricule}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                onSearchChange={setPatientSearch}
+                                placeholder="Sélectionner un patient"
+                                searchPlaceholder="Rechercher un patient..."
+                                isLoading={isPatientsLoading}
+                                aria-invalid={!!errors.patientId}
+                            />
                             {errors.patientId && (
                                 <p className="text-sm text-red-600">{errors.patientId.message}</p>
                             )}

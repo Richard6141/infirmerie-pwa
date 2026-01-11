@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -326,8 +327,21 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
   const [prochainRappel, setProchainRappel] = useState('');
   const [notes, setNotes] = useState('');
 
-  const { data: patients } = usePatients({ limit: 100 });
+  // État local pour la recherche de patient
+  const [patientSearch, setPatientSearch] = useState('');
+
+  const { data: patients, isLoading: isPatientsLoading } = usePatients({
+    search: patientSearch,
+    limit: 20
+  });
   const createMutation = useCreateVaccination();
+
+  // Convertir les données en options pour le combobox
+  const patientOptions: ComboboxOption[] = patients?.data.map(patient => ({
+    value: patient.id,
+    label: `${patient.nom} ${patient.prenom}`,
+    description: `Matricule: ${patient.matricule}`,
+  })) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -360,18 +374,15 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label>Patient *</Label>
-        <Select value={patientId} onValueChange={setPatientId}>
-          <SelectTrigger className="bg-white">
-            <SelectValue placeholder="Sélectionner un patient" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            {patients?.data.map((patient) => (
-              <SelectItem key={patient.id} value={patient.id}>
-                {patient.nom} {patient.prenom} ({patient.matricule})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Combobox
+          options={patientOptions}
+          value={patientId}
+          onValueChange={setPatientId}
+          onSearchChange={setPatientSearch}
+          placeholder="Sélectionner un patient"
+          searchPlaceholder="Rechercher un patient..."
+          isLoading={isPatientsLoading}
+        />
       </div>
 
       <div>
