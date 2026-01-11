@@ -110,7 +110,10 @@ export function useCreateVaccination() {
           tempId,
           patientId: vaccinationData.patientId,
           typeVaccin: vaccinationData.typeVaccin,
-          date: now, // Date générée automatiquement pour offline
+          dateAdministration: vaccinationData.dateAdministration || now,
+          date: vaccinationData.dateAdministration || now, // Compatibilité
+          numeroDose: vaccinationData.numeroDose,
+          nombreDosesTotal: vaccinationData.nombreDosesTotal,
           numeroLot: vaccinationData.numeroLot,
           prochainRappel: vaccinationData.prochainRappel,
           notes: vaccinationData.notes,

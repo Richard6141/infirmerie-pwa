@@ -72,6 +72,8 @@ interface PushSyncVaccination {
   infirmierId: string; // Requis par le backend
   typeVaccin: string;
   dateAdministration: string; // Pas 'date'
+  numeroDose?: number; // Numéro de la dose (1, 2, 3, etc.)
+  nombreDosesTotal?: number; // Nombre total de doses prévues
   numeroLot?: string;
   prochainRappel?: string;
   notes?: string;
@@ -938,7 +940,9 @@ export class SyncService {
           patientId: vaccination.patientId,
           infirmierId, // ID de l'infirmier connecté
           typeVaccin: vaccination.typeVaccin,
-          dateAdministration: vaccination.date, // Backend attend 'dateAdministration'
+          dateAdministration: vaccination.dateAdministration || vaccination.date, // Backend attend 'dateAdministration'
+          numeroDose: vaccination.numeroDose,
+          nombreDosesTotal: vaccination.nombreDosesTotal,
           numeroLot: vaccination.numeroLot,
           prochainRappel: vaccination.prochainRappel,
           notes: vaccination.notes,

@@ -4,8 +4,10 @@ export interface Vaccination {
   id: string;
   patientId: string;
   typeVaccin: string;
-  date: string; // L'API utilise 'date' et non 'dateAdministration'
-  dateAdministration?: string; // Gardé pour compatibilité, mais deprecated
+  dateAdministration: string; // Date d'administration du vaccin (personnalisable)
+  date?: string; // Gardé pour compatibilité avec anciennes versions
+  numeroDose?: number; // Numéro de la dose (1, 2, 3, etc.)
+  nombreDosesTotal?: number; // Nombre total de doses prévues pour ce vaccin
   numeroLot?: string;
   prochainRappel?: string;
   notes?: string;
@@ -24,15 +26,19 @@ export interface Vaccination {
 export interface CreateVaccinationData {
   patientId: string;
   typeVaccin: string;
-  // La date n'est PAS envoyée - elle est générée automatiquement par le serveur
+  dateAdministration?: string; // Date personnalisée (optionnel, défaut = maintenant)
+  numeroDose?: number; // Numéro de la dose (1-10)
+  nombreDosesTotal?: number; // Nombre total de doses prévues (1-10)
   numeroLot?: string;
-  prochainRappel?: string;
-  notes?: string; // Non documenté mais peut être accepté
+  prochainRappel?: string; // Crée automatiquement un rendez-vous si défini
+  notes?: string;
 }
 
 export interface UpdateVaccinationData {
   typeVaccin?: string;
-  date?: string; // L'API utilise 'date'
+  dateAdministration?: string; // Date d'administration
+  numeroDose?: number; // Numéro de la dose
+  nombreDosesTotal?: number; // Nombre total de doses
   numeroLot?: string;
   prochainRappel?: string;
   notes?: string;
@@ -58,6 +64,12 @@ export const TYPES_VACCINS = [
   'Pneumocoque',
   'Autre',
 ] as const;
+
+// ==================== NOMBRES DE DOSES ====================
+
+export const NOMBRES_DOSES = [1, 2, 3, 4, 5] as const;
+
+export type NombreDoses = (typeof NOMBRES_DOSES)[number];
 
 // ==================== STATUT RAPPEL ====================
 
@@ -114,6 +126,19 @@ export function isRappelDansNJours(dateRappel: string, jours: number): boolean {
   limite.setDate(limite.getDate() + jours);
 
   return rappel <= limite;
+}
+
+/**
+ * Formate l'affichage des doses (ex: "Dose 1/3" ou "-")
+ */
+export function formaterDose(numeroDose?: number, nombreDosesTotal?: number): string {
+  if (numeroDose && nombreDosesTotal) {
+    return `Dose ${numeroDose}/${nombreDosesTotal}`;
+  }
+  if (numeroDose) {
+    return `Dose ${numeroDose}`;
+  }
+  return '-';
 }
 
 // ==================== FILTRES ====================

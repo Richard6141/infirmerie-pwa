@@ -107,6 +107,17 @@ export class InfirmerieDB extends Dexie {
       syncMeta: 'key, updatedAt',
       syncQueue: '++id, entity, operation, entityId, createdAt, attempts'
     });
+
+    // Version 4: Ajouter dateAdministration pour vaccinations (gestion des doses et date personnalisable)
+    this.version(4).stores({
+      patients: 'id, matricule, nom, prenom, direction, syncStatus, lastModified, tempId, isDeleted',
+      consultations: 'id, patientId, infirmierId, date, statut, syncStatus, lastModified, tempId, isDeleted',
+      medicaments: 'id, code, nomCommercial, dci, categorie, syncStatus, lastModified, isDeleted',
+      vaccinations: 'id, patientId, typeVaccin, dateAdministration, date, syncStatus, lastModified, tempId, isDeleted',
+      rendezVous: 'id, patientId, infirmierId, date, statut, syncStatus, lastModified, tempId, isDeleted',
+      syncMeta: 'key, updatedAt',
+      syncQueue: '++id, entity, operation, entityId, createdAt, attempts'
+    });
   }
 }
 

@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useVaccinations, useCreateVaccination, useDeleteVaccination } from '@/lib/hooks/useVaccinations';
 import { usePatients } from '@/lib/hooks/usePatients';
-import { TYPES_VACCINS, formaterDateVaccination } from '@/types/vaccination';
+import { TYPES_VACCINS, NOMBRES_DOSES, formaterDateVaccination, formaterDose } from '@/types/vaccination';
 import { toast } from 'sonner';
 
 export function VaccinationsPage() {
@@ -249,6 +249,7 @@ export function VaccinationsPage() {
                     <TableHead>Date</TableHead>
                     {isInfirmier && <TableHead>Patient</TableHead>}
                     <TableHead>Type de vaccin</TableHead>
+                    <TableHead>Dose</TableHead>
                     <TableHead>N° Lot</TableHead>
                     <TableHead>Prochain rappel</TableHead>
                   </TableRow>
@@ -260,7 +261,7 @@ export function VaccinationsPage() {
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-slate-400" />
                           <span className="text-sm">
-                            {formaterDateVaccination(vaccination.date || vaccination.dateAdministration || '')}
+                            {formaterDateVaccination(vaccination.dateAdministration || vaccination.date || '')}
                           </span>
                         </div>
                       </TableCell>
@@ -283,6 +284,11 @@ export function VaccinationsPage() {
                         <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
                           {vaccination.typeVaccin}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm font-medium text-slate-700">
+                          {formaterDose(vaccination.numeroDose, vaccination.nombreDosesTotal)}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-slate-600">
@@ -313,6 +319,9 @@ export function VaccinationsPage() {
 function VaccinationForm({ onClose }: { onClose: () => void }) {
   const [patientId, setPatientId] = useState('');
   const [typeVaccin, setTypeVaccin] = useState('');
+  const [dateAdministration, setDateAdministration] = useState('');
+  const [numeroDose, setNumeroDose] = useState('');
+  const [nombreDosesTotal, setNombreDosesTotal] = useState('');
   const [numeroLot, setNumeroLot] = useState('');
   const [prochainRappel, setProchainRappel] = useState('');
   const [notes, setNotes] = useState('');
@@ -332,7 +341,9 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
       await createMutation.mutateAsync({
         patientId,
         typeVaccin,
-        // La date n'est pas envoyée - générée automatiquement par le serveur
+        dateAdministration: dateAdministration || undefined,
+        numeroDose: numeroDose ? parseInt(numeroDose) : undefined,
+        nombreDosesTotal: nombreDosesTotal ? parseInt(nombreDosesTotal) : undefined,
         numeroLot: numeroLot || undefined,
         prochainRappel: prochainRappel || undefined,
         notes: notes || undefined,
@@ -378,6 +389,57 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
       </div>
 
       <div>
+        <Label>Date d'administration</Label>
+        <Input
+          type="date"
+          value={dateAdministration}
+          onChange={(e) => setDateAdministration(e.target.value)}
+          className="bg-white"
+        />
+        <p className="text-xs text-slate-500 mt-1">
+          Si non renseignée, la date d'aujourd'hui sera utilisée
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Numéro de dose</Label>
+          <Select value={numeroDose} onValueChange={setNumeroDose}>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="1, 2, 3..." />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {NOMBRES_DOSES.map((num) => (
+                <SelectItem key={num} value={String(num)}>{num}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Nombre total de doses</Label>
+          <Select value={nombreDosesTotal} onValueChange={setNombreDosesTotal}>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="1, 2, 3..." />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {NOMBRES_DOSES.map((num) => (
+                <SelectItem key={num} value={String(num)}>{num}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {numeroDose && nombreDosesTotal && (
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+          <p className="text-sm text-blue-800">
+            📋 Dose {numeroDose}/{nombreDosesTotal}
+          </p>
+        </div>
+      )}
+
+      <div>
         <Label>Numéro de lot</Label>
         <Input
           value={numeroLot}
@@ -385,9 +447,6 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
           placeholder="Ex: VAC2025-001"
           className="bg-white"
         />
-        <p className="text-xs text-slate-500 mt-1">
-          La date d'administration sera enregistrée automatiquement à la création
-        </p>
       </div>
 
       <div>
@@ -398,6 +457,9 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
           onChange={(e) => setProchainRappel(e.target.value)}
           className="bg-white"
         />
+        <p className="text-xs text-slate-500 mt-1">
+          Un rendez-vous sera créé automatiquement pour le rappel
+        </p>
       </div>
 
       <div>
