@@ -68,8 +68,9 @@ export const patientCreateSchema = z.object({
   }),
   telephone: z
     .string()
-    .min(8, 'Le numéro de téléphone est trop court')
-    .regex(/^[0-9+\s()-]+$/, 'Format de téléphone invalide'),
+    .min(10, 'Le numéro de téléphone doit contenir 10 chiffres')
+    .max(12, 'Le numéro de téléphone est trop long')
+    .regex(/^01\d{8}$/, 'Le numéro doit commencer par 01 et contenir 10 chiffres (format: 01XXXXXXXX)'),
   directionService: z
     .string()
     .min(2, 'La direction ou le service est requis'),
@@ -107,8 +108,9 @@ export const patientEditSchema = z.object({
   sexe: z.enum(SEXE_VALUES).optional(),
   telephone: z
     .string()
-    .min(8, 'Téléphone invalide')
-    .regex(/^[0-9+\s()-]+$/, 'Téléphone doit contenir uniquement des chiffres et symboles (+, -, (, ), espace)')
+    .min(10, 'Le numéro de téléphone doit contenir 10 chiffres')
+    .max(12, 'Le numéro de téléphone est trop long')
+    .regex(/^01\d{8}$/, 'Le numéro doit commencer par 01 et contenir 10 chiffres (format: 01XXXXXXXX)')
     .optional(),
   directionService: z
     .string()
