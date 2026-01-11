@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -15,6 +16,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { formatMedicamentDisplay } from '@/types/medicament';
 
 export function StocksPage() {
   const [search, setSearch] = useState('');
@@ -53,7 +55,7 @@ export function StocksPage() {
                 <span className="md:hidden">Nouveau</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl bg-white">
+            <DialogContent className="max-w-lg bg-white max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Enregistrer un mouvement de stock</DialogTitle>
               </DialogHeader>
@@ -328,8 +330,21 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
   const [numeroLot, setNumeroLot] = useState('');
   const [dateExpiration, setDateExpiration] = useState('');
 
-  const { data: medicaments } = useMedicaments({ limit: 100 });
+  // État local pour la recherche de médicament
+  const [medicamentSearch, setMedicamentSearch] = useState('');
+
+  const { data: medicaments, isLoading: isMedicamentsLoading } = useMedicaments({
+    search: medicamentSearch,
+    limit: 20
+  });
   const createMutation = useCreateMouvementStock();
+
+  // Convertir les données en options pour le combobox
+  const medicamentOptions: ComboboxOption[] = medicaments?.data.map(med => ({
+    value: med.id,
+    label: formatMedicamentDisplay(med),
+    description: `Code: ${med.code} - ${med.formeGalenique}`,
+  })) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -383,18 +398,15 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
 
       <div>
         <Label>Médicament *</Label>
-        <Select value={medicamentId} onValueChange={setMedicamentId}>
-          <SelectTrigger className="bg-white">
-            <SelectValue placeholder="Sélectionner un médicament" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            {medicaments?.data.map((med) => (
-              <SelectItem key={med.id} value={med.id}>
-                {med.nomCommercial} ({med.dci})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Combobox
+          options={medicamentOptions}
+          value={medicamentId}
+          onValueChange={setMedicamentId}
+          onSearchChange={setMedicamentSearch}
+          placeholder="Sélectionner un médicament"
+          searchPlaceholder="Rechercher un médicament..."
+          isLoading={isMedicamentsLoading}
+        />
       </div>
 
       <div>
