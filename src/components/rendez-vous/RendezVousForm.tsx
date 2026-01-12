@@ -72,8 +72,8 @@ export function RendezVousForm({ rendezVous, onSuccess, initialDate }: RendezVou
         notes: rendezVous.notes ?? undefined,
       }
     : {
-        statut: 'PLANIFIE',
         dateHeure: formatInitialDate(initialDate), // Pré-remplir avec la date du calendrier
+        // statut est géré automatiquement par le backend (PLANIFIE par défaut)
       };
 
   const form = useForm<RendezVousFormData>({
@@ -105,7 +105,14 @@ export function RendezVousForm({ rendezVous, onSuccess, initialDate }: RendezVou
         });
         toast.success('Rendez-vous modifié avec succès');
       } else {
-        await createMutation.mutateAsync(data);
+        // Pour la création, exclure statut et notes vides (le backend les gère automatiquement)
+        const { statut, notes, ...createData } = data;
+        const dataToSend = {
+          ...createData,
+          // Inclure notes seulement si non vide
+          ...(notes && notes.trim() !== '' ? { notes } : {}),
+        };
+        await createMutation.mutateAsync(dataToSend);
         toast.success('Rendez-vous créé avec succès');
       }
 
@@ -206,37 +213,39 @@ export function RendezVousForm({ rendezVous, onSuccess, initialDate }: RendezVou
           )}
         />
 
-        {/* Statut */}
-        <FormField
-          control={form.control}
-          name="statut"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Statut</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un statut" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-white">
-                  {STATUT_RDV_VALUES.map((statut) => (
-                    <SelectItem key={statut} value={statut}>
-                      {STATUT_RDV_LABELS[statut]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Par défaut: Planifié
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Statut (uniquement en mode édition) */}
+        {isEditMode && (
+          <FormField
+            control={form.control}
+            name="statut"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Statut</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un statut" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-white">
+                    {STATUT_RDV_VALUES.map((statut) => (
+                      <SelectItem key={statut} value={statut}>
+                        {STATUT_RDV_LABELS[statut]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Modifier le statut du rendez-vous
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Notes */}
         <FormField
