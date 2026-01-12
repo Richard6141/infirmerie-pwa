@@ -1,6 +1,6 @@
 # Assets Directory
 
-## Logo MDCAG
+## Logo MDC
 
 Pour intégrer le logo du Ministère du Développement et de la Coordination de l'Action Gouvernementale dans les PDF de repos sanitaire :
 
