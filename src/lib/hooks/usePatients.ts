@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { db } from '../db/schema';
 import { useOnlineStatus } from './useOnlineStatus';
+import { useAuthStore } from '../stores/authStore';
 import type {
   Patient,
   PatientFilters,
@@ -115,9 +116,14 @@ export function usePatient(id?: string) {
 
 // ==================== GET CURRENT PATIENT PROFILE (New) ====================
 export function useMyPatientProfile() {
+  // Importer le store d'authentification pour vérifier le rôle
+  const { isPatient } = useAuthStore();
+
   return useQuery({
     queryKey: patientKeys.me(),
     retry: 1,
+    // Ne faire la requête que si l'utilisateur est un patient
+    enabled: isPatient(),
     queryFn: async (): Promise<Patient> => {
       // Tenter la route standard /patients/me
       // Si elle n'existe pas, le backend renverra 404, et on gérera l'erreur dans l'UI
