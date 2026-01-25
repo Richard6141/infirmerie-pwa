@@ -164,11 +164,12 @@ export async function setSyncMeta(key: string, value: any): Promise<void> {
  * Ajoute une opération à la file de synchronisation
  */
 export async function addToSyncQueue(item: Omit<SyncQueueItem, 'id' | 'createdAt' | 'attempts'>): Promise<number> {
-  return await db.syncQueue.add({
+  const id = await db.syncQueue.add({
     ...item,
     createdAt: new Date().toISOString(),
     attempts: 0
   });
+  return id as number;
 }
 
 /**
@@ -207,7 +208,7 @@ export async function cleanupOldSyncOperations(): Promise<number> {
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
   const oldItems = await db.syncQueue
-    .filter(item => item.attempts > 10 || (item.lastAttempt && new Date(item.lastAttempt) < threeDaysAgo))
+    .filter(item => item.attempts > 10 || (item.lastAttempt ? new Date(item.lastAttempt) < threeDaysAgo : false))
     .toArray();
 
   for (const item of oldItems) {

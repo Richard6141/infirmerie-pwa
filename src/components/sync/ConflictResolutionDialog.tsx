@@ -9,9 +9,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, CheckCircle2, XCircle, Clock, User, Calendar } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, User, Calendar } from 'lucide-react';
 import { useConflicts } from '@/lib/hooks/useConflicts';
-import type { SyncConflict } from '@/lib/sync/syncService';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -122,10 +121,10 @@ export function ConflictResolutionDialog({ open, onOpenChange }: ConflictResolut
                 <div className="pt-2 border-t">
                   <p className="text-xs font-semibold text-slate-600 mb-2">Constantes Vitales</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    {localData.constantesVitales.tensionArterielle && (
+                    {(localData.constantesVitales as any).tensionArterielle && (
                       <div>
                         <span className="text-slate-500">TA:</span>{' '}
-                        <span className="font-medium">{localData.constantesVitales.tensionArterielle}</span>
+                        <span className="font-medium">{(localData.constantesVitales as any).tensionArterielle}</span>
                       </div>
                     )}
                     {localData.constantesVitales.poids && (

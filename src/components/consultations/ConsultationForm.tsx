@@ -50,7 +50,7 @@ export function ConsultationForm({ consultation, preselectedPatientId, onSuccess
   // Queries
   const { data: patientsData, isLoading: isPatientsLoading } = usePatients({
     search: patientSearch,
-    limit: 20
+    limit: 100
   });
 
   const { data: medicamentsData, isLoading: isMedicamentsLoading } = useMedicaments({
@@ -61,8 +61,8 @@ export function ConsultationForm({ consultation, preselectedPatientId, onSuccess
   // Convertir les données en options pour les combobox
   const patientOptions: ComboboxOption[] = patientsData?.data.map(patient => ({
     value: patient.id,
-    label: `${patient.nom} ${patient.prenom}`,
-    description: `Matricule: ${patient.matricule}`,
+    label: `${patient.nom} ${patient.prenom} (${patient.matricule})`,
+    description: `${patient.direction || patient.directionService || ''}`,
   })) || [];
 
   const medicamentOptions: ComboboxOption[] = medicamentsData?.data.map(medicament => ({

@@ -58,7 +58,7 @@ export function SuiviConstantesCharts({ evolution }: SuiviConstantesChartsProps)
 
     // 2. Construire les données pour le graphique (Row-based)
     const chartData = sortedDates.map((date) => {
-        const findVal = (arr: any[]) => arr?.find((p: any) => p.date === date)?.valeur ?? null;
+        const findVal = (arr: any[] | undefined) => arr?.find((p: any) => p.date === date)?.valeur ?? null;
 
         return {
             dateStr: date, // Pour usage interne si besoin

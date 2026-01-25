@@ -52,14 +52,14 @@ export function ReposSanitaireForm({
   // Query patients
   const { data: patientsData, isLoading: isPatientsLoading } = usePatients({
     search: patientSearch,
-    limit: 20
+    limit: 100
   });
 
   // Convertir les patients en options pour le combobox
   const patientOptions: ComboboxOption[] = patientsData?.data.map(patient => ({
     value: patient.id,
-    label: `${patient.nom} ${patient.prenom}`,
-    description: `Matricule: ${patient.matricule} - ${patient.sexe}`,
+    label: `${patient.nom} ${patient.prenom} (${patient.matricule})`,
+    description: `${patient.direction || patient.directionService || ''} - ${patient.sexe}`,
   })) || [];
 
   // Valeurs par défaut du formulaire

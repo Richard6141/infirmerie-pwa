@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CloudOff, Loader2, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
+import { CloudOff, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useOnlineStatus } from '@/lib/hooks/useOnlineStatus';

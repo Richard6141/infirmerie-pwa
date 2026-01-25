@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { db, setSyncMeta, getSyncMeta } from '../db/schema';
+import { db, setSyncMeta, getSyncMeta, type SyncQueueItem } from '../db/schema';
 import type { Patient } from '@/types/patient';
 import type { Consultation } from '@/types/consultation';
 import type { Medicament } from '@/types/medicament';
@@ -940,7 +940,7 @@ export class SyncService {
           patientId: vaccination.patientId,
           infirmierId, // ID de l'infirmier connecté
           typeVaccin: vaccination.typeVaccin,
-          dateAdministration: vaccination.dateAdministration || vaccination.date, // Backend attend 'dateAdministration'
+          dateAdministration: vaccination.dateAdministration || vaccination.date || new Date().toISOString(), // Backend attend 'dateAdministration'
           numeroDose: vaccination.numeroDose,
           nombreDosesTotal: vaccination.nombreDosesTotal,
           numeroLot: vaccination.numeroLot,

@@ -14,7 +14,7 @@ export function AppLayout() {
   useAutoSync();
 
   // Gérer les conflits
-  const { hasConflicts, conflicts } = useConflicts();
+  const { hasConflicts } = useConflicts();
 
   // Ouvrir automatiquement le dialogue quand des conflits sont détectés
   useEffect(() => {

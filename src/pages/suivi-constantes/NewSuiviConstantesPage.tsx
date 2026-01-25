@@ -16,7 +16,6 @@ import {
     suiviConstantesCreateSchema,
     type SuiviConstantesFormData,
 } from '@/types/suivi-constantes';
-import { getPatientFullName } from '@/types/patient';
 
 export function NewSuiviConstantesPage() {
     const navigate = useNavigate();
@@ -30,7 +29,7 @@ export function NewSuiviConstantesPage() {
     // Charger la liste des patients avec recherche
     const { data: patientsData, isLoading: isPatientsLoading } = usePatients({
         search: patientSearch,
-        limit: 20
+        limit: 100
     });
 
     const {
@@ -52,8 +51,8 @@ export function NewSuiviConstantesPage() {
     // Convertir les données en options pour le combobox
     const patientOptions: ComboboxOption[] = patientsData?.data.map(patient => ({
         value: patient.id,
-        label: getPatientFullName(patient),
-        description: `Matricule: ${patient.matricule}`,
+        label: `${patient.nom} ${patient.prenom} (${patient.matricule})`,
+        description: `${patient.direction || patient.directionService || ''}`,
     })) || [];
 
     const onSubmit = async (data: SuiviConstantesFormData) => {

@@ -343,7 +343,7 @@ function MouvementForm({ onClose }: { onClose: () => void }) {
   const medicamentOptions: ComboboxOption[] = medicaments?.data.map(med => ({
     value: med.id,
     label: formatMedicamentDisplay(med),
-    description: `Code: ${med.code} - ${med.formeGalenique}`,
+    description: `Code: ${med.code} - ${med.forme || ''}`,
   })) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {

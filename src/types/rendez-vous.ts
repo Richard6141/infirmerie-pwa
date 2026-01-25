@@ -21,8 +21,6 @@ export const STATUT_RDV_COLORS: Record<StatutRendezVous, string> = {
 
 // ==================== INTERFACES ====================
 
-// Import du modèle Patient pour la relation
-import type { Patient } from '@/lib/types/models';
 
 // Rendez-vous complet (réponse API)
 // Basé sur la documentation officielle de l'API
@@ -105,7 +103,7 @@ export function getMatriculePatient(rdv: RendezVous): string {
 }
 
 // Obtenir le nom complet de l'infirmier (placeholder - l'API ne retourne pas ce champ)
-export function getNomCompletInfirmier(rdv: RendezVous): string {
+export function getNomCompletInfirmier(_rdv: RendezVous): string {
   return 'Infirmier';
 }
 

@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 // Export PDF pour les rapports
-export function exportToPDF(data: any, title: string, orientation: 'portrait' | 'landscape' = 'portrait') {
+export function exportToPDF(_data: any, title: string, orientation: 'portrait' | 'landscape' = 'portrait') {
   const doc = new jsPDF({ orientation });
 
   // En-tête

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api';
 
 /**
  * Vérifie la vraie connectivité Internet en essayant d'atteindre le backend
@@ -10,7 +9,7 @@ async function checkRealConnectivity(): Promise<boolean> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://infirmerie-api.onrender.com'}/health`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://infirmerie-api.onrender.com'}/health`, {
       method: 'GET',
       signal: controller.signal,
       cache: 'no-cache',

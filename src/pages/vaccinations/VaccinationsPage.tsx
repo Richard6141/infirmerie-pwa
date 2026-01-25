@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Syringe, Plus, Calendar, User, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useVaccinations, useCreateVaccination, useDeleteVaccination } from '@/lib/hooks/useVaccinations';
+import { useVaccinations, useCreateVaccination } from '@/lib/hooks/useVaccinations';
 import { usePatients } from '@/lib/hooks/usePatients';
 import { TYPES_VACCINS, NOMBRES_DOSES, formaterDateVaccination, formaterDose } from '@/types/vaccination';
 import { toast } from 'sonner';
@@ -332,15 +332,15 @@ function VaccinationForm({ onClose }: { onClose: () => void }) {
 
   const { data: patients, isLoading: isPatientsLoading } = usePatients({
     search: patientSearch,
-    limit: 20
+    limit: 100
   });
   const createMutation = useCreateVaccination();
 
   // Convertir les données en options pour le combobox
   const patientOptions: ComboboxOption[] = patients?.data.map(patient => ({
     value: patient.id,
-    label: `${patient.nom} ${patient.prenom}`,
-    description: `Matricule: ${patient.matricule}`,
+    label: `${patient.nom} ${patient.prenom} (${patient.matricule})`,
+    description: `${patient.direction || patient.directionService || ''}`,
   })) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {

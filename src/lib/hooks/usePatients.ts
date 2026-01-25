@@ -76,7 +76,7 @@ export function usePatients(filters: PatientFilters = {}) {
       // Sync cache
       if (response.data.data) {
         try {
-          await db.patients.bulkPut(response.data.data.map(p => ({ ...p, isDeleted: 0, synced: 1 })));
+          await db.patients.bulkPut(response.data.data.map(p => ({ ...p, isDeleted: false, syncStatus: 'synced' as const, lastModified: new Date().toISOString() })));
         } catch (e) {
           console.error('Cache error', e);
         }
@@ -106,7 +106,7 @@ export function usePatient(id?: string) {
       const response = await api.get<Patient>(`/patients/${id}`);
       if (response.data) {
         try {
-          await db.patients.put({ ...response.data, isDeleted: 0, synced: 1 });
+          await db.patients.put({ ...response.data, isDeleted: false, syncStatus: 'synced' as const, lastModified: new Date().toISOString() });
         } catch (e) { console.error(e); }
       }
       return response.data;

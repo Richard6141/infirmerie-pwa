@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Cloud, CloudOff, CheckCircle2, AlertCircle, Clock, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useOnlineStatus } from '@/lib/hooks/useOnlineStatus';
 import { getSyncMeta } from '@/lib/db/schema';
 import { cn } from '@/lib/utils';

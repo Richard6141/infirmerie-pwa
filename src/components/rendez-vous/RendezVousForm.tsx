@@ -49,7 +49,7 @@ export function RendezVousForm({ rendezVous, onSuccess, initialDate }: RendezVou
 
   // État pour la recherche de patients
   const [patientSearch, setPatientSearch] = useState('');
-  const { data: patientsData } = usePatients({ search: patientSearch, limit: 50 });
+  const { data: patientsData } = usePatients({ search: patientSearch, limit: 100 });
 
   // Formater la date initiale pour le champ datetime-local si fournie
   const formatInitialDate = (dateStr: string | undefined): string | undefined => {

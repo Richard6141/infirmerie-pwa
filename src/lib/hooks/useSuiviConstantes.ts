@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
-import { db } from '../db/schema';
 import { useOnlineStatus } from './useOnlineStatus';
 import type {
     SuiviConstantes,
@@ -100,7 +99,9 @@ export function useEvolutionConstantes(patientId: string | undefined, limit: num
             // MODE OFFLINE: Pas de support pour l'instant
             if (!isOnline) {
                 return {
-                    dates: [],
+                    patientId: patientId,
+                    nomPatient: '',
+                    periode: { debut: '', fin: '' },
                     tensionSystolique: [],
                     tensionDiastolique: [],
                     frequenceCardiaque: [],
@@ -109,8 +110,8 @@ export function useEvolutionConstantes(patientId: string | undefined, limit: num
                     glycemie: [],
                     poids: [],
                     imc: [],
-                    statistiques: {},
-                };
+                    stats: {},
+                } as unknown as EvolutionData;
             }
 
             // MODE ONLINE: API

@@ -403,7 +403,7 @@ export function RapportsPage() {
                           dataKey="count"
                           nameKey="motif"
                         >
-                          {(dashboardStats.topMotifsConsultations || []).slice(0, 5).map((entry, index) => (
+                          {(dashboardStats.topMotifsConsultations || []).slice(0, 5).map((_, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -764,7 +764,7 @@ export function RapportsPage() {
                             dataKey="count"
                             nameKey="typeVaccin"
                           >
-                            {(vaccinationsStats.statistiquesParType || []).map((entry, index) => (
+                            {(vaccinationsStats.statistiquesParType || []).map((_, index) => (
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>

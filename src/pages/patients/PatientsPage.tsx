@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Plus, Search, Pencil, Trash2, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePatients, useDeletePatient } from '@/lib/hooks/usePatients';
@@ -43,11 +43,9 @@ export function PatientsPage() {
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // React Query hooks
-  const { data, isLoading, isError, error } = usePatients({
-    search: debouncedSearch,
-    page,
-    limit: pageSize,
+  // React Query hooks - Charger tous les patients pour filtrage côté client
+  const { data: rawData, isLoading, isError, error } = usePatients({
+    limit: 500, // Charger tous les patients
   });
 
   const deleteMutation = useDeletePatient();
@@ -61,6 +59,43 @@ export function PatientsPage() {
 
     return () => clearTimeout(timeout);
   }, [search]);
+
+  // Filtrage côté client
+  const filteredPatients = useMemo(() => {
+    if (!rawData?.data) return [];
+
+    if (!debouncedSearch.trim()) {
+      return rawData.data;
+    }
+
+    const searchLower = debouncedSearch.toLowerCase();
+    return rawData.data.filter((patient) => {
+      const nom = patient.nom?.toLowerCase() || '';
+      const prenom = patient.prenom?.toLowerCase() || '';
+      const matricule = patient.matricule?.toLowerCase() || '';
+      const direction = (patient.directionService || patient.direction || '').toLowerCase();
+
+      return nom.includes(searchLower) ||
+             prenom.includes(searchLower) ||
+             matricule.includes(searchLower) ||
+             direction.includes(searchLower);
+    });
+  }, [rawData?.data, debouncedSearch]);
+
+  // Pagination côté client
+  const data = useMemo(() => {
+    const total = filteredPatients.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+
+    return {
+      data: filteredPatients.slice(start, end),
+      total,
+      page,
+      totalPages,
+    };
+  }, [filteredPatients, page, pageSize]);
 
   // Delete handlers
   const handleDeleteClick = (patient: Patient) => {

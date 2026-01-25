@@ -124,7 +124,7 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
         sexe: transformSexeFromBackend(patient.sexe),
         telephone: patient.telephone || '',
         directionService: patient.directionService || patient.direction || patient.service || '',
-        groupeSanguin: transformGroupeSanguinFromBackend(patient.groupeSanguin) || undefined,
+        groupeSanguin: transformGroupeSanguinFromBackend(patient.groupeSanguin) as typeof GROUPE_SANGUIN_VALUES[number] | undefined,
         allergies: patient.allergies || '',
         // Le backend utilise 'antecedents' comme objet, on le convertit en string
         antecedentsMedicaux: getAntecedentsString(patient.antecedents || patient.antecedentsMedicaux) || '',

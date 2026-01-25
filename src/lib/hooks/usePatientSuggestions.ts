@@ -22,14 +22,14 @@ export function usePatientSuggestions() {
       const allergies = [...new Set(
         patients
           .map(p => p.allergies)
-          .filter(Boolean)
+          .filter((a): a is string => Boolean(a))
           .flatMap(a => a.split(',').map(s => s.trim()))
       )].sort();
 
       const antecedents = [...new Set(
         patients
           .map(p => p.antecedents || p.antecedentsMedicaux)
-          .filter(Boolean)
+          .filter((a): a is string => Boolean(a) && typeof a === 'string')
           .flatMap(a => a.split(',').map(s => s.trim()))
       )].sort();
 

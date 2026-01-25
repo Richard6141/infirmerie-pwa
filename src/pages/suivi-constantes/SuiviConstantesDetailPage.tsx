@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Pencil, Trash2, Activity, TrendingUp, Loader2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, Activity, Loader2 } from 'lucide-react';
 import {
     useSuiviConstante,
     useDeleteSuiviConstantes,
