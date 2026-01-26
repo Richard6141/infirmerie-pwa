@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Calendar, Clock, FileText, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCreneauxDisponibles } from '@/lib/hooks/useCreneauxDisponibles';
@@ -9,10 +9,24 @@ import { cn } from '@/lib/utils';
 
 export default function PatientPriseRendezVousPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [motif, setMotif] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // Pré-sélectionner la date depuis l'URL si présente
+  useEffect(() => {
+    const dateFromUrl = searchParams.get('date');
+    if (dateFromUrl) {
+      // Valider que la date est dans le futur
+      const minDate = getMinDate();
+      const maxDate = getMaxDate();
+      if (dateFromUrl >= minDate && dateFromUrl <= maxDate) {
+        setSelectedDate(dateFromUrl);
+      }
+    }
+  }, [searchParams]);
 
   const { data: creneauxData, isLoading: loadingCreneaux } = useCreneauxDisponibles(
     selectedDate || null

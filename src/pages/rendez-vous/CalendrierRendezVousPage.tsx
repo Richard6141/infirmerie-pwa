@@ -6,8 +6,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import frLocale from '@fullcalendar/core/locales/fr';
-import { Calendar, Clock, User, FileText, Trash2, Edit, List } from 'lucide-react';
-import { useRendezVous, useDeleteRendezVous } from '@/lib/hooks/useRendezVous';
+import { Calendar, Clock, User, FileText, Trash2, Edit, List, CalendarPlus } from 'lucide-react';
+import { useRendezVous, useDeleteRendezVous, useMyRendezVous } from '@/lib/hooks/useRendezVous';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,15 +40,25 @@ export function CalendrierRendezVousPage() {
   const [selectedEvent, setSelectedEvent] = useState<RendezVous | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // Récupérer tous les rendez-vous (sans pagination pour le calendrier)
-  const { data: rdvData, isLoading } = useRendezVous({ limit: 1000 });
+  // Récupérer les rendez-vous selon le rôle
+  // Infirmier: tous les RDV via /rendez-vous
+  // Patient: ses propres RDV via /rendez-vous/me
+  const { data: rdvDataInfirmier, isLoading: isLoadingInfirmier } = useRendezVous(
+    { limit: 1000 },
+  );
+  const { data: rdvDataPatient, isLoading: isLoadingPatient } = useMyRendezVous();
+
+  // Utiliser les bonnes données selon le rôle
+  const rdvList = isInfirmier ? rdvDataInfirmier?.data : rdvDataPatient;
+  const isLoading = isInfirmier ? isLoadingInfirmier : isLoadingPatient;
+
   const deleteMutation = useDeleteRendezVous();
 
   // Convertir les rendez-vous en événements FullCalendar
   const events = useMemo(() => {
-    if (!rdvData?.data) return [];
+    if (!rdvList) return [];
 
-    return rdvData.data.map((rdv) => ({
+    return rdvList.map((rdv) => ({
       id: rdv.id,
       title: isInfirmier
         ? getNomCompletPatient(rdv)
@@ -63,7 +73,7 @@ export function CalendrierRendezVousPage() {
       },
       classNames: ['rdv-event', `rdv-${rdv.statut.toLowerCase()}`],
     }));
-  }, [rdvData, isInfirmier]);
+  }, [rdvList, isInfirmier]);
 
   // Couleurs modernes et attrayantes selon le statut
   function getEventColor(statut: string): string {
@@ -105,15 +115,26 @@ export function CalendrierRendezVousPage() {
 
   // Gestion du clic sur une date (création)
   const handleDateClick = (arg: any) => {
-    if (!isInfirmier) return; // Seuls les infirmiers peuvent créer
-
-    // Récupérer la date cliquée et définir l'heure par défaut à 09:00
+    // Récupérer la date cliquée
     const clickedDate = arg.date || new Date(arg.dateStr);
-    clickedDate.setHours(9, 0, 0, 0); // Par défaut: 09:00
 
-    // Format pour datetime-local: YYYY-MM-DDTHH:mm
-    const dateStr = clickedDate.toISOString();
-    navigate(`/rendez-vous/nouveau?date=${dateStr}`);
+    // Bloquer les dates passées
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (clickedDate < today) {
+      return; // Ne rien faire pour les dates passées
+    }
+
+    if (isInfirmier) {
+      // Pour l'infirmier: créer un nouveau RDV
+      clickedDate.setHours(9, 0, 0, 0); // Par défaut: 09:00
+      const dateStr = clickedDate.toISOString();
+      navigate(`/rendez-vous/nouveau?date=${dateStr}`);
+    } else {
+      // Pour le patient: aller à la page de prise de RDV avec la date pré-sélectionnée
+      const dateStr = clickedDate.toISOString().split('T')[0];
+      navigate(`/rendez-vous/prendre?date=${dateStr}`);
+    }
   };
 
   // Suppression d'un RDV
@@ -149,7 +170,7 @@ export function CalendrierRendezVousPage() {
               <span className="hidden md:inline">Vue Liste</span>
               <span className="md:hidden">Liste</span>
             </Button>
-            {isInfirmier && (
+            {isInfirmier ? (
               <Button
                 onClick={() => navigate('/rendez-vous/nouveau')}
                 className="bg-cyan-600 hover:bg-cyan-700"
@@ -158,12 +179,27 @@ export function CalendrierRendezVousPage() {
                 <span className="hidden md:inline">Nouveau RDV</span>
                 <span className="md:hidden">Nouveau</span>
               </Button>
+            ) : (
+              <Button
+                onClick={() => navigate('/rendez-vous/prendre')}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CalendarPlus className="h-4 w-4 mr-2" />
+                <span className="hidden md:inline">Prendre RDV</span>
+                <span className="md:hidden">RDV</span>
+              </Button>
             )}
           </div>
         </div>
         <p className="text-slate-600">
-          Vue d'ensemble de tous vos rendez-vous
+          Vue d'ensemble de {isInfirmier ? 'tous les' : 'vos'} rendez-vous
         </p>
+        {!isInfirmier && (
+          <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+            <CalendarPlus className="h-4 w-4" />
+            Cliquez sur une date pour prendre un rendez-vous
+          </p>
+        )}
       </div>
 
 
@@ -368,6 +404,26 @@ export function CalendrierRendezVousPage() {
                   border-width: 2px !important;
                 }
 
+                /* Dates passées - style plus subtil */
+                .calendar-container .fc-day-past:not(.fc-day-today) {
+                  background-color: #f8fafc !important;
+                }
+
+                .calendar-container .fc-day-past:not(.fc-day-today) .fc-daygrid-day-number {
+                  color: #94a3b8 !important;
+                }
+
+                /* Curseur pointer sur dates futures pour indiquer qu'elles sont cliquables */
+                .calendar-container .fc-day-future,
+                .calendar-container .fc-day-today {
+                  cursor: pointer;
+                }
+
+                .calendar-container .fc-day-future:hover,
+                .calendar-container .fc-day-today:hover {
+                  background-color: #e0f2fe !important;
+                }
+
                 /* Responsive: cellules de jour avec hauteur minimale sur mobile */
                 @media (max-width: 640px) {
                   .calendar-container .fc-daygrid-day {
@@ -407,7 +463,7 @@ export function CalendrierRendezVousPage() {
                 eventClick={handleEventClick}
                 dateClick={handleDateClick}
                 editable={false}
-                selectable={isInfirmier}
+                selectable={true}
                 selectMirror={true}
                 dayMaxEvents={3}
                 weekends={true}

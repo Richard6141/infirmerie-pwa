@@ -350,25 +350,44 @@ export function DashboardPage() {
   // Dashboard pour le Personnel (Patient)
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Bannière de bienvenue */}
-      <WelcomeBanner userName={`${user?.prenom} ${user?.nom}`} rdvCount={0} />
+      {/* Bannière de bienvenue avec bouton RDV intégré */}
+      <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-4 md:p-6 shadow-xl">
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
+                <Clock className="h-3 w-3 text-white" />
+                <span className="text-xs font-medium text-white">
+                  {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </span>
+              </div>
+              <h1 className="text-lg md:text-3xl font-bold text-white mb-1">
+                {new Date().getHours() < 12 ? 'Bonjour' : new Date().getHours() < 18 ? 'Bon après-midi' : 'Bonsoir'}, {user?.prenom} {user?.nom}
+              </h1>
+              <p className="text-blue-100 text-sm">Bienvenue sur votre espace santé</p>
+            </div>
 
-      {/* Bouton Prendre un RDV - Mis en avant */}
-      <Link
-        to="/rendez-vous/prendre"
-        className="block p-4 md:p-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
-      >
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-white/20 rounded-xl">
-            <CalendarPlus className="h-8 w-8 text-white" />
+            {/* Bouton Prendre RDV - compact et élégant */}
+            <Link
+              to="/rendez-vous/prendre"
+              className="flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20 shadow-lg hover:bg-white/25 transition-all group"
+            >
+              <div className="p-2 bg-green-500 rounded-lg group-hover:bg-green-400 transition-colors">
+                <CalendarPlus className="h-5 w-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-white">Prendre RDV</p>
+                <p className="text-xs text-blue-100">Réserver un créneau</p>
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-white/70 group-hover:text-white transition-colors" />
+            </Link>
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg md:text-xl font-bold text-white">Prendre un rendez-vous</h3>
-            <p className="text-green-100 text-sm">Réservez un créneau avec l'infirmier</p>
-          </div>
-          <ArrowUpRight className="h-6 w-6 text-white" />
         </div>
-      </Link>
+
+        {/* Decorative elements */}
+        <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/5 blur-3xl"></div>
+        <div className="absolute right-20 -bottom-16 h-32 w-32 rounded-full bg-white/5 blur-2xl"></div>
+      </div>
 
       {/* Modules patient */}
       <div>

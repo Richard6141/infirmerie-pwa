@@ -28,10 +28,13 @@ export function RappelsVaccinsWidget() {
         const dateRappel = new Date(vaccination.prochainRappel);
         return dateRappel <= limite;
       })
-      .map((vaccination) => ({
+      .map((vaccination: any) => ({
         vaccinationId: vaccination.id,
         patientId: vaccination.patientId,
-        nomPatient: vaccination.patient ? `${vaccination.patient.nom} ${vaccination.patient.prenom}` : 'Patient inconnu',
+        // L'API retourne nomPatient directement (format: "NOM PRENOM")
+        // Fallback vers patient.nom si disponible pour compatibilité
+        nomPatient: vaccination.nomPatient ||
+          (vaccination.patient ? `${vaccination.patient.nom} ${vaccination.patient.prenom}` : 'Patient inconnu'),
         typeVaccin: vaccination.typeVaccin,
         dateRappel: vaccination.prochainRappel!,
         statut: getStatutRappel(vaccination.prochainRappel!),
