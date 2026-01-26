@@ -37,13 +37,19 @@ export interface RendezVous {
   updatedAt: string;
 }
 
-// Données pour création de rendez-vous
+// Données pour création de rendez-vous (par infirmier)
 export interface CreateRendezVousData {
   patientId: string;
   dateHeure: string; // ISO date string
   motif: string;
   statut?: StatutRendezVous; // Défaut: PLANIFIE
   notes?: string;
+}
+
+// Données pour création de rendez-vous par le patient
+export interface CreateRendezVousPatientData {
+  dateHeure: string; // ISO date string
+  motif: string; // Minimum 10 caractères
 }
 
 // Données pour mise à jour de rendez-vous
@@ -175,4 +181,35 @@ export function getRendezVousDuJour(rendezVous: RendezVous[]): RendezVous[] {
   return rendezVous
     .filter((rdv) => isRendezVousToday(rdv.dateHeure) && rdv.statut !== 'ANNULE')
     .sort((a, b) => new Date(a.dateHeure).getTime() - new Date(b.dateHeure).getTime());
+}
+
+// Vérifier si un RDV peut être annulé par le patient (plus de 24h avant)
+export function canPatientCancelRendezVous(rdv: RendezVous): {
+  canCancel: boolean;
+  reason?: string;
+} {
+  // Vérifier le statut
+  if (rdv.statut === 'ANNULE') {
+    return { canCancel: false, reason: 'Ce rendez-vous est déjà annulé' };
+  }
+  if (rdv.statut === 'TERMINE') {
+    return { canCancel: false, reason: 'Ce rendez-vous est déjà terminé' };
+  }
+
+  // Vérifier le délai (24h minimum)
+  const rdvDate = new Date(rdv.dateHeure);
+  const now = new Date();
+  const heuresAvant = (rdvDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+  if (heuresAvant < 24) {
+    const heuresRestantes = Math.max(0, Math.floor(heuresAvant));
+    return {
+      canCancel: false,
+      reason: heuresRestantes > 0
+        ? `Annulation impossible. Il reste ${heuresRestantes}h avant le RDV (minimum 24h requis).`
+        : 'Ce rendez-vous est déjà passé ou imminent',
+    };
+  }
+
+  return { canCancel: true };
 }

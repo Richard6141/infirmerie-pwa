@@ -27,6 +27,8 @@ import { CalendrierRendezVousPage } from './pages/rendez-vous/CalendrierRendezVo
 import { NewRendezVousPage } from './pages/rendez-vous/NewRendezVousPage';
 import { EditRendezVousPage } from './pages/rendez-vous/EditRendezVousPage';
 import { RendezVousDetailPage } from './pages/rendez-vous/RendezVousDetailPage';
+import PatientPriseRendezVousPage from './pages/rendez-vous/PatientPriseRendezVousPage';
+import CreneauxBloquesPage from './pages/creneaux-bloques/CreneauxBloquesPage';
 import { RapportsPage } from './pages/rapports/RapportsPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
@@ -222,6 +224,7 @@ function App() {
           {/* Rendez-vous - Accessible à tous (vue différente selon rôle) */}
           <Route path="/rendez-vous" element={<CalendrierRendezVousPage />} />
           <Route path="/rendez-vous/liste" element={<RendezVousPage />} />
+          <Route path="/rendez-vous/prendre" element={<PatientPriseRendezVousPage />} />
           <Route
             path="/rendez-vous/nouveau"
             element={
@@ -236,6 +239,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
                 <EditRendezVousPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Créneaux bloqués - Infirmier uniquement */}
+          <Route
+            path="/creneaux-bloques"
+            element={
+              <ProtectedRoute allowedRoles={[Role.INFIRMIER]}>
+                <CreneauxBloquesPage />
               </ProtectedRoute>
             }
           />

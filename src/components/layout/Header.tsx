@@ -1,7 +1,8 @@
-import { Menu, LogOut, User, Search, Bell, MessageSquare, Settings, ChevronDown } from 'lucide-react';
+import { Menu, LogOut, User, Search, MessageSquare, Settings, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { OnlineIndicator } from '@/components/sync/OnlineIndicator';
+import { NotificationDropdown } from './NotificationDropdown';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
@@ -62,15 +63,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </div>
 
           {/* Notifications */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-slate-600 hover:text-primary hover:bg-primary/10 relative h-10 w-10 rounded-lg"
-            title="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-destructive rounded-full ring-2 ring-white"></span>
-          </Button>
+          <NotificationDropdown />
 
           {/* Messages */}
           <Button

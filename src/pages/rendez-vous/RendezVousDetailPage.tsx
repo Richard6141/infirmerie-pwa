@@ -1,8 +1,8 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Calendar, Loader2, ArrowLeft, Pencil, Trash2, User, Clock, FileText } from 'lucide-react';
+import { Calendar, Loader2, ArrowLeft, Pencil, Trash2, User, Clock, FileText, XCircle, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useRendezVousDetail, useDeleteRendezVous } from '@/lib/hooks/useRendezVous';
+import { useRendezVousDetail, useDeleteRendezVous, useCancelRendezVousPatient } from '@/lib/hooks/useRendezVous';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
   formaterDateRendezVous,
@@ -14,6 +14,7 @@ import {
   getObservations,
   STATUT_RDV_LABELS,
   STATUT_RDV_COLORS,
+  canPatientCancelRendezVous,
 } from '@/types/rendez-vous';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -31,9 +32,11 @@ export function RendezVousDetailPage() {
   const navigate = useNavigate();
   const { isInfirmier } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   const { data: rendezVous, isLoading, isError } = useRendezVousDetail(id);
   const deleteMutation = useDeleteRendezVous();
+  const cancelMutation = useCancelRendezVousPatient();
 
   const handleDelete = async () => {
     if (!rendezVous) return;
@@ -46,6 +49,23 @@ export function RendezVousDetailPage() {
       toast.error('Erreur lors de la suppression');
     }
   };
+
+  const handleCancelByPatient = async () => {
+    if (!rendezVous) return;
+
+    try {
+      await cancelMutation.mutateAsync(rendezVous.id);
+      toast.success('Rendez-vous annulé avec succès');
+      navigate('/rendez-vous');
+    } catch (err: any) {
+      const message = err?.response?.data?.message || 'Erreur lors de l\'annulation';
+      toast.error(message);
+    }
+    setCancelDialogOpen(false);
+  };
+
+  // Vérifier si le patient peut annuler ce RDV
+  const cancelStatus = rendezVous ? canPatientCancelRendezVous(rendezVous) : { canCancel: false };
 
   if (isLoading) {
     return (
@@ -79,7 +99,7 @@ export function RendezVousDetailPage() {
             </h1>
           </div>
 
-          {isInfirmier && (
+          {isInfirmier ? (
             <div className="flex gap-2">
               <Link to={`/rendez-vous/${rendezVous.id}/modifier`}>
                 <Button variant="outline" className="gap-2">
@@ -96,6 +116,18 @@ export function RendezVousDetailPage() {
                 <span className="hidden md:inline">Supprimer</span>
               </Button>
             </div>
+          ) : (
+            /* Bouton annulation pour patient */
+            <Button
+              variant="destructive"
+              className="gap-2"
+              onClick={() => setCancelDialogOpen(true)}
+              disabled={!cancelStatus.canCancel}
+              title={cancelStatus.reason}
+            >
+              <XCircle className="h-4 w-4" />
+              <span className="hidden md:inline">Annuler le RDV</span>
+            </Button>
           )}
         </div>
         <p className="text-slate-600 ml-14 md:ml-0">
@@ -156,6 +188,19 @@ export function RendezVousDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Message d'info pour annulation (patient uniquement) */}
+      {!isInfirmier && !cancelStatus.canCancel && cancelStatus.reason && rendezVous.statut !== 'ANNULE' && rendezVous.statut !== 'TERMINE' && (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="p-4 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-800">Annulation impossible</p>
+              <p className="text-sm text-amber-700">{cancelStatus.reason}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Motif */}
       <Card>
         <CardHeader>
@@ -193,7 +238,7 @@ export function RendezVousDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Dialog */}
+      {/* Delete Dialog (Infirmier) */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
@@ -230,6 +275,55 @@ export function RendezVousDetailPage() {
                 </>
               ) : (
                 'Supprimer'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Dialog (Patient) */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900 text-xl flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Confirmer l'annulation
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 text-base mt-2">
+              Êtes-vous sûr de vouloir annuler votre rendez-vous prévu le{' '}
+              <span className="font-semibold text-slate-900">
+                {formaterDateRendezVous(rendezVous.dateHeure)}
+              </span>{' '}
+              ?
+              <br />
+              <span className="text-amber-600 text-sm mt-2 block">
+                Note: Cette action est définitive. Vous devrez reprendre un nouveau rendez-vous.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setCancelDialogOpen(false)}
+              disabled={cancelMutation.isPending}
+            >
+              Retour
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleCancelByPatient}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Annulation...
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Confirmer l'annulation
+                </>
               )}
             </Button>
           </DialogFooter>

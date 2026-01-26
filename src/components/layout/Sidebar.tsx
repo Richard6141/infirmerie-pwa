@@ -9,6 +9,7 @@ import {
   Package,
   Syringe,
   Calendar,
+  CalendarOff,
   BarChart,
   X,
   Activity,
@@ -40,6 +41,7 @@ const navItems: NavItem[] = [
   { to: '/stocks', icon: Package, label: 'Gestion Stocks', roles: ['INFIRMIER'] },
   { to: '/vaccinations', icon: Syringe, label: 'Vaccinations' },
   { to: '/rendez-vous', icon: Calendar, label: 'Rendez-vous' },
+  { to: '/creneaux-bloques', icon: CalendarOff, label: 'Blocages RDV', roles: ['INFIRMIER'] },
   { to: '/rapports', icon: BarChart, label: 'Rapports', roles: ['INFIRMIER'] },
 ];
 

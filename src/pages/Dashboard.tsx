@@ -18,6 +18,7 @@ import {
   Package,
   Syringe,
   Calendar,
+  CalendarPlus,
   Activity,
   UserCheck,
   Stethoscope,
@@ -352,6 +353,23 @@ export function DashboardPage() {
       {/* Bannière de bienvenue */}
       <WelcomeBanner userName={`${user?.prenom} ${user?.nom}`} rdvCount={0} />
 
+      {/* Bouton Prendre un RDV - Mis en avant */}
+      <Link
+        to="/rendez-vous/prendre"
+        className="block p-4 md:p-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white/20 rounded-xl">
+            <CalendarPlus className="h-8 w-8 text-white" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg md:text-xl font-bold text-white">Prendre un rendez-vous</h3>
+            <p className="text-green-100 text-sm">Réservez un créneau avec l'infirmier</p>
+          </div>
+          <ArrowUpRight className="h-6 w-6 text-white" />
+        </div>
+      </Link>
+
       {/* Modules patient */}
       <div>
         <h2 className="text-xl font-bold text-slate-800 mb-4">Mes Services</h2>
@@ -359,7 +377,7 @@ export function DashboardPage() {
           <ModuleCard
             to="/consultations"
             icon={<FileText />}
-            title="Consultations" // "Mes" retiré pour gain place
+            title="Consultations"
             color="bg-blue-600"
           />
           <ModuleCard
@@ -371,7 +389,7 @@ export function DashboardPage() {
           <ModuleCard
             to="/rendez-vous"
             icon={<Calendar />}
-            title="RDV" // "Mes Rendez-vous" -> "RDV"
+            title="Mes RDV"
             color="bg-purple-600"
           />
         </div>

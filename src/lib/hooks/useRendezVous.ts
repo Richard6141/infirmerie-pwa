@@ -7,6 +7,7 @@ import type {
   RendezVousResponse,
   CreateRendezVousData,
   UpdateRendezVousData,
+  CreateRendezVousPatientData,
 } from '@/types/rendez-vous';
 
 // Query keys
@@ -218,6 +219,53 @@ export function useUpdateStatutRendezVous() {
       // Invalider les RDV du jour et à venir
       queryClient.invalidateQueries({ queryKey: rendezVousKeys.today() });
       queryClient.invalidateQueries({ queryKey: rendezVousKeys.upcoming() });
+    },
+  });
+}
+
+// ==================== GET MES RENDEZ-VOUS (PATIENT) ====================
+export function useMyRendezVous() {
+  const isOnline = useOnlineStatus();
+
+  return useQuery({
+    queryKey: [...rendezVousKeys.all, 'me'] as const,
+    queryFn: async (): Promise<RendezVous[]> => {
+      const { data } = await api.get<RendezVous[]>('/rendez-vous/me');
+      return data;
+    },
+    enabled: isOnline,
+    staleTime: 1000 * 60, // 1 minute
+    gcTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+// ==================== CREATE RENDEZ-VOUS (PATIENT) ====================
+export function useCreateRendezVousPatient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (rendezVousData: CreateRendezVousPatientData): Promise<RendezVous> => {
+      const { data } = await api.post<RendezVous>('/rendez-vous/patient', rendezVousData);
+      return data;
+    },
+    onSuccess: () => {
+      // Invalider toutes les listes
+      queryClient.invalidateQueries({ queryKey: rendezVousKeys.all });
+    },
+  });
+}
+
+// ==================== CANCEL RENDEZ-VOUS (PATIENT) ====================
+export function useCancelRendezVousPatient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      await api.delete(`/rendez-vous/patient/${id}`);
+    },
+    onSuccess: () => {
+      // Invalider toutes les listes
+      queryClient.invalidateQueries({ queryKey: rendezVousKeys.all });
     },
   });
 }
