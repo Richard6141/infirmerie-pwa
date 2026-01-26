@@ -147,6 +147,7 @@ export type CreatePatientDTO = {
 
 // Type pour mise à jour patient (champs optionnels, sans age)
 export type UpdatePatientDTO = {
+  email?: string; // Modification de l'email possible (déclenche un renvoi des identifiants)
   nom?: string;
   prenom?: string;
   dateNaissance?: string;

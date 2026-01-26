@@ -178,3 +178,13 @@ export function useDeletePatient() {
     }
   });
 }
+
+// ==================== RESEND CREDENTIALS ====================
+export function useResendCredentials() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.post<{ message: string }>(`/patients/${id}/resend-credentials`);
+      return data;
+    },
+  });
+}

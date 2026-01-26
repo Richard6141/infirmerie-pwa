@@ -1,10 +1,11 @@
-import { ArrowLeft, UserCircle, Edit, FileText, Syringe, Calendar, Printer, Loader2, Activity, Eye } from 'lucide-react';
+import { ArrowLeft, UserCircle, Edit, FileText, Syringe, Calendar, Printer, Loader2, Activity, Eye, Mail } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePatient } from '@/lib/hooks/usePatients';
+import { usePatient, useResendCredentials } from '@/lib/hooks/usePatients';
+import { useToast } from '@/hooks/use-toast';
 import { useSuiviConstantesByPatient, useEvolutionConstantes } from '@/lib/hooks/useSuiviConstantes';
 import { SuiviConstantesCharts } from '@/pages/suivi-constantes/components/SuiviConstantesCharts';
 import { getPatientAge, getPatientFullName } from '@/types/patient';
@@ -25,10 +26,30 @@ import {
 
 export function PatientDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
 
   const { data: patient, isLoading, isError } = usePatient(id);
   const { data: constantes } = useSuiviConstantesByPatient(id);
   const { data: evolution } = useEvolutionConstantes(id);
+  const resendCredentialsMutation = useResendCredentials();
+
+  const handleResendCredentials = async () => {
+    if (!id) return;
+
+    try {
+      await resendCredentialsMutation.mutateAsync(id);
+      toast({
+        title: 'Identifiants envoyés',
+        description: 'Un email avec les nouveaux identifiants a été envoyé au patient.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'envoyer les identifiants. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,6 +103,19 @@ export function PatientDetailPage() {
           </div>
 
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleResendCredentials}
+              disabled={resendCredentialsMutation.isPending}
+            >
+              {resendCredentialsMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mail className="h-4 w-4" />
+              )}
+              <span className="hidden md:inline">Renvoyer identifiants</span>
+            </Button>
             <Link to={`/patients/${patient.id}/modifier`}>
               <Button variant="outline" className="gap-2">
                 <Edit className="h-4 w-4" />

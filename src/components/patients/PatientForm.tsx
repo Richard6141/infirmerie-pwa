@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCreatePatient, useUpdatePatient } from '@/lib/hooks/usePatients';
 import { usePatientSuggestions } from '@/lib/hooks/usePatientSuggestions';
 import {
@@ -46,6 +47,9 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
 
   // State pour choisir entre Date de Naissance ou Âge (uniquement en mode création)
   const [useAge, setUseAge] = useState(false);
+
+  // Stocker l'email original pour détecter les changements
+  const originalEmail = useMemo(() => patient?.email || '', [patient?.email]);
 
   const createMutation = useCreatePatient();
   const updateMutation = useUpdatePatient();
@@ -211,6 +215,11 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
           backendData.age = data.age;
           delete backendData.dateNaissance; // Ne pas envoyer dateNaissance si age est fourni
         }
+      } else {
+        // En mode édition, inclure l'email si changé
+        if (data.email && data.email !== originalEmail) {
+          backendData.email = data.email;
+        }
       }
 
       console.log('[PatientForm] 📦 Backend data prepared:', backendData);
@@ -219,12 +228,17 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
 
       if (isEditMode) {
         console.log('[PatientForm] Calling UPDATE mutation...');
+        const emailWasChanged = data.email && data.email !== originalEmail;
         await updateMutation.mutateAsync({
           id: patient.id,
           data: backendData,
         });
         console.log('[PatientForm] ✅ UPDATE mutation completed');
-        toast.success('Patient modifié avec succès');
+        if (emailWasChanged) {
+          toast.success('Patient modifié. Un email avec les nouveaux identifiants a été envoyé.');
+        } else {
+          toast.success('Patient modifié avec succès');
+        }
       } else {
         console.log('[PatientForm] Calling CREATE mutation...');
         await createMutation.mutateAsync(backendData);
@@ -267,25 +281,29 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
             <FormField
               control={form.control}
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email {!isEditMode && '*'}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="exemple@ministere.gov"
-                      {...field}
-                      disabled={isEditMode}
-                      className={isEditMode ? 'bg-slate-100 cursor-not-allowed' : ''}
-                    />
-                  </FormControl>
-                  {isEditMode && (
-                    <FormDescription className="text-xs text-slate-500">
-                      L'email ne peut pas être modifié
-                    </FormDescription>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const emailChanged = isEditMode && field.value !== originalEmail;
+                return (
+                  <FormItem>
+                    <FormLabel>Email *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="exemple@ministere.gov"
+                        {...field}
+                      />
+                    </FormControl>
+                    {isEditMode && emailChanged && (
+                      <Alert variant="default" className="mt-2 border-amber-500 bg-amber-50">
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        <AlertDescription className="text-xs text-amber-700">
+                          Un nouvel email de connexion avec un mot de passe temporaire sera envoyé à cette adresse.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             {/* Nom */}
