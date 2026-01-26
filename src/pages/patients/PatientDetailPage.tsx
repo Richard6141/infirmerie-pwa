@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePatient, useResendCredentials } from '@/lib/hooks/usePatients';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useSuiviConstantesByPatient, useEvolutionConstantes } from '@/lib/hooks/useSuiviConstantes';
 import { SuiviConstantesCharts } from '@/pages/suivi-constantes/components/SuiviConstantesCharts';
 import { getPatientAge, getPatientFullName } from '@/types/patient';
@@ -26,7 +26,6 @@ import {
 
 export function PatientDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { toast } = useToast();
 
   const { data: patient, isLoading, isError } = usePatient(id);
   const { data: constantes } = useSuiviConstantesByPatient(id);
@@ -38,16 +37,9 @@ export function PatientDetailPage() {
 
     try {
       await resendCredentialsMutation.mutateAsync(id);
-      toast({
-        title: 'Identifiants envoyés',
-        description: 'Un email avec les nouveaux identifiants a été envoyé au patient.',
-      });
+      toast.success('Un email avec les nouveaux identifiants a été envoyé au patient.');
     } catch (error) {
-      toast({
-        title: 'Erreur',
-        description: 'Impossible d\'envoyer les identifiants. Veuillez réessayer.',
-        variant: 'destructive',
-      });
+      toast.error('Impossible d\'envoyer les identifiants. Veuillez réessayer.');
     }
   };
 

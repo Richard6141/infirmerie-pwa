@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCreatePatient, useUpdatePatient } from '@/lib/hooks/usePatients';
 import { usePatientSuggestions } from '@/lib/hooks/usePatientSuggestions';
 import {
@@ -293,12 +292,12 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
                       />
                     </FormControl>
                     {isEditMode && emailChanged && (
-                      <Alert variant="default" className="mt-2 border-amber-500 bg-amber-50">
-                        <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        <AlertDescription className="text-xs text-amber-700">
+                      <div className="mt-2 flex items-start gap-2 rounded-md border border-amber-500 bg-amber-50 p-3">
+                        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-700">
                           Un nouvel email de connexion avec un mot de passe temporaire sera envoyé à cette adresse.
-                        </AlertDescription>
-                      </Alert>
+                        </p>
+                      </div>
                     )}
                     <FormMessage />
                   </FormItem>
