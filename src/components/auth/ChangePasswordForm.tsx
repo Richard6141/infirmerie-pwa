@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { strongPasswordSchema } from '@/types/patient';
 import { authApi } from '@/lib/api/auth';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // Schéma de validation pour le changement de mot de passe
 const changePasswordSchema = z.object({
@@ -33,6 +34,7 @@ interface ChangePasswordFormProps {
 
 export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePasswordFormProps) {
   const navigate = useNavigate();
+  const { updateUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -47,6 +49,10 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
     setIsSubmitting(true);
     try {
       await authApi.changePassword(data.currentPassword, data.newPassword);
+
+      // Mettre à jour le user localement pour indiquer que le mot de passe a été changé
+      // Cela permet au ProtectedRoute de ne plus rediriger vers /change-password
+      updateUser({ mustChangePassword: false });
 
       toast.success('Mot de passe changé avec succès', {
         description: 'Vous pouvez maintenant accéder à votre compte',

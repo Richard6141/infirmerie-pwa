@@ -28,6 +28,12 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Si l'utilisateur doit changer son mot de passe, le rediriger vers la page de changement
+  // Cela évite les boucles infinies d'appels API qui échouent avec 403
+  if (user.mustChangePassword) {
+    return <Navigate to="/change-password?required=true" replace />;
+  }
+
   // Si des rôles spécifiques sont requis, vérifier que l'utilisateur a l'un de ces rôles
   if (allowedRoles && allowedRoles.length > 0) {
     const hasAllowedRole = allowedRoles.includes(user.role);

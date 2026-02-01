@@ -16,6 +16,7 @@ interface AuthState {
   logout: () => Promise<void>;
   loadUserFromStorage: () => void;
   clearError: () => void;
+  updateUser: (updates: Partial<User>) => void;
 
   // Helpers
   isInfirmier: () => boolean;
@@ -106,6 +107,15 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       },
 
       clearError: () => set({ error: null }),
+
+      updateUser: (updates: Partial<User>) => {
+        const { user } = get();
+        if (user) {
+          const updatedUser = { ...user, ...updates };
+          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+          set({ user: updatedUser });
+        }
+      },
 
       isInfirmier: () => {
         const { user } = get();

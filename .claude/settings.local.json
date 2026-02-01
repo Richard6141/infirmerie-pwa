@@ -11,7 +11,16 @@
       "Bash(pnpm build:*)",
       "Bash(npx prisma generate:*)",
       "Bash(npx prisma migrate:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" status)",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" add src/modules/patients/dto/update-patient.dto.ts src/modules/patients/patients.controller.ts src/modules/patients/patients.service.ts)",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" commit -m \"$\\(cat <<''EOF''\nfeat: ajout renvoi identifiants et modification email patient\n\n- Ajout endpoint POST /patients/:id/resend-credentials pour renvoyer les identifiants\n- Permettre la modification de l''email du patient\n- Génération automatique d''un nouveau mot de passe temporaire lors du changement d''email\n- Envoi automatique d''un email avec les nouveaux identifiants\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" push origin main)",
+      "Bash(git push:*)",
+      "Bash(npm run build:*)",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" diff src/modules/patients/patients.service.ts)",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" add src/modules/patients/patients.service.ts)",
+      "Bash(git -C \"D:/PROJETS/MINISTERE/infirmerie-api\" commit -m \"$\\(cat <<''EOF''\nfix: correction type passwordHash pour Prisma\n\n- Utilisation de undefined au lieu de null pour compatibilité TypeScript/Prisma\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
