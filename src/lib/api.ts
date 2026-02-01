@@ -67,13 +67,23 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      if (import.meta.env.DEV) {
-        console.warn('[AUTH] Token invalide ou expiré - déconnexion');
+      // Ne pas rediriger si on est sur la page de login ou change-password
+      // (laisser le formulaire gérer l'erreur)
+      const isAuthPage = window.location.pathname.includes('/login') ||
+                         window.location.pathname.includes('/change-password');
+      // Ne pas rediriger si c'est une requête d'authentification (login, change-password)
+      const isAuthRequest = error.config?.url?.includes('/auth/login') ||
+                           error.config?.url?.includes('/auth/change-password');
+
+      if (!isAuthPage && !isAuthRequest) {
+        if (import.meta.env.DEV) {
+          console.warn('[AUTH] Token invalide ou expiré - déconnexion');
+        }
+        // Token expiré ou invalide, déconnecter l'utilisateur
+        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER);
+        window.location.href = '/login';
       }
-      // Token expiré ou invalide, déconnecter l'utilisateur
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.USER);
-      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
