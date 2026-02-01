@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Lock, KeyRound } from 'lucide-react';
+import { Loader2, Lock, KeyRound, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,10 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
   const navigate = useNavigate();
   const { updateUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -47,6 +51,7 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
 
   const onSubmit = async (data: ChangePasswordFormData) => {
     setIsSubmitting(true);
+    setFormError(null);
     try {
       await authApi.changePassword(data.currentPassword, data.newPassword);
 
@@ -67,6 +72,8 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
       const errorMessage = error?.response?.data?.message ||
         error?.message ||
         'Erreur lors du changement de mot de passe';
+      // Afficher l'erreur dans le formulaire ET en toast
+      setFormError(errorMessage);
       toast.error('Échec du changement de mot de passe', {
         description: errorMessage,
       });
@@ -93,6 +100,14 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Message d'erreur global */}
+          {formError && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm animate-in fade-in-0 slide-in-from-top-1">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <span>{formError}</span>
+            </div>
+          )}
+
           {/* Mot de passe actuel */}
           <div className="space-y-1.5">
             <Label htmlFor="currentPassword" className="text-sm font-medium text-gray-700">
@@ -102,12 +117,24 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="currentPassword"
-                type="password"
+                type={showCurrentPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="pl-10 h-10"
+                className="pl-10 pr-10 h-10"
                 {...register('currentPassword')}
                 disabled={isSubmitting}
               />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                tabIndex={-1}
+              >
+                {showCurrentPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
             {errors.currentPassword && (
               <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
@@ -125,12 +152,24 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
               <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="newPassword"
-                type="password"
+                type={showNewPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="pl-10 h-10"
+                className="pl-10 pr-10 h-10"
                 {...register('newPassword')}
                 disabled={isSubmitting}
               />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                tabIndex={-1}
+              >
+                {showNewPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
             {errors.newPassword && (
               <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
@@ -151,12 +190,24 @@ export function ChangePasswordForm({ mustChange = false, onSuccess }: ChangePass
               <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="pl-10 h-10"
+                className="pl-10 pr-10 h-10"
                 {...register('confirmPassword')}
                 disabled={isSubmitting}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
             {errors.confirmPassword && (
               <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">

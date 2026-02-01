@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, LogIn, Mail, Lock } from 'lucide-react';
+import { Loader2, LogIn, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,8 @@ export function LoginForm() {
   const navigate = useNavigate();
   const { login, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -34,6 +36,7 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
+    setFormError(null);
     try {
       const result = await login(data.email, data.password);
       toast.success('Connexion réussie');
@@ -46,6 +49,8 @@ export function LoginForm() {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion';
+      // Afficher l'erreur dans le formulaire ET en toast
+      setFormError(errorMessage);
       toast.error('Échec de connexion', {
         description: errorMessage,
       });
@@ -64,6 +69,14 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          {/* Message d'erreur global */}
+          {formError && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm animate-in fade-in-0 slide-in-from-top-1">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <span>{formError}</span>
+            </div>
+          )}
+
           {/* Email */}
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -96,12 +109,24 @@ export function LoginForm() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="pl-10 h-10"
+                className="pl-10 pr-10 h-10"
                 {...register('password')}
                 disabled={isLoading || isSubmitting}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
             {errors.password && (
               <p className="text-xs font-medium text-red-600 mt-1 animate-in fade-in-0 slide-in-from-top-1">
